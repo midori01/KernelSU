@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Fingerprint
+import androidx.compose.material.icons.outlined.LocalPolice
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.VerifiedUser
@@ -101,7 +102,6 @@ fun HomePagerMaterial(
             } else if (state.showKernelPrBuildWarning) {
                 WarningCard(stringResource(id = R.string.home_pr_kernel_warning))
             }
-            */
 //            if (state.showVersionMismatchWarning) {
 //                WarningCard(
 //                    stringResource(id = R.string.home_version_mismatch,
@@ -550,6 +550,20 @@ private fun InfoCard(systemInfo: SystemInfo) {
                 label = stringResource(R.string.home_selinux_status),
                 content = selinuxDisplay
             )
+
+            Spacer(Modifier.height(16.dp))
+            val seccompDisplay = when (systemInfo.seccompStatus) {
+                -1 -> stringResource(R.string.seccomp_status_not_supported)
+                0 -> stringResource(R.string.seccomp_status_disabled)
+                1 -> stringResource(R.string.seccomp_status_strict)
+                2 -> stringResource(R.string.seccomp_status_filter)
+                else -> stringResource(R.string.seccomp_status_unknown)
+            }
+            InfoCardItem(
+                icon = Icons.Outlined.LocalPolice,
+                label = stringResource(R.string.home_seccomp_status),
+                content = seccompDisplay
+            )
         }
     }
 }
@@ -591,7 +605,8 @@ private val previewSystemInfo = SystemInfo(
     kernelVersion = "6.1.0-android14-0-g1234567",
     managerVersion = "1.0.0 (10000)",
     fingerprint = "google/raven/raven:14/AP1A.240305.019:user/release-keys",
-    selinuxStatus = "Enforcing"
+    selinuxStatus = "Enforcing",
+    seccompStatus = 2
 )
 
 private val previewUriHandler = object : UriHandler {

@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Adb
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.ContactPage
@@ -280,6 +281,21 @@ fun SettingPagerMaterial(
                             )
                         },
                         {
+                            val adbRootSummary = when (uiState.adbRootStatus) {
+                                "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
+                                "managed" -> stringResource(id = R.string.feature_status_managed_summary)
+                                else -> stringResource(id = R.string.settings_adb_root_summary)
+                            }
+                            SegmentedSwitchItem(
+                                icon = Icons.Filled.Adb,
+                                title = stringResource(id = R.string.settings_adb_root),
+                                summary = adbRootSummary,
+                                enabled = uiState.adbRootStatus == "supported",
+                                checked = uiState.isAdbRootEnabled,
+                                onCheckedChange = actions.onSetAdbRootEnabled
+                            )
+                        },
+                        {
                             val avcSpoofSummary = when (uiState.avcSpoofStatus) {
                                 "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
                                 "managed" -> stringResource(id = R.string.feature_status_managed_summary)
@@ -294,6 +310,12 @@ fun SettingPagerMaterial(
                                 onCheckedChange = actions.onSetAvcSpoofEnabled
                             )
                         },
+                    )
+                )
+
+                SegmentedColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    content = listOf(
                         {
                             SegmentedSwitchItem(
                                 icon = Icons.Filled.FolderDelete,
@@ -301,15 +323,6 @@ fun SettingPagerMaterial(
                                 summary = stringResource(id = R.string.settings_umount_modules_default_summary),
                                 checked = uiState.isDefaultUmountModules,
                                 onCheckedChange = actions.onSetDefaultUmountModules
-                            )
-                        },
-                        {
-                            SegmentedSwitchItem(
-                                icon = Icons.Filled.DeveloperMode,
-                                title = stringResource(id = R.string.settings_adb_root),
-                                summary = stringResource(id = R.string.settings_adb_root_summary),
-                                checked = uiState.isAdbRootEnabled,
-                                onCheckedChange = actions.onSetAdbRootEnabled
                             )
                         },
                         {

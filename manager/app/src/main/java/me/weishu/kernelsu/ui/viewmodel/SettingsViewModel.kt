@@ -62,6 +62,7 @@ class SettingsViewModel(
             val isKernelUmountEnabled = repo.isKernelUmountEnabled()
             val sulogStatus = repo.getSulogStatus()
             val isSulogEnabled = repo.getSulogPersistValue() == 1L
+            val adbRootStatus = repo.getAdbRootStatus()
             val isAdbRootEnabled = repo.getAdbRootPersistValue() == 1L
             val avcSpoofStatus = repo.getAvcSpoofStatus()
             val isAvcSpoofEnabled = repo.isAvcSpoofEnabled()
@@ -95,6 +96,7 @@ class SettingsViewModel(
                     suCompatStatus = suCompatStatus,
                     suCompatMode = suCompatMode,
                     isSuEnabled = isSuEnabled,
+                    adbRootStatus = adbRootStatus,
                     isAdbRootEnabled = isAdbRootEnabled,
                     kernelUmountStatus = kernelUmountStatus,
                     isKernelUmountEnabled = isKernelUmountEnabled,
