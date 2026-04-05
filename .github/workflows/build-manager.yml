@@ -135,6 +135,10 @@ jobs:
     needs: [generate-key]
     if: always() && needs.generate-key.result == 'success'
     runs-on: ubuntu-latest
+    env:
+      PR_KEYSTORE: ${{ needs.generate-key.outputs.keystore }}
+      PR_KEYSTORE_PASSWORD: ${{ needs.generate-key.outputs.keystore_password }}
+      PR_KEY_PASSWORD: ${{ needs.generate-key.outputs.key_password }}
     defaults:
       run:
         working-directory: ./manager
