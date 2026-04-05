@@ -96,7 +96,6 @@ fun HomePagerMaterial(
                 state = state,
                 actions = actions,
             )
-            /*
             if (state.showManagerPrBuildWarning) {
                 WarningCard(stringResource(id = R.string.home_pr_build_warning))
             } else if (state.showKernelPrBuildWarning) {
