@@ -145,6 +145,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Generate build version
+        id: ver
+        run: |
+          echo "BUILD_VER=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
+
       - name: Write key
         if: ${{ github.event_name != 'pull_request' || github.ref_type == 'tag' }}
         run: |
@@ -181,9 +186,9 @@ jobs:
       - name: Build with Gradle
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            ./gradlew clean assembleRelease -PIS_PR_BUILD=true
+            ./gradlew clean assembleRelease -PIS_PR_BUILD=true -PVERSION_NAME="${{ steps.ver.outputs.BUILD_VER }}"
           else
-            ./gradlew clean assembleRelease
+            ./gradlew clean assembleRelease -PVERSION_NAME="${{ steps.ver.outputs.BUILD_VER }}"
           fi
 
       - name: Upload build artifact
