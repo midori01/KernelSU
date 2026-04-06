@@ -322,7 +322,7 @@ jobs:
           path: dist/*.apk
 
       - name: Upload to GitHub Release
-        if: github.event_name != 'pull_request' && github.ref_type == 'tag'
+        if: github.ref_name == 'main' || github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.apk
