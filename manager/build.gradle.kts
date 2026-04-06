@@ -29,6 +29,11 @@ fun getVersionCode(): Int {
     // return 30000 + commitCount
     return 89640
 }
+
 fun getVersionName(): String {
-    return getGitDescribe()
+    return if (project.hasProperty("VERSION_NAME")) {
+        project.property("VERSION_NAME").toString()
+    } else {
+        getGitDescribe()
+    }
 }
