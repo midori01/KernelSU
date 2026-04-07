@@ -30,5 +30,9 @@ fun getVersionCode(): Int {
 }
 
 fun getVersionName(): String {
-    return getGitDescribe()
+    return if (project.hasProperty("VERSION_NAME")) {
+        project.property("VERSION_NAME").toString()
+    } else {
+        getGitDescribe()
+    }
 }
