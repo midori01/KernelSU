@@ -197,7 +197,6 @@ fi
 # manager
 (
     echo "=== Building manager ==="
-    rm -f out/*.apk dist/*.apk
     cd "$DIR/manager"
     ./gradlew aRelease
 ) &
@@ -220,10 +219,7 @@ fi
 
 # repack
 wait_for_jobs manager
-if [[ "$BUILD_KSUD" == "1" || "$BUILD_KSUINIT" == "1" || -n "$BUILD_LKM" ]]; then
-    echo "=== Repacking manager APK ==="
-    python3 repack_apk.py repack
-    cp -f dist/*.apk out/
-else
-    cp -f manager/app/build/outputs/apk/release/*.apk out/
-fi
+echo "=== Repacking manager APK ==="
+rm -f out/*.apk dist/*.apk
+python3 repack_apk.py repack
+cp -f dist/*.apk out/
