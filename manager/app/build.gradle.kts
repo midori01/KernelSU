@@ -114,7 +114,7 @@ android {
         targetSdk = androidTargetSdkVersion
         versionCode = managerVersionCode
         versionName = managerVersionName
-        applicationId = "com.kowx712.supermanager"
+        applicationId = "com.midori.supermanager"
 
         buildConfigField("boolean", "IS_PR_BUILD", isPrBuild.toString())
 
@@ -150,7 +150,7 @@ androidComponents {
 
 base {
     archivesName.set(
-        "KowSU_${managerVersionName}_${managerVersionCode}"
+        "MidoriSU_${managerVersionName}_${managerVersionCode}"
     )
 }
 
