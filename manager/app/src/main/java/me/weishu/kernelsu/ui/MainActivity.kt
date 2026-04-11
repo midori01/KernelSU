@@ -66,10 +66,6 @@ import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
@@ -110,12 +106,16 @@ import me.weishu.kernelsu.ui.util.LocalShowSwitchIcon
 import me.weishu.kernelsu.ui.util.LocalSnackbarHost
 import me.weishu.kernelsu.ui.util.getFileName
 import me.weishu.kernelsu.ui.util.install
+import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import me.weishu.kernelsu.ui.util.rememberContentReady
 import me.weishu.kernelsu.ui.util.rootAvailable
 import me.weishu.kernelsu.ui.viewmodel.MainActivityViewModel
+import me.weishu.kernelsu.ui.viewmodel.ModuleViewModel
+import me.weishu.kernelsu.ui.viewmodel.SuperUserViewModel
 import me.weishu.kernelsu.ui.webui.WebUIActivity
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.blur.layerBackdrop as miuixLayerBackdrop
 
 class MainActivity : ComponentActivity() {
 
@@ -130,6 +130,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val viewModel = viewModel<MainActivityViewModel>()
+            val superUserViewModel = viewModel<SuperUserViewModel>()
+            val moduleViewModel = viewModel<ModuleViewModel>()
+
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val appSettings = uiState.appSettings
             val uiMode = uiState.uiMode
@@ -171,6 +174,16 @@ class MainActivity : ComponentActivity() {
                 LocalClassicUi provides appSettings.classicUi
             ) {
                 KernelSUTheme(appSettings = appSettings, uiMode = uiMode) {
+                    val isFullFeatured = isManager && !Natives.requireNewKernel() && rootAvailable()
+                    LaunchedEffect(isFullFeatured) {
+                        if (isFullFeatured) {
+                            superUserViewModel.initializePreferences()
+                            superUserViewModel.loadAppList()
+                            moduleViewModel.initializePreferences()
+                            moduleViewModel.fetchModuleList()
+                        }
+                    }
+
                     HandleDeepLink(intentState = intentState.collectAsStateWithLifecycle())
                     ZipFileIntentHandler(intentState = intentState, isManager = isManager)
                     ShortcutIntentHandler(intentState = intentState)
@@ -270,18 +283,10 @@ fun MainScreen() {
     var userScrollEnabled by remember(isFullFeatured) { mutableStateOf(isFullFeatured) }
     val uiMode = LocalUiMode.current
     val surfaceColor = when (uiMode) {
-        UiMode.Material -> MaterialTheme.colorScheme.surface // Haze is not used in Material, this is just a placeholder
+        UiMode.Material -> MaterialTheme.colorScheme.surface // Blur is not used in Material, this is just a placeholder
         UiMode.Miuix -> MiuixTheme.colorScheme.surface
     }
-    val hazeState = remember { HazeState() }
-    val hazeStyle = if (enableBlur) {
-        HazeStyle(
-            backgroundColor = surfaceColor,
-            tint = HazeTint(surfaceColor.copy(0.8f))
-        )
-    } else {
-        HazeStyle.Unspecified
-    }
+    val blurBackdrop = rememberBlurBackdrop(enableBlur)
 
     val backdrop = rememberLayerBackdrop {
         drawRect(surfaceColor)
@@ -307,35 +312,36 @@ fun MainScreen() {
         val contentReady = rememberContentReady()
         val pagerContent = @Composable { bottomInnerPadding: Dp ->
             val mainModifier = Modifier
-                .then(if (enableBlur) Modifier.hazeSource(state = hazeState) else Modifier)
                 .then(if (enableFloatingBottomBar && enableFloatingBottomBarBlur) Modifier.layerBackdrop(backdrop) else Modifier)
 
-            if (scrollAnimation) {
-                HorizontalPager(
-                    modifier = mainModifier,
-                    state = mainPagerState.pagerState,
-                    beyondViewportPageCount = if (contentReady) 3 else 0,
-                    userScrollEnabled = userScrollEnabled
-                ) { page ->
-                    val isCurrentPage = page == mainPagerState.pagerState.settledPage
-                    MainPage(
-                        page = page,
-                        navigator = navController,
-                        bottomInnerPadding = bottomInnerPadding,
-                        isCurrentPage = isCurrentPage,
-                        contentReady = contentReady
-                    )
-                }
-            } else {
-                AnimatedContent(
-                    modifier = mainModifier,
-                    targetState = mainPagerState.selectedPage,
-                    transitionSpec = {
-                        fadeIn(tween(340)) togetherWith fadeOut(tween(340))
-                    },
-                    label = "MainScreenTransition"
-                ) { page ->
-                    MainPage(page, navController, bottomInnerPadding)
+            Box(modifier = if (blurBackdrop != null) Modifier.miuixLayerBackdrop(blurBackdrop) else Modifier) {
+                if (scrollAnimation) {
+                    HorizontalPager(
+                        modifier = mainModifier,
+                        state = mainPagerState.pagerState,
+                        beyondViewportPageCount = if (contentReady) 3 else 0,
+                        userScrollEnabled = userScrollEnabled
+                    ) { page ->
+                        val isCurrentPage = page == mainPagerState.pagerState.settledPage
+                        MainPage(
+                            page = page,
+                            navigator = navController,
+                            bottomInnerPadding = bottomInnerPadding,
+                            isCurrentPage = isCurrentPage,
+                            contentReady = contentReady
+                        )
+                    }
+                } else {
+                    AnimatedContent(
+                        modifier = mainModifier,
+                        targetState = mainPagerState.selectedPage,
+                        transitionSpec = {
+                            fadeIn(tween(340)) togetherWith fadeOut(tween(340))
+                        },
+                        label = "MainScreenTransition"
+                    ) { page ->
+                        MainPage(page, navController, bottomInnerPadding)
+                    }
                 }
             }
         }
@@ -349,8 +355,7 @@ fun MainScreen() {
                 UiMode.Material -> androidx.compose.material3.Scaffold {
                     Row {
                         SideRail(
-                            hazeState = hazeState,
-                            hazeStyle = hazeStyle,
+                            blurBackdrop = blurBackdrop,
                         )
                         Box(
                             modifier = Modifier
@@ -365,8 +370,7 @@ fun MainScreen() {
                 UiMode.Miuix -> Scaffold { _ ->
                     Row {
                         SideRail(
-                            hazeState = hazeState,
-                            hazeStyle = hazeStyle,
+                            blurBackdrop = blurBackdrop,
                         )
                         Box(
                             modifier = Modifier
@@ -384,8 +388,7 @@ fun MainScreen() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     BottomBar(
-                        hazeState = hazeState,
-                        hazeStyle = hazeStyle,
+                        blurBackdrop = blurBackdrop,
                         backdrop = backdrop,
                         modifier = Modifier.align(Alignment.BottomCenter),
                     )

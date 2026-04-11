@@ -25,6 +25,11 @@ data class SettingsUiState(
     val enableFloatingBottomBarBlur: Boolean = false,
     val pageScale: Float = 1.0f,
     val enableWebDebugging: Boolean = false,
+    val enableSmoothCorner: Boolean = true,
+
+    // WebUI Modules shortcut entry
+    val isToolkitInstalled: Boolean = false,
+    val isKpatchNextInstalled: Boolean = false,
 
     // WebUI Modules shortcut entry
     val isToolkitInstalled: Boolean = false,

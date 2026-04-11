@@ -1,6 +1,22 @@
 #!/bin/bash
 set -e
 
+# Intercept failures and interrupts to kill all background jobs
+_cleanup() {
+    local exit_code=$?
+    trap - EXIT SIGINT SIGTERM
+    if [ $exit_code -ne 0 ]; then
+        echo -e "\n\033[31mBuild failed or interrupted, cleaning up background tasks...\033[0m"
+        local pids=$(jobs -p)
+        if [ -n "$pids" ]; then
+            kill $pids 2>/dev/null || true
+        fi
+        pkill -P $$ 2>/dev/null || true
+    fi
+    exit $exit_code
+}
+trap _cleanup EXIT SIGINT SIGTERM
+
 # Minimal: ./build.sh ksud
 # Full: ./build.sh ksuinit lkm all
 # Specific: ./build.sh ksuinit lkm <kmi-version>

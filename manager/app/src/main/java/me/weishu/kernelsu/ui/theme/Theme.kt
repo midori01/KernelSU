@@ -52,6 +52,7 @@ data class AppSettings(
     val keyColor: Int,
     val paletteStyle: PaletteStyle,
     val colorSpec: ColorSpec.SpecVersion,
+    val enableSmoothCorner: Boolean,
     val enableOfficialLauncher: Boolean,
     val classicUi: Boolean,
     val showSwitchIcon: Boolean,
@@ -90,15 +91,14 @@ object ThemeController {
         } catch (_: Exception) {
             ColorSpec.SpecVersion.Default
         }
+
+        val enableSmoothCorner = prefs.getBoolean("enable_smooth_corner", true)
         val enableOfficialLauncher = prefs.getBoolean("enable_official_launcher", false)
         val classicUi = prefs.getBoolean("classic_ui", false)
         val showSwitchIcon = prefs.getBoolean("show_switch_icon", false)
         val scrollAnimation = prefs.getBoolean("scroll_animation", false)
 
-        return AppSettings(
-            colorMode, keyColor, paletteStyle, colorSpec,
-            enableOfficialLauncher, classicUi, showSwitchIcon, scrollAnimation
-        )
+        return AppSettings(colorMode, keyColor, paletteStyle, colorSpec, enableSmoothCorner, enableOfficialLauncher, classicUi, showSwitchIcon, scrollAnimation)
     }
 }
 

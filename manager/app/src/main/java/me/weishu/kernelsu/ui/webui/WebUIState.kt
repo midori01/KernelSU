@@ -48,6 +48,8 @@ class WebUIState {
     var webView: WebView? = null
     var webviewInterface: WebViewInterface? = null
     var rootShell: Shell? = null
+    var webViewInterface: WebViewInterface? = null
+    var downloadInterface: WebUIDownloadInterface? = null
     lateinit var modDir: String
     var moduleName: String = ""
 
@@ -103,13 +105,18 @@ class WebUIState {
 
     fun dispose(activity: Activity) {
         activity.setTaskDescription(activity.getString(R.string.app_name))
-        webviewInterface?.destroy()
-        webviewInterface = null
+        downloadInterface?.destroy()
+        downloadInterface = null
+        webViewInterface?.destroy()
+        webViewInterface = null
         webView?.let { view ->
             (view.parent as? android.view.ViewGroup)?.removeView(view)
             view.destroy()
         }
         webView = null
+        filePathCallback?.onReceiveValue(null)
+        filePathCallback = null
         rootShell?.close()
+        rootShell = null
     }
 }

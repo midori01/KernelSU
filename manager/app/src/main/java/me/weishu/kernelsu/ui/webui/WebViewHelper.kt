@@ -33,47 +33,47 @@ private const val DOWNLOAD_JS = """
         if (window.ksu_download_enabled) return;
         window.ksu_download_enabled = true;
         const blobMap = new Map();
-        const orgCreate = URL.createObjectURL;
+        const originalCreateObjectURL = URL.createObjectURL;
         URL.createObjectURL = (obj) => {
-            const url = orgCreate(obj);
+            const url = originalCreateObjectURL(obj);
             if (obj instanceof Blob) blobMap.set(url, obj);
             return url;
         };
-        const orgRevoke = URL.revokeObjectURL;
+        const originalRevokeObjectURL = URL.revokeObjectURL;
         URL.revokeObjectURL = (url) => {
             setTimeout(() => blobMap.delete(url), 10000);
-            orgRevoke(url);
+            return originalRevokeObjectURL(url);
         };
-        const handleDownload = async (a) => {
-            const urlParsed = new URL(a.href, location.href);
-            const url = urlParsed.href;
-            const fileName = a.download || url.split("/").pop().split("?")[0] || "download.bin";
-            const isInternal = urlParsed.hostname === 'mui.kernelsu.org';
-            if (url.startsWith('blob:') || url.startsWith('data:') || isInternal) {
-                const blob = (url.startsWith('blob:') && blobMap.has(url)) ? blobMap.get(url) : await (await fetch(url)).blob();
-                if (blob.size > 16 * 1024 * 1024) {
-                    console.error("File too large, please use FileOutputStreamInterface instead.");
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = () => {
-                    ksu_download.save(reader.result.split(',')[1], fileName, blob.type);
-                };
-                reader.readAsDataURL(blob);
-            } else {
-                ksu_download.download(url, null, null);
+        const handleDownload = async (anchor) => {
+            const url = new URL(anchor.href, location.href);
+            const fileName = anchor.download || url.pathname.split("/").pop().split("?")[0] || "download.bin";
+            const isInternal = url.hostname === 'mui.kernelsu.org';
+            if (url.protocol === 'blob:' || url.protocol === 'data:' || isInternal) {
+                const blob = (url.protocol === 'blob:' && blobMap.has(url.href)) ? blobMap.get(url.href) : await (await fetch(url.href, { credentials: 'include' })).blob();
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result.split(',')[1] || '');
+                    reader.onerror = () => reject(reader.error || new Error('Failed to read blob'));
+                    reader.readAsDataURL(blob);
+                });
+                ksu_download.save(base64, fileName);
+                return;
             }
+            ksu_download.download(url.href, fileName, anchor.type || null);
         };
-        document.addEventListener("click", (e) => {
-            const a = e.target.closest("a[download]");
-            if (a) {
-                e.preventDefault();
-                handleDownload(a);
-            }
+        document.addEventListener('click', (event) => {
+            const anchor = event.target.closest('a[download]');
+            if (!anchor || !anchor.href) return;
+            event.preventDefault();
+            handleDownload(anchor).catch((error) => console.error('KernelSU download failed', error));
         }, true);
-        const orgClick = HTMLAnchorElement.prototype.click;
-        HTMLAnchorElement.prototype.click = function () {
-            this.hasAttribute("download") ? handleDownload(this) : orgClick.apply(this, arguments);
+        const originalClick = HTMLAnchorElement.prototype.click;
+        HTMLAnchorElement.prototype.click = function() {
+            if (this.hasAttribute('download') && this.href) {
+                handleDownload(this).catch((error) => console.error('KernelSU download failed', error));
+                return;
+            }
+            return originalClick.apply(this, arguments);
         };
     })();
 """
@@ -181,12 +181,12 @@ internal suspend fun prepareWebView(
                         view?.evaluateJavascript(erudaConsole(activity), null)
                         view?.evaluateJavascript("eruda.init();", null)
                     }
-                    view?.evaluateJavascript(DOWNLOAD_JS, null)
                 }
 
                 override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
                     webUIState.webCanGoBack = view?.canGoBack() ?: false
                     if (webUIState.isInsetsEnabled) webUIState.webView?.evaluateJavascript(webUIState.currentInsets.js, null)
+                    view?.evaluateJavascript(DOWNLOAD_JS, null)
                     super.doUpdateVisitedHistory(view, url, isReload)
                 }
             }
@@ -234,17 +234,17 @@ internal suspend fun prepareWebView(
 
             // JS Interface
             val webviewInterface = WebViewInterface(webUIState)
-            webUIState.webviewInterface = webviewInterface
+            val downloadInterface = WebUIDownloadInterface(webUIState)
+            webUIState.webViewInterface = webviewInterface
+            webUIState.downloadInterface = downloadInterface
             webUIState.webView = webView
             webView.addJavascriptInterface(webviewInterface, "ksu")
-
-            val downloadInterface = DownloadInterface(webUIState)
             webView.addJavascriptInterface(downloadInterface, "ksu_download")
-
             webView.setDownloadListener { url, _, contentDisposition, mimetype, _ ->
-                downloadInterface.download(url, contentDisposition, mimetype)
+                val fileName = android.webkit.URLUtil.guessFileName(url, contentDisposition, mimetype)
+                downloadInterface.download(url, fileName, mimetype)
             }
-
+            webView.evaluateJavascript(DOWNLOAD_JS, null)
             webUIState.uiEvent = WebUIEvent.WebViewReady
         }
     }
