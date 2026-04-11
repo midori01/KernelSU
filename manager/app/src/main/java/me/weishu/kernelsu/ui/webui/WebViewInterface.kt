@@ -10,9 +10,12 @@ import android.os.Environment
 import android.util.Base64
 import android.util.Log
 import android.content.pm.ApplicationInfo
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
+import android.util.Base64
+import android.util.Log
 import android.view.Window
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
@@ -21,6 +24,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
+import androidx.core.net.toUri
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.topjohnwu.superuser.CallbackList
@@ -46,7 +50,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
+
+const val TAG = "WebViewInterface"
 
 class WebViewInterface(private val state: WebUIState) {
     private val webView get() = state.webView
