@@ -10,12 +10,9 @@ import android.os.Environment
 import android.util.Base64
 import android.util.Log
 import android.content.pm.ApplicationInfo
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Base64
-import android.util.Log
 import android.view.Window
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
