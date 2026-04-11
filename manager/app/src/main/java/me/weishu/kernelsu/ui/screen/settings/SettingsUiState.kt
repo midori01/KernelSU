@@ -31,10 +31,6 @@ data class SettingsUiState(
     val isToolkitInstalled: Boolean = false,
     val isKpatchNextInstalled: Boolean = false,
 
-    // WebUI Modules shortcut entry
-    val isToolkitInstalled: Boolean = false,
-    val isKpatchNextInstalled: Boolean = false,
-
     // Su Compat
     val suCompatStatus: String = "",
     val suCompatMode: Int = 0, // 0: enable default, 1: disable until reboot, 2: disable always
