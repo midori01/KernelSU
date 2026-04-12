@@ -482,7 +482,9 @@ private fun ThemePreviewCard(
             style = paletteStyle,
             specVersion = colorSpec,
         )
-
+        else -> {
+            if (isDark) darkColorScheme() else expressiveLightColorScheme()
+        }
     }
 
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
