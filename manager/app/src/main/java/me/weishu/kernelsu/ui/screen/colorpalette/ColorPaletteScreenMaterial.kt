@@ -482,9 +482,6 @@ private fun ThemePreviewCard(
             style = paletteStyle,
             specVersion = colorSpec,
         )
-        else -> {
-            if (isDark) darkColorScheme() else expressiveLightColorScheme()
-        }
     }
 
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
@@ -529,7 +526,7 @@ private fun ThemePreviewCard(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         TonalCard(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            containerColor = colorScheme.secondaryContainer,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(if (classicUi) 64.dp else 40.dp),
