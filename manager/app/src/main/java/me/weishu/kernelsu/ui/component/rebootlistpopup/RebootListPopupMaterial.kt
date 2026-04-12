@@ -1,8 +1,5 @@
 package me.weishu.kernelsu.ui.component.rebootlistpopup
 
-import android.content.Context
-import android.os.Build
-import android.os.PowerManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,31 +41,29 @@ import me.weishu.kernelsu.ui.component.material.SegmentedListItem
 import me.weishu.kernelsu.ui.util.reboot
 
 private data class RebootOption(
-    val titleRes: Int,
+    val labelRes: Int,
     val reason: String,
     val icon: ImageVector
 )
 
 @Composable
 private fun getRebootOptions(): List<RebootOption> {
-    val pm = LocalContext.current.getSystemService(Context.POWER_SERVICE) as PowerManager?
-
-    @Suppress("DEPRECATION")
-    val isRebootingUserspaceSupported =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && pm?.isRebootingUserspaceSupported == true
-
-    val options = mutableListOf(
-        RebootOption(R.string.reboot, "", Icons.Outlined.Refresh),
-        RebootOption(R.string.reboot_soft, "soft_reboot", Icons.AutoMirrored.Outlined.RotateRight),
-        RebootOption(R.string.reboot_recovery, "recovery", Icons.Outlined.SystemUpdate),
-        RebootOption(R.string.reboot_bootloader, "bootloader", Icons.Outlined.Memory),
-        RebootOption(R.string.reboot_download, "download", Icons.Outlined.Download),
-        RebootOption(R.string.reboot_edl, "edl", Icons.Outlined.DeveloperMode)
-    )
-    if (isRebootingUserspaceSupported) {
-        options.add(1, RebootOption(R.string.reboot_userspace, "userspace", Icons.Outlined.RestartAlt))
+    return getRebootListOption().map { option ->
+        RebootOption(
+            labelRes = option.labelRes,
+            reason = option.reason,
+            icon = when (option.reason) {
+                "" -> Icons.Outlined.Refresh
+                "userspace" -> Icons.Outlined.RestartAlt
+                "soft_reboot" -> Icons.AutoMirrored.Outlined.RotateRight
+                "recovery" -> Icons.Outlined.SystemUpdate
+                "bootloader" -> Icons.Outlined.Memory
+                "download" -> Icons.Outlined.Download
+                "edl" -> Icons.Outlined.DeveloperMode
+                else -> Icons.Outlined.Refresh
+            }
+        )
     }
-    return options
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,7 +99,7 @@ fun RebootDialog(
                         {
                             SegmentedListItem(
                                 headlineContent = {
-                                    Text(stringResource(option.titleRes))
+                                    Text(stringResource(option.labelRes))
                                 },
                                 leadingContent = {
                                     Box(
