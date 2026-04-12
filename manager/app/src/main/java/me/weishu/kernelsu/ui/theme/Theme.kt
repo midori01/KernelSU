@@ -11,6 +11,8 @@ import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import me.weishu.kernelsu.ui.LocalUiMode
 import me.weishu.kernelsu.ui.UiMode
+import me.weishu.kernelsu.ui.util.LocalScrollAnimation
+import me.weishu.kernelsu.ui.util.LocalShowSwitchIcon
 
 enum class ColorMode(val value: Int) {
     SYSTEM(0),
@@ -52,6 +54,9 @@ data class AppSettings(
     val colorSpec: ColorSpec.SpecVersion,
     val enableSmoothCorner: Boolean,
     val enableOfficialLauncher: Boolean,
+    val classicUi: Boolean,
+    val showSwitchIcon: Boolean,
+    val scrollAnimation: Boolean,
 )
 
 object ThemeController {
@@ -89,8 +94,11 @@ object ThemeController {
 
         val enableSmoothCorner = prefs.getBoolean("enable_smooth_corner", true)
         val enableOfficialLauncher = prefs.getBoolean("enable_official_launcher", false)
+        val classicUi = prefs.getBoolean("classic_ui", false)
+        val showSwitchIcon = prefs.getBoolean("show_switch_icon", false)
+        val scrollAnimation = prefs.getBoolean("scroll_animation", false)
 
-        return AppSettings(colorMode, keyColor, paletteStyle, colorSpec, enableSmoothCorner, enableOfficialLauncher)
+        return AppSettings(colorMode, keyColor, paletteStyle, colorSpec, enableSmoothCorner, enableOfficialLauncher, classicUi, showSwitchIcon, scrollAnimation)
     }
 }
 
@@ -106,6 +114,9 @@ fun KernelSUTheme(
     CompositionLocalProvider(
         LocalColorMode provides currentAppSettings.colorMode.value,
         LocalEnableOfficialLauncher provides currentAppSettings.enableOfficialLauncher,
+        LocalClassicUi provides currentAppSettings.classicUi,
+        LocalShowSwitchIcon provides currentAppSettings.showSwitchIcon,
+        LocalScrollAnimation provides currentAppSettings.scrollAnimation,
     ) {
         when (uiMode) {
             UiMode.Miuix -> MiuixKernelSUTheme(
@@ -135,6 +146,8 @@ fun isInDarkTheme(): Boolean {
 val LocalColorMode = staticCompositionLocalOf { 0 }
 
 val LocalEnableOfficialLauncher = staticCompositionLocalOf { false }
+
+val LocalClassicUi = staticCompositionLocalOf { false }
 
 val LocalEnableBlur = staticCompositionLocalOf { false }
 
