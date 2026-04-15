@@ -94,6 +94,7 @@ import top.yukonga.miuix.kmp.preference.SwitchPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.theme.miuixShape
 import top.yukonga.miuix.kmp.utils.overScrollVertical
+import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 
 @Composable
 fun ColorPaletteScreenMiuix(
@@ -132,7 +133,7 @@ fun ColorPaletteScreenMiuix(
                             )
                         }
                     },
-                    scrollBehavior = scrollBehavior
+                    scrollBehavior = scrollBehavior,
                 )
             }
         },
@@ -145,6 +146,7 @@ fun ColorPaletteScreenMiuix(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxHeight()
+                    .scrollEndHaptic()
                     .overScrollVertical()
                     .nestedScroll(scrollBehavior.nestedScrollConnection)
                     .padding(horizontal = 12.dp),
