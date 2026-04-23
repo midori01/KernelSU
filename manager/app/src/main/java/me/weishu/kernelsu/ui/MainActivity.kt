@@ -134,6 +134,7 @@ class MainActivity : ComponentActivity() {
             val moduleViewModel = viewModel<ModuleViewModel>()
 
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val selectedMainPage by viewModel.selectedMainPage.collectAsStateWithLifecycle()
             val appSettings = uiState.appSettings
             val uiMode = uiState.uiMode
             val darkMode = appSettings.colorMode.isDark || (appSettings.colorMode.isSystem && isSystemInDarkTheme())
@@ -187,6 +188,12 @@ class MainActivity : ComponentActivity() {
                     HandleDeepLink(intentState = intentState.collectAsStateWithLifecycle())
                     ZipFileIntentHandler(intentState = intentState, isManager = isManager)
                     ShortcutIntentHandler(intentState = intentState)
+                    val mainScreenEntry = @Composable {
+                        MainScreen(
+                            initialPage = selectedMainPage,
+                            onPageChanged = viewModel::setSelectedMainPage,
+                        )
+                    }
 
                     val navDisplay = @Composable {
                         NavDisplay(
@@ -224,7 +231,7 @@ class MainActivity : ComponentActivity() {
                                 enter togetherWith exit
                             },
                             entryProvider = entryProvider {
-                                entry<Route.Main> { MainScreen() }
+                                entry<Route.Main> { mainScreenEntry() }
                                 entry<Route.About> { AboutScreen() }
                                 entry<Route.Sulog> { SulogScreen() }
                                 entry<Route.ColorPalette> { ColorPaletteScreen() }
@@ -236,10 +243,10 @@ class MainActivity : ComponentActivity() {
                                 entry<Route.Install> { InstallScreen() }
                                 entry<Route.Flash> { key -> FlashScreen(key.flashIt) }
                                 entry<Route.ExecuteModuleAction> { key -> ExecuteModuleActionScreen(key.moduleId, key.fromShortcut) }
-                                entry<Route.Home> { MainScreen() }
-                                entry<Route.SuperUser> { MainScreen() }
-                                entry<Route.Module> { MainScreen() }
-                                entry<Route.Settings> { MainScreen() }
+                                entry<Route.Home> { mainScreenEntry() }
+                                entry<Route.SuperUser> { mainScreenEntry() }
+                                entry<Route.Module> { mainScreenEntry() }
+                                entry<Route.Settings> { mainScreenEntry() }
                             }
                         )
                     }
@@ -265,18 +272,17 @@ val LocalMainPagerState = staticCompositionLocalOf<MainPagerState> { error("Loca
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    initialPage: Int = 0,
+    onPageChanged: (Int) -> Unit = {},
+) {
     val navController = LocalNavigator.current
     val enableBlur = LocalEnableBlur.current
     val enableFloatingBottomBar = LocalEnableFloatingBottomBar.current
     val enableFloatingBottomBarBlur = LocalEnableFloatingBottomBarBlur.current
     val scrollAnimation = LocalScrollAnimation.current
-    var currentPage by rememberSaveable { mutableIntStateOf(0) }
-    val pagerState = rememberPagerState(initialPage = currentPage, pageCount = { 4 })
-    LaunchedEffect(pagerState.currentPage) {
-        currentPage = pagerState.currentPage
-    }
-    val mainPagerState = rememberMainPagerState(pagerState, initialPage = currentPage)
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { 4 })
+    val mainPagerState = rememberMainPagerState(pagerState, initialPage = initialPage)
     mainPagerState.usePager = scrollAnimation
     val isManager = Natives.isManager
     val isFullFeatured = isManager && !Natives.requireNewKernel() && rootAvailable()
@@ -298,7 +304,7 @@ fun MainScreen() {
     }
 
     LaunchedEffect(mainPagerState.selectedPage) {
-        currentPage = mainPagerState.selectedPage
+        onPageChanged(mainPagerState.selectedPage)
     }
 
     MainScreenBackHandler(mainPagerState, navController)
