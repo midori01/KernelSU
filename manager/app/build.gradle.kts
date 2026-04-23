@@ -119,6 +119,7 @@ android {
         targetSdk = androidTargetSdkVersion
         versionCode = managerVersionCode
         versionName = managerVersionName
+        applicationId = "com.kowx712.supermanager"
 
         buildConfigField("boolean", "IS_PR_BUILD", isPrBuild.toString())
 
@@ -154,7 +155,7 @@ androidComponents {
 
 base {
     archivesName.set(
-        "KernelSU_${managerVersionName}_${managerVersionCode}"
+        "KowSU_${managerVersionName}_${managerVersionCode}"
     )
 }
 
