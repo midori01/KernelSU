@@ -76,7 +76,6 @@ class MainActivityViewModel(
 }
 
 private const val SELECTED_MAIN_PAGE_KEY = "selected_main_page"
-private const val LAST_MAIN_PAGE_INDEX = 3
 
 private class MainPageState(
     private val savedStateHandle: SavedStateHandle,
@@ -84,6 +83,13 @@ private class MainPageState(
     val selectedPage: StateFlow<Int> = savedStateHandle.getStateFlow(SELECTED_MAIN_PAGE_KEY, 0)
 
     fun updateSelectedPage(page: Int) {
-        savedStateHandle[SELECTED_MAIN_PAGE_KEY] = page.coerceIn(0, LAST_MAIN_PAGE_INDEX)
+        savedStateHandle[SELECTED_MAIN_PAGE_KEY] = MainPagerConfig.coercePage(page)
     }
+}
+
+object MainPagerConfig {
+    const val PAGE_COUNT = 4
+    const val LAST_PAGE_INDEX = PAGE_COUNT - 1
+
+    fun coercePage(page: Int): Int = page.coerceIn(0, LAST_PAGE_INDEX)
 }

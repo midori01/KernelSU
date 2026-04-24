@@ -110,6 +110,7 @@ import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import me.weishu.kernelsu.ui.util.rememberContentReady
 import me.weishu.kernelsu.ui.util.rootAvailable
 import me.weishu.kernelsu.ui.viewmodel.MainActivityViewModel
+import me.weishu.kernelsu.ui.viewmodel.MainPagerConfig
 import me.weishu.kernelsu.ui.viewmodel.ModuleViewModel
 import me.weishu.kernelsu.ui.viewmodel.SuperUserViewModel
 import me.weishu.kernelsu.ui.webui.WebUIActivity
@@ -281,7 +282,7 @@ fun MainScreen(
     val enableFloatingBottomBar = LocalEnableFloatingBottomBar.current
     val enableFloatingBottomBarBlur = LocalEnableFloatingBottomBarBlur.current
     val scrollAnimation = LocalScrollAnimation.current
-    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { 4 })
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { MainPagerConfig.PAGE_COUNT })
     val mainPagerState = rememberMainPagerState(pagerState, initialPage = initialPage)
     mainPagerState.usePager = scrollAnimation
     val isManager = Natives.isManager
@@ -299,8 +300,14 @@ fun MainScreen(
         drawContent()
     }
 
-    LaunchedEffect(mainPagerState.pagerState.currentPage) {
+    val settledPage = mainPagerState.pagerState.settledPage
+    LaunchedEffect(settledPage) {
         mainPagerState.syncPage()
+        onPageChanged(settledPage)
+    }
+
+    LaunchedEffect(mainPagerState.selectedPage) {
+        onPageChanged(mainPagerState.selectedPage)
     }
 
     LaunchedEffect(mainPagerState.selectedPage) {
