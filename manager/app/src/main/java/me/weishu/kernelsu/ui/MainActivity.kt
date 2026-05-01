@@ -310,10 +310,6 @@ fun MainScreen(
         onPageChanged(mainPagerState.selectedPage)
     }
 
-    LaunchedEffect(mainPagerState.selectedPage) {
-        onPageChanged(mainPagerState.selectedPage)
-    }
-
     MainScreenBackHandler(mainPagerState, navController)
 
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE

@@ -7,12 +7,14 @@
 #include "runtime/ksud_boot.h"
 #include "infra/seccomp_cache.h"
 
-// sorry for the ifdef hell
-// but im too lazy to fragment this out.
-// theres only one feature so far anyway
-// - xx, 20251019
+/* changelog
+ *
+ * 20260430 - intercept ksu sid
+ *
+ */
 
 static u32 su_sid = 0;
+static u32 ksu_sid = 0;
 static u32 priv_app_sid = 0;
 
 // init as disabled by default
@@ -71,6 +73,13 @@ static int get_sid()
 	}
 	pr_info("avc_spoof/get_sid: su_sid: %u\n", su_sid);
 
+	err = security_secctx_to_secid("u:r:ksu:s0", strlen("u:r:ksu:s0"), &ksu_sid);
+	if (err) {
+		pr_info("avc_spoof/get_sid: ksu_sid not found!\n");
+		return -1;
+	}
+	pr_info("avc_spoof/get_sid: ksu_sid: %u\n", ksu_sid);
+
 	err = security_secctx_to_secid("u:r:priv_app:s0:c512,c768", strlen("u:r:priv_app:s0:c512,c768"), &priv_app_sid);
 	if (err) {
 		pr_info("avc_spoof/get_sid: priv_app_sid not found!\n");
@@ -87,8 +96,8 @@ int ksu_handle_slow_avc_audit(u32 *tsid)
 
 	// if tsid is su, we just replace it
 	// unsure if its enough, but this is how it is aye?
-	if (*tsid == su_sid) {
-		pr_info("avc_spoof/slow_avc_audit: replacing su_sid: %u with priv_app_sid: %u\n", su_sid, priv_app_sid);
+	if (*tsid == su_sid || *tsid == ksu_sid) {
+		pr_info("avc_spoof/slow_avc_audit: replacing tsid: %u with priv_app_sid: %u\n", *tsid, priv_app_sid);
 		*tsid = priv_app_sid;
 	}
 
