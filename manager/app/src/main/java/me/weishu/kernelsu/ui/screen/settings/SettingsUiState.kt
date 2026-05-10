@@ -36,6 +36,10 @@ data class SettingsUiState(
     val sulogStatus: String = "",
     val isSulogEnabled: Boolean = false,
 
+    // Avc spoof
+    val avcSpoofStatus: String = "",
+    val isAvcSpoofEnabled: Boolean = true,
+
     // Umount Modules
     val isDefaultUmountModules: Boolean = false,
 
@@ -61,6 +65,7 @@ data class SettingsScreenActions(
     val onSetKernelUmountEnabled: (Boolean) -> Unit,
     val onSetSulogEnabled: (Boolean) -> Unit,
     val onSetAdbRootEnabled: (Boolean) -> Unit,
+    val onSetAvcSpoofEnabled: (Boolean) -> Unit,
     val onSetDefaultUmountModules: (Boolean) -> Unit,
     val onSetEnableWebDebugging: (Boolean) -> Unit,
     val onSetAutoJailbreak: (Boolean) -> Unit,
