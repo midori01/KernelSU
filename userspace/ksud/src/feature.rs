@@ -20,6 +20,7 @@ pub enum FeatureId {
     KernelUmount = 1,
     Sulog = 2,
     AdbRoot = 3,
+    AvcSpoof = 10003,
 }
 
 impl FeatureId {
@@ -29,6 +30,7 @@ impl FeatureId {
             1 => Some(Self::KernelUmount),
             2 => Some(Self::Sulog),
             3 => Some(Self::AdbRoot),
+            10003 => Some(Self::AvcSpoof),
             _ => None,
         }
     }
@@ -39,6 +41,7 @@ impl FeatureId {
             Self::KernelUmount => "kernel_umount",
             Self::Sulog => "sulog",
             Self::AdbRoot => "adb_root",
+            Self::AvcSpoof => "avc_spoof",
         }
     }
 
@@ -54,6 +57,9 @@ impl FeatureId {
                 "SU Log - streams kernel sulog events to userspace and persists them to disk"
             }
             Self::AdbRoot => "ADB Root - Enable adbd root",
+            Self::AvcSpoof => {
+                "AVC Spoof - fix selinux context leak due to avc denial"
+            }
         }
     }
 }
@@ -64,6 +70,7 @@ fn parse_feature_id(name: &str) -> Result<FeatureId> {
         "kernel_umount" | "1" => Ok(FeatureId::KernelUmount),
         "sulog" | "2" => Ok(FeatureId::Sulog),
         "adb_root" | "3" => Ok(FeatureId::AdbRoot),
+        "avc_spoof" | "10003" => Ok(FeatureId::AvcSpoof),
         _ => bail!("Unknown feature: {name}"),
     }
 }
@@ -309,6 +316,7 @@ pub fn list_features() {
         FeatureId::KernelUmount,
         FeatureId::Sulog,
         FeatureId::AdbRoot,
+        FeatureId::AvcSpoof,
     ];
 
     for feature_id in &all_features {
@@ -371,6 +379,7 @@ pub fn save_config() -> Result<()> {
         FeatureId::KernelUmount,
         FeatureId::Sulog,
         FeatureId::AdbRoot,
+        FeatureId::AvcSpoof,
     ];
 
     for feature_id in &all_features {
