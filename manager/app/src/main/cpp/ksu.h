@@ -42,6 +42,11 @@ bool set_kernel_umount_enabled(bool enabled);
 
 bool is_kernel_umount_enabled();
 
+// SELinux hide
+int set_selinux_hide_enabled(bool enabled);
+
+bool is_selinux_hide_enabled();
+
 // Avc spoof
 bool set_avc_spoof_enabled(bool enabled);
 
