@@ -31,9 +31,12 @@ fun getVersionCode(): Int {
 }
 
 fun getVersionName(): String {
-    return if (project.hasProperty("VERSION_NAME")) {
-        project.property("VERSION_NAME").toString()
-    } else {
-        getGitDescribe()
+    val envVersion = System.getenv("KSU_VERSION_NAME")
+    if (envVersion != null) return envVersion
+
+    if (project.hasProperty("VERSION_NAME")) {
+        return project.property("VERSION_NAME").toString()
     }
+
+    return getGitDescribe()
 }

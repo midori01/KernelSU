@@ -93,7 +93,7 @@ jobs:
     uses: ./.github/workflows/ksuinit.yml
 
   build-ksud:
-    needs: [build-lkm, build-ksuinit]
+    needs: [build-lkm, build-ksuinit, build-manager]
     strategy:
       matrix:
         include:
@@ -105,9 +105,11 @@ jobs:
       target: ${{ matrix.target }}
       pack_lkm: true
       pack_ksuinit: true
+      version_name: ${{ needs.build-manager.outputs.build_ver }}
+      version_code: ${{ github.run_number }}
   
   build-ksud-extra:
-    needs: [build-lkm, build-ksuinit]
+    needs: [build-lkm, build-ksuinit, build-manager]
     strategy:
       matrix:
         include:
@@ -127,11 +129,15 @@ jobs:
       os: ${{ matrix.os }}
       pack_lkm: true
       pack_ksuinit: true
+      version_name: ${{ needs.build-manager.outputs.build_ver }}
+      version_code: ${{ github.run_number }}
 
   build-manager:
     needs: [generate-key]
     if: always() && needs.generate-key.result == 'success'
     runs-on: ubuntu-latest
+    outputs:
+      build_ver: ${{ steps.ver.outputs.BUILD_VER }}
     env:
       PR_KEYSTORE: ${{ needs.generate-key.outputs.keystore }}
       PR_KEYSTORE_PASSWORD: ${{ needs.generate-key.outputs.keystore_password }}
@@ -184,6 +190,8 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Build with Gradle
+        env:
+          KSU_VERSION_NAME: ${{ steps.ver.outputs.BUILD_VER }}
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             ./gradlew clean assembleRelease -PIS_PR_BUILD=true -PVERSION_NAME="${{ steps.ver.outputs.BUILD_VER }}"
@@ -307,7 +315,7 @@ jobs:
             --strip
       - name: Upload to GitHub Release
         if: github.event_name != 'pull_request'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/*.apk
           tag_name: ${{ steps.date_tag.outputs.RELEASE_TAG }}
