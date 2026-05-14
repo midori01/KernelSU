@@ -55,12 +55,20 @@ fn configure_bindgen() {
 }
 
 fn main() {
-    let (code, name) = match get_git_version() {
-        Ok((code, name)) => (code, name),
-        Err(_) => {
-            // show warning if git is not installed
-            println!("cargo:warning=Failed to get git version, using 0.0.0");
-            (0, "0.0.0".to_string())
+    let (code, name) = if let Ok(ver_name) = env::var("KSU_VERSION_NAME") {
+        let ver_code: u32 = env::var("KSU_VERSION_CODE")
+            .unwrap_or_else(|_| "0".to_string())
+            .parse()
+            .unwrap_or(0);
+        (ver_code, ver_name)
+    } else {
+        match get_git_version() {
+            Ok((code, name)) => (code, name),
+            Err(_) => {
+                // show warning if git is not installed
+                println!("cargo:warning=Failed to get git version, using 0.0.0");
+                (0, "0.0.0".to_string())
+            }
         }
     };
     let out_dir = env::var("OUT_DIR").expect("Failed to get $OUT_DIR");
