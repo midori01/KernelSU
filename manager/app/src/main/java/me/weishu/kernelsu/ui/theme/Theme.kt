@@ -3,6 +3,7 @@ package me.weishu.kernelsu.ui.theme
 import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +51,7 @@ data class AppSettings(
     val paletteStyle: PaletteStyle,
     val colorSpec: ColorSpec.SpecVersion,
     val enableSmoothCorner: Boolean,
+    val enableOfficialLauncher: Boolean,
 )
 
 object ThemeController {
@@ -86,8 +88,9 @@ object ThemeController {
         }
 
         val enableSmoothCorner = prefs.getBoolean("enable_smooth_corner", true)
+        val enableOfficialLauncher = prefs.getBoolean("enable_official_launcher", false)
 
-        return AppSettings(colorMode, keyColor, paletteStyle, colorSpec, enableSmoothCorner)
+        return AppSettings(colorMode, keyColor, paletteStyle, colorSpec, enableSmoothCorner, enableOfficialLauncher)
     }
 }
 
@@ -100,16 +103,21 @@ fun KernelSUTheme(
     val context = LocalContext.current
     val currentAppSettings = appSettings ?: ThemeController.getAppSettings(context)
 
-    when (uiMode) {
-        UiMode.Miuix -> MiuixKernelSUTheme(
-            appSettings = currentAppSettings,
-            content = content
-        )
+    CompositionLocalProvider(
+        LocalColorMode provides currentAppSettings.colorMode.value,
+        LocalEnableOfficialLauncher provides currentAppSettings.enableOfficialLauncher,
+    ) {
+        when (uiMode) {
+            UiMode.Miuix -> MiuixKernelSUTheme(
+                appSettings = currentAppSettings,
+                content = content
+            )
 
-        UiMode.Material -> MaterialKernelSUTheme(
-            appSettings = currentAppSettings,
-            content = content
-        )
+            UiMode.Material -> MaterialKernelSUTheme(
+                appSettings = currentAppSettings,
+                content = content
+            )
+        }
     }
 }
 
@@ -125,6 +133,8 @@ fun isInDarkTheme(): Boolean {
 
 
 val LocalColorMode = staticCompositionLocalOf { 0 }
+
+val LocalEnableOfficialLauncher = staticCompositionLocalOf { false }
 
 val LocalEnableBlur = staticCompositionLocalOf { false }
 
