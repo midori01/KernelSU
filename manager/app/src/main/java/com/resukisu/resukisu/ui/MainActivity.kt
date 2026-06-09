@@ -723,7 +723,7 @@ fun rememberMaterial3BlurBackdrop(enableBlur: Boolean): LayerBackdrop? {
 @Composable
 fun MainScreen() {
     // 页面隐藏处理
-    val activity = LocalActivity.current as MainActivity
+    LocalActivity.current as MainActivity
 
     var savedPages by rememberSaveable<MutableState<List<BottomBarDestination>>> {
         mutableStateOf(emptyList())
@@ -789,12 +789,8 @@ fun MainScreen() {
         }
     }
 
-    BackHandler {
-        if (pagerState.currentPage != 0) {
-            handlePageChange(0)
-        } else {
-            activity.moveTaskToBack(true)
-        }
+    BackHandler(pagerState.currentPage != 0) {
+        handlePageChange(0)
     }
 
     CompositionLocalProvider(
