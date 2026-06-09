@@ -189,6 +189,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.documentfile)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.compose.foundation)
 
     implementation(libs.androidx.compose.runtime.tracing)

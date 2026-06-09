@@ -26,6 +26,7 @@ ndk = "29.0.14206865"
 foundation = "1.11.2"
 aboutLibraries = "14.2.1"
 miuix = "0.9.1"
+datastore = "1.2.1"
 
 [plugins]
 agp-app = { id = "com.android.application", version.ref = "agp" }
@@ -85,6 +86,7 @@ markdown = { group = "io.noties.markwon", name = "core", version.ref = "markdown
 
 lsposed-cxx = { module = "org.lsposed.libcxx:libcxx", version.ref = "ndk" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 

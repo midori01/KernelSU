@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.resukisu.resukisu.data.appPreferences
 
 @Stable
 object CardConfig {
@@ -100,20 +101,17 @@ object CardConfig {
     }
 
     fun save(context: Context) {
-        val prefs = context.getSharedPreferences("card_settings", Context.MODE_PRIVATE)
-        prefs.edit().apply {
-            putFloat(Keys.CARD_ALPHA, cardAlpha)
-            putBoolean(Keys.CUSTOM_BACKGROUND_ENABLED, isCustomBackgroundEnabled)
-            putBoolean(Keys.IS_SHADOW_ENABLED, isShadowEnabled)
-            putBoolean(Keys.IS_CUSTOM_ALPHA_SET, isCustomAlphaSet)
-            putBoolean(Keys.IS_USER_DARK_MODE_ENABLED, isUserDarkModeEnabled)
-            putBoolean(Keys.IS_USER_LIGHT_MODE_ENABLED, isUserLightModeEnabled)
-            apply()
-        }
+        val prefs = context.appPreferences
+        prefs.putFloat(Keys.CARD_ALPHA, cardAlpha)
+        prefs.putBoolean(Keys.CUSTOM_BACKGROUND_ENABLED, isCustomBackgroundEnabled)
+        prefs.putBoolean(Keys.IS_SHADOW_ENABLED, isShadowEnabled)
+        prefs.putBoolean(Keys.IS_CUSTOM_ALPHA_SET, isCustomAlphaSet)
+        prefs.putBoolean(Keys.IS_USER_DARK_MODE_ENABLED, isUserDarkModeEnabled)
+        prefs.putBoolean(Keys.IS_USER_LIGHT_MODE_ENABLED, isUserLightModeEnabled)
     }
 
     fun load(context: Context) {
-        val prefs = context.getSharedPreferences("card_settings", Context.MODE_PRIVATE)
+        val prefs = context.appPreferences
         cardAlpha = prefs.getFloat(Keys.CARD_ALPHA, 1f).coerceIn(0f, 1f)
         isCustomBackgroundEnabled = prefs.getBoolean(Keys.CUSTOM_BACKGROUND_ENABLED, false)
         isShadowEnabled = prefs.getBoolean(Keys.IS_SHADOW_ENABLED, true)

@@ -55,6 +55,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.app.ActivityCompat
 import androidx.core.net.toUri
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -99,8 +101,11 @@ import com.resukisu.resukisu.ui.screen.TemplateEditorScreen
 import com.resukisu.resukisu.ui.screen.UmountManagerScreen
 import com.resukisu.resukisu.ui.screen.about.AboutScreen
 import com.resukisu.resukisu.ui.screen.about.OpenSourceLicenseScreen
+import com.resukisu.resukisu.ui.screen.kernelFlash.KernelFlashScreen
 import com.resukisu.resukisu.ui.screen.moduleRepo.ModuleRepoScreen
 import com.resukisu.resukisu.ui.screen.moduleRepo.OnlineModuleDetailScreen
+import com.resukisu.resukisu.ui.screen.moreSettings.MoreSettingsScreen
+import com.resukisu.resukisu.ui.screen.moreSettings.util.applyLanguage
 import com.resukisu.resukisu.ui.susfs.SuSFSConfigScreen
 import com.resukisu.resukisu.ui.theme.KernelSUTheme
 import com.resukisu.resukisu.ui.theme.ThemeConfig
@@ -116,6 +121,8 @@ import com.resukisu.resukisu.ui.util.LocalSnackbarHost
 import com.resukisu.resukisu.ui.util.install
 import com.resukisu.resukisu.ui.util.rootAvailable
 import com.resukisu.resukisu.ui.viewmodel.HomeViewModel
+import com.resukisu.resukisu.ui.viewmodel.PredictiveBackAnimation
+import com.resukisu.resukisu.ui.viewmodel.SettingsViewModel
 import com.resukisu.resukisu.ui.viewmodel.SuperUserViewModel
 import com.resukisu.resukisu.ui.webui.WebUIActivity
 import kotlinx.coroutines.Dispatchers
@@ -129,51 +136,12 @@ import kotlinx.coroutines.withContext
 import top.yukonga.miuix.kmp.blur.LayerBackdrop
 import top.yukonga.miuix.kmp.blur.isRenderEffectSupported
 import top.yukonga.miuix.kmp.blur.rememberLayerBackdrop
-import zako.zako.zako.zakoui.screen.kernelFlash.KernelFlashScreen
-import zako.zako.zako.zakoui.screen.moreSettings.MoreSettingsScreen
-import zako.zako.zako.zakoui.screen.moreSettings.util.LocaleHelper
 import kotlin.coroutines.resume
 
 class MainActivity : ComponentActivity() {
     private lateinit var superUserViewModel: SuperUserViewModel
     private lateinit var homeViewModel: HomeViewModel
-    internal val settingsStateFlow = MutableStateFlow(SettingsState())
-
-    data class SettingsState(
-        val isHideOtherInfo: Boolean = false,
-        val dpi: Int = 0,
-        val predictiveBackAnimation: PredictiveBackAnimation = PredictiveBackAnimation.Scale,
-        val predictiveBackExitDirection: PredictiveBackExitDirection = PredictiveBackExitDirection.FOLLOW_GESTURE
-    )
-
-    enum class PredictiveBackAnimation(val value: String) {
-        None("none"),
-        AOSP("aosp"),
-        MIUIX("miuix"),
-        Scale("scale"),
-        KernelSUClassic("ksu_classic");
-
-        companion object {
-            fun fromValueOrDefault(value: String) =
-                PredictiveBackAnimation.entries.find { it.value == value } ?: Scale
-        }
-    }
-
-    enum class PredictiveBackExitDirection(val value: String) {
-        /** Follows the user's swipe gesture direction (e.g., swipe left -> exit right). */
-        FOLLOW_GESTURE("follow_gesture"),
-
-        /** Always translates to the right, regardless of swipe edge. */
-        ALWAYS_RIGHT("always_right"),
-
-        /** Always translates to the left, regardless of swipe edge. */
-        ALWAYS_LEFT("always_left");
-
-        companion object {
-            fun fromValueOrDefault(value: String) =
-                PredictiveBackExitDirection.entries.find { it.value == value } ?: FOLLOW_GESTURE
-        }
-    }
+    private lateinit var settingsViewModel: SettingsViewModel
 
     private var showConfirmationDialog = mutableStateOf(false)
     private var pendingZipFiles = mutableStateOf<List<ZipFileInfo>>(emptyList())
@@ -182,7 +150,7 @@ class MainActivity : ComponentActivity() {
     private var isInitialized = false
 
     override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(newBase?.let { LocaleHelper.applyLanguage(it) })
+        super.attachBaseContext(newBase?.let { applyLanguage(it) })
     }
 
     private val intentState = MutableStateFlow(0)
@@ -267,7 +235,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    val settings by settingsStateFlow.collectAsState()
+                    val settings by settingsViewModel.uiState.collectAsStateWithLifecycle()
                     val systemDensity = LocalDensity.current
 
                     val density = remember(systemDensity, settings.dpi) {
@@ -672,6 +640,7 @@ class MainActivity : ComponentActivity() {
     private fun initializeViewModels() {
         superUserViewModel = SuperUserViewModel()
         homeViewModel = HomeViewModel()
+        settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
 
         // 设置主题变化监听器
         themeChangeObserver = ThemeUtils.registerThemeChangeObserver(this)
@@ -687,7 +656,7 @@ class MainActivity : ComponentActivity() {
         }
 
         // 初始化主题相关设置
-        ThemeUtils.initializeThemeSettings(this, settingsStateFlow)
+        ThemeUtils.initializeThemeSettings(this, settingsViewModel)
     }
 
     override fun onResume() {
@@ -755,7 +724,6 @@ fun rememberMaterial3BlurBackdrop(enableBlur: Boolean): LayerBackdrop? {
 fun MainScreen() {
     // 页面隐藏处理
     val activity = LocalActivity.current as MainActivity
-    val settings by activity.settingsStateFlow.collectAsState()
 
     var savedPages by rememberSaveable<MutableState<List<BottomBarDestination>>> {
         mutableStateOf(emptyList())
@@ -763,7 +731,7 @@ fun MainScreen() {
 
     val pages by produceState(initialValue = savedPages) {
         value = withContext(Dispatchers.IO) {
-            savedPages = BottomBarDestination.getPages(settings)
+            savedPages = BottomBarDestination.getPages()
             return@withContext savedPages
         }
     }
@@ -845,6 +813,7 @@ fun MainScreen() {
                         .blurSource(),
                     state = pagerState,
                     userScrollEnabled = userScrollEnabled,
+                    beyondViewportPageCount = 1,
                 ) { pageIndex ->
                     if (pages.isEmpty()) return@HorizontalPager
 

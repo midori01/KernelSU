@@ -3,6 +3,7 @@ package com.resukisu.resukisu.ui.theme
 import android.R
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
@@ -66,7 +67,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.zIndex
-import androidx.core.content.edit
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.scale
@@ -78,6 +78,7 @@ import com.kyant.m3color.hct.Hct
 import com.kyant.m3color.quantize.QuantizerCelebi
 import com.kyant.m3color.scheme.SchemeTonalSpot
 import com.kyant.m3color.score.Score
+import com.resukisu.resukisu.data.appPreferences
 import com.resukisu.resukisu.ui.theme.util.BackgroundTransformation
 import com.resukisu.resukisu.ui.theme.util.saveTransformedBackground
 import com.resukisu.resukisu.ui.util.LocalBackgroundBlurAnchor
@@ -94,6 +95,7 @@ import top.yukonga.miuix.kmp.blur.layerBackdrop
 import top.yukonga.miuix.kmp.blur.textureBlur
 import java.io.File
 import java.io.FileOutputStream
+import java.security.MessageDigest
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -155,24 +157,19 @@ object ThemeConfig {
 }
 
 object ThemeManager {
-    private const val PREFS_NAME = "theme_prefs"
-
     fun saveThemeMode(context: Context, forceDark: Boolean?) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
-            putString(
-                "theme_mode", when (forceDark) {
-                    true -> "dark"
-                    false -> "light"
-                    null -> "system"
-                }
-            )
-        }
+        context.appPreferences.putString(
+            "theme_mode", when (forceDark) {
+                true -> "dark"
+                false -> "light"
+                null -> "system"
+            }
+        )
         ThemeConfig.forceDarkMode = forceDark
     }
 
     fun loadThemeMode(context: Context) {
-        val mode = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString("theme_mode", "system")
+        val mode = context.appPreferences.getString("theme_mode", "system")
 
         ThemeConfig.forceDarkMode = when (mode) {
             "dark" -> true
@@ -182,29 +179,26 @@ object ThemeManager {
     }
 
     fun saveThemeColors(context: Context, themeName: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
-            putString("theme_colors", themeName)
-        }
+        context.appPreferences.putString("theme_colors", themeName)
         ThemeConfig.currentTheme = ThemeColors.fromName(themeName)
     }
 
     fun loadThemeColors(context: Context) {
-        val themeName = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString("theme_colors", "default") ?: "default"
+        val themeName = context.appPreferences.getString("theme_colors", "default") ?: "default"
         ThemeConfig.currentTheme = ThemeColors.fromName(themeName)
     }
 
     fun saveDynamicColorState(context: Context, enabled: Boolean) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
-            putBoolean("use_dynamic_color", enabled)
-        }
+        context.appPreferences.putBoolean("use_dynamic_color", enabled)
         ThemeConfig.useDynamicColor = enabled
     }
 
 
     fun loadDynamicColorState(context: Context) {
-        val enabled = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getBoolean("use_dynamic_color", Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        val enabled = context.appPreferences.getBoolean(
+            "use_dynamic_color",
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        )
         ThemeConfig.useDynamicColor = enabled
     }
 }
@@ -214,37 +208,27 @@ object BackgroundManager {
 
     fun saveBackgroundDim(context: Context, dim: Float) {
         ThemeConfig.backgroundDim = dim
-        context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE).edit(commit = true) {
-            putFloat("background_dim", dim)
-        }
+        context.appPreferences.putFloat("background_dim", dim)
     }
 
     fun saveEnableBlur(context: Context, enable: Boolean) {
         ThemeConfig.isEnableBlur = enable
-        context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE).edit {
-            putBoolean("enable_blur", enable)
-        }
+        context.appPreferences.putBoolean("enable_blur", enable)
     }
 
     fun saveEnableBlurExp(context: Context, enable: Boolean) {
         ThemeConfig.isEnableBlurExp = enable
-        context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE).edit {
-            putBoolean("enable_blur_exp", enable)
-        }
+        context.appPreferences.putBoolean("enable_blur_exp", enable)
     }
 
     fun saveUseBackgroundSeedColor(context: Context, enable: Boolean) {
         ThemeConfig.isUseBackgroundSeedColor = enable
-        context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE).edit {
-            putBoolean("use_background_seed_color", enable)
-        }
+        context.appPreferences.putBoolean("use_background_seed_color", enable)
     }
 
     fun saveEnableHighContrastMode(context: Context, enable: Boolean) {
         ThemeConfig.isHighContrastMode = enable
-        context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE).edit {
-            putBoolean("high_contrast_mode", enable)
-        }
+        context.appPreferences.putBoolean("high_contrast_mode", enable)
     }
 
     fun saveAndApplyCustomBackground(
@@ -262,6 +246,7 @@ object BackgroundManager {
             saveBackgroundUri(context, finalUri)
             ThemeConfig.customBackgroundUri = finalUri
             CardConfig.updateBackground(true)
+            clearBackgroundBlurCache(context)
             resetBackgroundState(context)
 
         } catch (e: Exception) {
@@ -273,11 +258,12 @@ object BackgroundManager {
         saveBackgroundUri(context, null)
         ThemeConfig.customBackgroundUri = null
         CardConfig.updateBackground(false)
+        clearBackgroundBlurCache(context)
         resetBackgroundState(context)
     }
 
     fun loadCustomBackground(context: Context) {
-        val prefs = context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+        val prefs = context.appPreferences
         val uriString = prefs.getString("custom_background", null)
 
         val newUri = uriString?.toUri()
@@ -300,17 +286,22 @@ object BackgroundManager {
     }
 
     private fun saveBackgroundUri(context: Context, uri: Uri?) {
-        context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE).edit {
-            putString("custom_background", uri?.toString())
-            putBoolean("prevent_background_refresh", false)
-        }
+        context.appPreferences.putString("custom_background", uri?.toString())
+        context.appPreferences.putBoolean("prevent_background_refresh", false)
     }
 
     private fun resetBackgroundState(context: Context) {
         ThemeConfig.backgroundImageLoaded = false
         ThemeConfig.preventBackgroundRefresh = false
-        context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE).edit {
-            putBoolean("prevent_background_refresh", false)
+        blurBackgroundImageBitmap = null
+        context.appPreferences.putBoolean("prevent_background_refresh", false)
+    }
+
+    fun clearBackgroundBlurCache(context: Context) {
+        runCatching {
+            backgroundBlurCacheDir(context).deleteRecursively()
+        }.onFailure {
+            Log.w(TAG, "Failed to clear background blur cache: ${it.message}")
         }
     }
 
@@ -426,10 +417,8 @@ private fun ThemeInitializer(context: Context, systemIsDark: Boolean) {
 
 @Composable
 private fun BackgroundLayer() {
+    val context = LocalContext.current
     val backgroundUri = rememberSaveable { mutableStateOf(ThemeConfig.customBackgroundUri) }
-    val prefs =
-        LocalContext.current
-            .getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
 
     LaunchedEffect(ThemeConfig.customBackgroundUri) {
         backgroundUri.value = ThemeConfig.customBackgroundUri
@@ -437,9 +426,7 @@ private fun BackgroundLayer() {
             backgroundImagePainter = null
             blurBackgroundImageBitmap = null
             backgroundSeedColor = 0
-            prefs.edit(commit = true) {
-                remove("cached_seed_color")
-            }
+            context.appPreferences.remove("cached_seed_color")
         }
     }
 
@@ -489,6 +476,9 @@ var blurBackgroundImageBitmap: ImageBitmap? by mutableStateOf(null)
 private var backgroundBlurViewportSize by mutableStateOf(IntSize(0, 0))
 private var backgroundBlurFrameTick by mutableIntStateOf(0)
 var backgroundSeedColor by mutableIntStateOf(0)
+
+private const val BACKGROUND_BLUR_RADIUS = 25f
+private const val BACKGROUND_BLUR_CACHE_VERSION = 1
 
 /**
  * Captures background content for blurEffect child nodes,
@@ -997,7 +987,7 @@ private fun Bitmap.softwareFastBlur(radius: Int): Bitmap {
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
-private fun Bitmap.blurImage(blurRadius: Float): ImageBitmap {
+private fun Bitmap.blurBitmap(blurRadius: Float): Bitmap {
     val outputBitmap = createBitmap(width, height)
     val outputCanvas = Canvas(outputBitmap)
 
@@ -1020,27 +1010,43 @@ private fun Bitmap.blurImage(blurRadius: Float): ImageBitmap {
         outputCanvas.drawRenderNode(renderNode)
     } else {
         val radiusInt = blurRadius.toInt().coerceIn(1, 25)
-        return this.softwareFastBlur(radiusInt).asImageBitmap()
+        return this.softwareFastBlur(radiusInt)
     }
 
-    return outputBitmap.asImageBitmap()
+    return outputBitmap
 }
 
 
 @RequiresApi(Build.VERSION_CODES.S)
-private fun Bitmap.createBackgroundBlurImage(
+private suspend fun Bitmap.createBackgroundBlurImage(
+    context: Context,
+    sourceUri: Uri,
     viewportSize: IntSize,
     blurRadius: Float,
-): ImageBitmap {
+): ImageBitmap = withContext(Dispatchers.Default) {
+    val cacheFile = backgroundBlurCacheFile(
+        context = context,
+        sourceUri = sourceUri,
+        viewportSize = viewportSize,
+        blurRadius = blurRadius,
+    )
+
+    BitmapFactory.decodeFile(cacheFile.absolutePath)?.let { cachedBitmap ->
+        return@withContext cachedBitmap.asImageBitmap()
+    }
+
     val blurSource = createBackgroundBlurSource(viewportSize)
 
-    return try {
-        blurSource.blurImage(blurRadius)
+    val blurredBitmap = try {
+        blurSource.blurBitmap(blurRadius)
     } finally {
-        if (blurSource !== this) {
+        if (blurSource !== this@createBackgroundBlurImage) {
             blurSource.recycle()
         }
     }
+
+    saveBackgroundBlurCache(cacheFile, blurredBitmap)
+    blurredBitmap.asImageBitmap()
 }
 
 private fun Bitmap.createBackgroundBlurSource(viewportSize: IntSize): Bitmap {
@@ -1074,8 +1080,61 @@ private fun Bitmap.createBackgroundBlurSource(viewportSize: IntSize): Bitmap {
     }
 }
 
+private fun backgroundBlurCacheDir(context: Context): File =
+    File(context.filesDir, "background_blur_cache")
+
+private fun backgroundBlurCacheFile(
+    context: Context,
+    sourceUri: Uri,
+    viewportSize: IntSize,
+    blurRadius: Float,
+): File {
+    val sourceSignature = buildBackgroundSourceSignature(sourceUri)
+    val key = listOf(
+        "v$BACKGROUND_BLUR_CACHE_VERSION",
+        sourceSignature,
+        "${viewportSize.width}x${viewportSize.height}",
+        blurRadius.toString(),
+        Build.VERSION.SDK_INT.toString(),
+    ).joinToString("|").sha256()
+
+    return File(backgroundBlurCacheDir(context), "$key.png")
+}
+
+private fun buildBackgroundSourceSignature(sourceUri: Uri): String {
+    val path = sourceUri.path
+    val file = if (sourceUri.scheme == "file" && path != null) File(path) else null
+    return if (file != null && file.exists()) {
+        "${sourceUri}|${file.length()}|${file.lastModified()}"
+    } else {
+        sourceUri.toString()
+    }
+}
+
+private fun saveBackgroundBlurCache(cacheFile: File, bitmap: Bitmap) {
+    runCatching {
+        cacheFile.parentFile?.mkdirs()
+        val tempFile = File(cacheFile.parentFile, "${cacheFile.name}.tmp")
+        FileOutputStream(tempFile).use { output ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+        }
+        if (!tempFile.renameTo(cacheFile)) {
+            tempFile.copyTo(cacheFile, overwrite = true)
+            tempFile.delete()
+        }
+    }.onFailure {
+        Log.w("ThemeSystem", "Failed to save background blur cache: ${it.message}")
+    }
+}
+
+private fun String.sha256(): String {
+    val digest = MessageDigest.getInstance("SHA-256").digest(toByteArray())
+    return digest.joinToString("") { "%02x".format(it) }
+}
+
 @Composable
 private fun BackgroundInitializer(uri: Uri) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     val dynamicColorFromSystem =
@@ -1083,22 +1142,25 @@ private fun BackgroundInitializer(uri: Uri) {
             colorResource(id = R.color.system_accent1_500).toArgb()
         else -12417548
 
-    val prefs = LocalContext.current
-        .getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
-
     val calcedCachedSeedColor =
-        prefs
-            .getInt("cached_seed_color", dynamicColorFromSystem)
+        context.appPreferences.getInt("cached_seed_color", dynamicColorFromSystem)
 
     LaunchedEffect(ThemeConfig.isEnableBlurExp, backgroundBlurViewportSize) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && ThemeConfig.isEnableBlurExp) {
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            ThemeConfig.isEnableBlurExp &&
+            backgroundBlurViewportSize.width > 0 &&
+            backgroundBlurViewportSize.height > 0
+        ) {
             backgroundImagePainter?.let {
                 if (it.state !is AsyncImagePainter.State.Success) return@let
 
                 val bitmap = (it.state as AsyncImagePainter.State.Success).result.drawable.toBitmap()
                 blurBackgroundImageBitmap = bitmap.createBackgroundBlurImage(
+                    context = context,
+                    sourceUri = uri,
                     viewportSize = backgroundBlurViewportSize,
-                    blurRadius = 25f,
+                    blurRadius = BACKGROUND_BLUR_RADIUS,
                 )
             }
         } else {
@@ -1107,7 +1169,7 @@ private fun BackgroundInitializer(uri: Uri) {
     }
 
     backgroundImagePainter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
+        model = ImageRequest.Builder(context)
             .data(uri)
             .allowHardware(false)
             .crossfade(true)
@@ -1122,11 +1184,20 @@ private fun BackgroundInitializer(uri: Uri) {
             ThemeConfig.isThemeChanging = false
 
             val bitmap = it.result.drawable.toBitmap()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && ThemeConfig.isEnableBlurExp) {
-                blurBackgroundImageBitmap = bitmap.createBackgroundBlurImage(
-                    viewportSize = backgroundBlurViewportSize,
-                    blurRadius = 25f,
-                )
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                ThemeConfig.isEnableBlurExp &&
+                backgroundBlurViewportSize.width > 0 &&
+                backgroundBlurViewportSize.height > 0
+            ) {
+                coroutineScope.launch {
+                    blurBackgroundImageBitmap = bitmap.createBackgroundBlurImage(
+                        context = context,
+                        sourceUri = uri,
+                        viewportSize = backgroundBlurViewportSize,
+                        blurRadius = BACKGROUND_BLUR_RADIUS,
+                    )
+                }
             } else {
                 blurBackgroundImageBitmap = null
             }
@@ -1137,9 +1208,7 @@ private fun BackgroundInitializer(uri: Uri) {
                     fallbackColorArgb = calcedCachedSeedColor
                 )
 
-                prefs.edit(commit = true) {
-                    putInt("cached_seed_color", backgroundSeedColor)
-                }
+                context.appPreferences.putInt("cached_seed_color", backgroundSeedColor)
             }
         }
     )
