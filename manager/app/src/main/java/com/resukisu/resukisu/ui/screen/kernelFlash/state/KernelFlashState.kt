@@ -5,7 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.ui.util.install
 import com.resukisu.resukisu.ui.util.rootAvailable
 import com.resukisu.resukisu.utils.AssetsUtil

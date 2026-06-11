@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.ui.util.addKernelUmountPath
 import com.resukisu.resukisu.ui.util.addUmountConfigUmountPath
 import com.resukisu.resukisu.ui.util.listKernelUmountPaths

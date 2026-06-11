@@ -87,7 +87,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.ksuApp
 import com.resukisu.resukisu.ui.component.ConfirmResult
 import com.resukisu.resukisu.ui.component.KeyPointSlider

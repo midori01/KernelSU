@@ -76,9 +76,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.resukisu.resukisu.BuildConfig
+import com.midori.su.manager.BuildConfig
 import com.resukisu.resukisu.Natives
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.data.update.ManagerUpdateChannel
 import com.resukisu.resukisu.data.update.ManagerUpdateInfo
 import com.resukisu.resukisu.ksuApp
@@ -188,90 +188,6 @@ fun HomePage(
             ) {
                 // 状态卡片
                 if (uiState.isCoreDataLoaded) {
-                    if (uiState.systemStatus.requireNewKernel) {
-                        if ((uiState.systemStatus.ksuVersion ?: 0) > BuildConfig.VERSION_CODE) {
-                            WarningCard(
-                                message = stringResource(
-                                    id = R.string.require_manager_version,
-                                    BuildConfig.VERSION_CODE,
-                                    uiState.systemStatus.ksuVersion ?: 0
-                                ),
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.TwoTone.Error,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onErrorContainer,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                            )
-                        } else {
-                            WarningCard(
-                                message = stringResource(
-                                    id = R.string.require_kernel_version,
-                                    uiState.systemStatus.ksuVersion ?: 0,
-                                    BuildConfig.VERSION_CODE
-                                ),
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.TwoTone.Error,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onErrorContainer,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                            )
-                        }
-                    }
-
-                    // 警告信息
-                    if (BuildConfig.DEBUG) {
-                        WarningCard(
-                            message = stringResource(R.string.debug_version_notice),
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.TwoTone.Error,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        )
-                    }
-
-                    if (!uiState.systemStatus.isOfficialSignature) {
-                        WarningCard(
-                            message = stringResource(
-                                R.string.unofficial_version_notice,
-                                stringResource(R.string.app_name)
-                            ),
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.TwoTone.Error,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        )
-                    }
-
-                    if (BuildConfig.IS_PR_BUILD || Natives.isPrBuild) {
-                        WarningCard(
-                            message = stringResource(
-                                id = R.string.home_pr_build_warning
-                            ),
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.TwoTone.Error,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        )
-                    }
-
                     if (uiState.systemStatus.kernelPatchImplement == Natives.KernelPatchImplement.KERNEL_PATCH_OFFICIAL) {
                         WarningCard(
                             message = stringResource(

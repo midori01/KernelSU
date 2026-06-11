@@ -61,7 +61,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.resukisu.resukisu.Natives
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.ui.component.SwipeableSnackbarHost
 import com.resukisu.resukisu.ui.component.profile.AppProfileConfig
 import com.resukisu.resukisu.ui.component.profile.RootProfileConfig

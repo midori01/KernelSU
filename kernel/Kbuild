@@ -50,7 +50,7 @@ ccflags-y += -I$(src) -I$(src)/include
 
 obj-$(CONFIG_KSU) += kernelsu.o
 
-REPO_NAME := ReSukiSU
+REPO_NAME := MidoriRE
 
 KDIR := $(KDIR)
 
@@ -73,7 +73,12 @@ endif
 
 $(shell cd $(KSU_SRC); [ -f ../.git/shallow ] && $(GIT_BIN) fetch --unshallow)
 KSU_LOCAL_VERSION := $(shell cd $(KSU_SRC); $(GIT_BIN) rev-list --count HEAD)
+
+ifdef MANAGER_VERSION_CODE
+KSU_VERSION := $(MANAGER_VERSION_CODE)
+else
 KSU_VERSION := $(shell expr 30000 + $(KSU_LOCAL_VERSION) + 700)
+endif
 
 KSU_TAG_NAME    := $(shell cd $(KSU_SRC); $(GIT_BIN) describe --abbrev=0 --tags 2>/dev/null || echo "v4.1.0")
 KSU_COMMIT_SHA  := $(shell cd $(KSU_SRC); $(GIT_BIN) rev-parse --short=8 HEAD 2>/dev/null || echo "unknown")
@@ -97,7 +102,7 @@ ccflags-y += -DKSU_VERSION=$(KSU_VERSION)
 ccflags-y += -DKSU_VERSION_FULL=\"$(KSU_VERSION_FULL)\"
 
 ifdef CONFIG_KSU_MULTI_MANAGER_SUPPORT
-$(info -- Supported Unofficial Manager: MKSU, RKSU, KOWSU, SukiSU-Ultra, ReSukiSU )
+$(info -- Supported Manager: MidoriSU only. All other managers — including the official ReSukiSU manager — are unsupported. )
 endif
 
 KERNEL_VERSION := $(VERSION).$(PATCHLEVEL)

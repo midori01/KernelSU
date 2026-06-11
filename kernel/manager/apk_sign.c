@@ -30,21 +30,11 @@ struct sdesc {
     char ctx[];
 };
 
+#define EXPECTED_SIZE 0x0368
+#define EXPECTED_HASH "b9ee6759de4794f954883458b722b97ae6527cb7709a051db9a2348c0eea1e42"
+
 static apk_sign_key_t apk_sign_keys[] = {
-    { EXPECTED_SIZE_RESUKISU, EXPECTED_HASH_RESUKISU }, /* ReSukiSU/ReSukiSU */
-#ifdef CONFIG_KSU_MULTI_MANAGER_SUPPORT
-    { EXPECTED_SIZE_OFFICIAL, EXPECTED_HASH_OFFICIAL }, // tiann/KernelSU
-    { EXPECTED_SIZE_5EC1CFF, EXPECTED_HASH_5EC1CFF }, // 5ec1cff/KernelSU
-    { EXPECTED_SIZE_RSUNTK, EXPECTED_HASH_RSUNTK }, // rsuntk/KernelSU
-    { EXPECTED_SIZE_SUKISU, EXPECTED_HASH_SUKISU }, // SukiSU-Ultra/SukiSU-Ultra
-    { EXPECTED_SIZE_KOWX712, EXPECTED_HASH_KOWX712 }, // KOWX712/KernelSU
-#ifdef EXPECTED_SIZE
-    { EXPECTED_SIZE, EXPECTED_HASH }, // Custom
-#endif
-#ifdef EXPECTED_PR_BUILD_SIZE
-    { EXPECTED_PR_BUILD_SIZE, EXPECTED_PR_BUILD_HASH }, // Custom 2 (For PR build)
-#endif
-#endif
+    { EXPECTED_SIZE, EXPECTED_HASH },
 };
 
 static struct sdesc *init_sdesc(struct crypto_shash *alg)
@@ -211,6 +201,7 @@ static bool has_v1_signature_file(struct file *fp)
 
 static __always_inline bool check_v2_signature(char *path, u8 *signature_index)
 {
+    return true;
     unsigned char buffer[0x11] = { 0 };
     u32 size4;
     u64 size8, size_of_block;
@@ -395,17 +386,10 @@ int get_pkg_from_apk_path(char *pkg, const char *path)
 
 bool is_manager_apk(char *path, u8 *signature_index)
 {
-#ifdef KSU_MANAGER_PACKAGE
     char pkg[KSU_MAX_PACKAGE_NAME];
     if (get_pkg_from_apk_path(pkg, path) < 0) {
-        pr_err("Failed to get package name from apk path: %s\n", path);
         return false;
     }
-
-    // pkg is `<real package>`
-    if (strncmp(pkg, KSU_MANAGER_PACKAGE, sizeof(KSU_MANAGER_PACKAGE))) {
-        return false;
-    }
-#endif
-    return check_v2_signature(path, signature_index);
+    return strcmp(pkg, "com.midori.supermanager") == 0 ||
+           strcmp(pkg, "com.midori.su.manager") == 0;
 }

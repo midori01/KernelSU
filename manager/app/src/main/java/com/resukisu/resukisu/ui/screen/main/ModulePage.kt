@@ -125,7 +125,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kyant.capsule.ContinuousRoundedRectangle
 import com.resukisu.resukisu.Natives
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.data.AppPreferencesRepository
 import com.resukisu.resukisu.data.appPreferences
 import com.resukisu.resukisu.ksuApp

@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ReSukiSU"
+rootProject.name = "MidoriRE"
 include(":app")
 include(":baselineprofile")
 include(":lint-rules")

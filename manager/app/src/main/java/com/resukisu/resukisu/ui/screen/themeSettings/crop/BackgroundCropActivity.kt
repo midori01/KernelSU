@@ -69,7 +69,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.PopupPositionProvider
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.ui.component.KeyPointSlider
 import com.resukisu.resukisu.ui.theme.KernelSUTheme
 import com.yalantis.ucrop.UCrop

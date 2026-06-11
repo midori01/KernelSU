@@ -19,7 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.resukisu.resukisu.Natives
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.ui.component.settings.SettingsChooseWidget
 import com.resukisu.resukisu.ui.util.listAppProfileTemplates
 import com.resukisu.resukisu.ui.util.setSepolicy

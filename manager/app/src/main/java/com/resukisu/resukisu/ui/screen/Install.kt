@@ -70,7 +70,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.getKernelVersion
 import com.resukisu.resukisu.ui.component.DialogHandle
 import com.resukisu.resukisu.ui.component.rememberConfirmDialog

@@ -65,7 +65,7 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.ui.component.settings.AppBackButton
 import com.resukisu.resukisu.ui.component.settings.SettingsJumpPageWidget
 import com.resukisu.resukisu.ui.component.settings.lazySegmentColumn
