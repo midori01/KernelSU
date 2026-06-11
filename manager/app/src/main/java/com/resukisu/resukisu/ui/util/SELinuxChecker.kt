@@ -1,7 +1,7 @@
 package com.resukisu.resukisu.ui.util
 
 import android.content.Context
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.io.SuFile
 

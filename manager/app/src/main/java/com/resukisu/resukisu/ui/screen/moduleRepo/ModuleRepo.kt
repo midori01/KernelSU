@@ -89,7 +89,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.data.AppPreferencesRepository
 import com.resukisu.resukisu.data.appPreferences
 import com.resukisu.resukisu.ui.activity.PermissionRequestInterface

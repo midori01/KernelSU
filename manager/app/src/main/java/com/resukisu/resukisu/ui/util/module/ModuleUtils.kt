@@ -5,7 +5,7 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import java.util.Properties
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream

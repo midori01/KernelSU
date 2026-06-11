@@ -1,5 +1,6 @@
 package com.resukisu.resukisu.ui.viewmodel
 
+import com.midori.su.manager.R
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -42,10 +43,10 @@ import kotlin.coroutines.resume
 internal const val RECENTLY_INSTALLED_WINDOW_MILLIS = 60 * 60 * 1000L
 
 enum class AppCategory(val displayNameRes: Int, val persistKey: String) {
-    ALL(com.resukisu.resukisu.R.string.category_all_apps, "ALL"),
-    ROOT(com.resukisu.resukisu.R.string.category_root_apps, "ROOT"),
-    CUSTOM(com.resukisu.resukisu.R.string.category_custom_apps, "CUSTOM"),
-    DEFAULT(com.resukisu.resukisu.R.string.category_default_apps, "DEFAULT");
+    ALL(com.midori.su.manager.R.string.category_all_apps, "ALL"),
+    ROOT(com.midori.su.manager.R.string.category_root_apps, "ROOT"),
+    CUSTOM(com.midori.su.manager.R.string.category_custom_apps, "CUSTOM"),
+    DEFAULT(com.midori.su.manager.R.string.category_default_apps, "DEFAULT");
 
     companion object {
         fun fromPersistKey(key: String): AppCategory = entries.find { it.persistKey == key } ?: ALL
@@ -53,13 +54,13 @@ enum class AppCategory(val displayNameRes: Int, val persistKey: String) {
 }
 
 enum class SortType(val displayNameRes: Int, val persistKey: String) {
-    NAME_ASC(com.resukisu.resukisu.R.string.sort_name_asc, "NAME_ASC"),
-    NAME_DESC(com.resukisu.resukisu.R.string.sort_name_desc, "NAME_DESC"),
-    INSTALL_TIME_NEW(com.resukisu.resukisu.R.string.sort_install_time_new, "INSTALL_TIME_NEW"),
-    INSTALL_TIME_OLD(com.resukisu.resukisu.R.string.sort_install_time_old, "INSTALL_TIME_OLD"),
-    SIZE_DESC(com.resukisu.resukisu.R.string.sort_size_desc, "SIZE_DESC"),
-    SIZE_ASC(com.resukisu.resukisu.R.string.sort_size_asc, "SIZE_ASC"),
-    USAGE_FREQ(com.resukisu.resukisu.R.string.sort_usage_freq, "USAGE_FREQ");
+    NAME_ASC(com.midori.su.manager.R.string.sort_name_asc, "NAME_ASC"),
+    NAME_DESC(com.midori.su.manager.R.string.sort_name_desc, "NAME_DESC"),
+    INSTALL_TIME_NEW(com.midori.su.manager.R.string.sort_install_time_new, "INSTALL_TIME_NEW"),
+    INSTALL_TIME_OLD(com.midori.su.manager.R.string.sort_install_time_old, "INSTALL_TIME_OLD"),
+    SIZE_DESC(com.midori.su.manager.R.string.sort_size_desc, "SIZE_DESC"),
+    SIZE_ASC(com.midori.su.manager.R.string.sort_size_asc, "SIZE_ASC"),
+    USAGE_FREQ(com.midori.su.manager.R.string.sort_usage_freq, "USAGE_FREQ");
 
     companion object {
         fun fromPersistKey(key: String): SortType = entries.find { it.persistKey == key } ?: NAME_ASC

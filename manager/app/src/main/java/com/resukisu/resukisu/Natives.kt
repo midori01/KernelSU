@@ -1,5 +1,6 @@
 package com.resukisu.resukisu
 
+import com.midori.su.manager.R
 import android.os.Parcelable
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
@@ -28,7 +29,7 @@ object Natives {
     // 34944: Drop KPM support
     // 34966(upstream 32513): add uapi version
     // 34967(upstream 32514): allowlist v4 root profile flags
-    const val MINIMAL_SUPPORTED_KERNEL = 34966
+    const val MINIMAL_SUPPORTED_KERNEL = 12345
 
     const val KERNEL_SU_DOMAIN = "u:r:ksu:s0"
 

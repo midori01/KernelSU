@@ -37,7 +37,7 @@ val isReleaseTask =
     project.gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
 
 android {
-    namespace = "com.resukisu.resukisu"
+    namespace = "com.midori.su.manager"
 
     buildTypes {
         debug {
@@ -139,15 +139,6 @@ android {
         }
     }
 
-    splits {
-        abi {
-            isEnable = isReleaseTask
-            reset()
-            include("arm64-v8a", "x86_64", "armeabi-v7a")
-            isUniversalApk = true
-        }
-    }
-
     lint {
         abortOnError = true
         checkReleaseBuilds = false
@@ -161,7 +152,7 @@ android {
 
 base {
     archivesName.set(
-        "ReSukiSU_${managerVersionName}_${managerVersionCode}"
+        "MidoriRE_${managerVersionName}_${managerVersionCode}"
     )
 }
 

@@ -81,9 +81,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.resukisu.resukisu.BuildConfig
+import com.midori.su.manager.BuildConfig
 import com.resukisu.resukisu.Natives
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.ksuApp
 import com.resukisu.resukisu.ui.component.ConfirmResult
 import com.resukisu.resukisu.ui.component.DialogHandle
@@ -310,7 +310,7 @@ fun SettingsPage(bottomPadding: Dp) {
                             }
 
                             item {
-                                // 卸载模块开�?
+                                // 卸载模块开�?
                                 SettingsSwitchWidget(
                                     icon = Icons.Rounded.FolderDelete,
                                     title = stringResource(id = R.string.settings_umount_modules_default),
@@ -330,7 +330,7 @@ fun SettingsPage(bottomPadding: Dp) {
                     title = stringResource(R.string.app_settings),
                     content = {
                         item {
-                            // 更新检查开�?
+                            // 更新检查开�?
                             SettingsSwitchWidget(
                                 icon = Icons.Filled.Update,
                                 title = stringResource(R.string.settings_check_update),

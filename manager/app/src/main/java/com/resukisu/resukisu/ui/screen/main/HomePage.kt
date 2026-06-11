@@ -87,10 +87,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.resukisu.resukisu.BuildConfig
+import com.midori.su.manager.BuildConfig
 import com.resukisu.resukisu.KernelVersion
 import com.resukisu.resukisu.Natives
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.ksuApp
 import com.resukisu.resukisu.magica.MagicaService
 import com.resukisu.resukisu.ui.component.KsuIsValid
@@ -223,7 +223,7 @@ fun HomePage(
                             }
                         }
                     )
-
+/*
                     if (uiState.systemStatus.requireNewKernel) {
                         if ((uiState.systemStatus.ksuVersion ?: 0) > BuildConfig.VERSION_CODE) {
                             WarningCard(
@@ -307,7 +307,7 @@ fun HomePage(
                             }
                         )
                     }
-
+*/
                     if (uiState.systemStatus.kernelPatchImplement == Natives.KernelPatchImplement.KERNEL_PATCH_OFFICIAL) {
                         WarningCard(
                             message = stringResource(
@@ -917,7 +917,6 @@ private fun InfoCard(
                     icon = Icons.Default.Extension,
                 )
             }
-
 
             if (!isSimpleMode && !isHideSusfsStatus && systemInfo.susfsEnabled && systemInfo.susfsVersion.isNotEmpty()) {
                 InfoCardItem(

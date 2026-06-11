@@ -21,6 +21,14 @@ on:
         required: false
         type: boolean
         default: true
+      version_code:
+        required: false
+        type: string
+        default: ''
+      version_name:
+        required: false
+        type: string
+        default: ''
 env:
   CARGO_TERM_COLOR: always
 jobs:
@@ -62,6 +70,9 @@ jobs:
       run: cargo install cargo-ndk --locked
         
     - name: Build ksud
+      env:
+        MANAGER_VERSION_CODE: ${{ inputs.version_code }}
+        MANAGER_VERSION_NAME: ${{ inputs.version_name }}
       run: |
         cd userspace/ksud/
         cargo ndk b -t ${{ inputs.target }} -r -Z build-std=std,core,panic_abort -Z build-std-features="optimize_for_size" -Z trim-paths

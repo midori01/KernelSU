@@ -11,8 +11,16 @@ val androidBuildToolsVersion by extra("36.1.0")
 val androidCompileNdkVersion by extra(libs.versions.ndk.get())
 val androidSourceCompatibility by extra(JavaVersion.VERSION_21)
 val androidTargetCompatibility by extra(JavaVersion.VERSION_21)
-val managerVersionCode by extra(30000 + getGitCommitCount() + 700)
-val managerVersionName by extra(getGitDescribe())
+val managerVersionCode by extra(
+    project.findProperty("managerVersionCode")?.toString()?.toIntOrNull()
+        ?: System.getenv("MANAGER_VERSION_CODE")?.toIntOrNull()
+        ?: 30000 + getGitCommitCount() + 700
+)
+val managerVersionName by extra(
+    project.findProperty("managerVersionName")?.toString()
+        ?: System.getenv("MANAGER_VERSION_NAME")
+        ?: getGitDescribe()
+)
 
 fun getGitCommitCount(): Int {
     return providers.exec {

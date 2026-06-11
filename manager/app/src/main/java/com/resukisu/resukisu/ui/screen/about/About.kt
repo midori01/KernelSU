@@ -47,8 +47,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import com.resukisu.resukisu.BuildConfig
-import com.resukisu.resukisu.R
+import com.midori.su.manager.BuildConfig
+import com.midori.su.manager.R
 import com.resukisu.resukisu.ui.component.WarningCard
 import com.resukisu.resukisu.ui.component.settings.AppBackButton
 import com.resukisu.resukisu.ui.component.settings.SegmentedColumn
@@ -121,7 +121,7 @@ fun AboutScreen() {
                     StatusCard()
                 }
             }
-
+/*
             item {
                 WarningCard(
                     modifier = Modifier
@@ -151,7 +151,7 @@ fun AboutScreen() {
                     )
                 )
             }
-
+*/
             item {
                 SegmentedColumn(
                     title = stringResource(R.string.about)
@@ -161,7 +161,7 @@ fun AboutScreen() {
                             icon = Icons.Rounded.Code,
                             title = stringResource(R.string.get_source_code),
                             description = stringResource(R.string.get_source_code_detail),
-                            onClick = { uriHandler.openUri("https://github.com/ReSukiSU/ReSukiSU") }
+                            onClick = { uriHandler.openUri("https://github.com/midori01/ReSukiSU") }
                         )
                     }
                     item {
@@ -169,7 +169,7 @@ fun AboutScreen() {
                             icon = Icons.Rounded.Group,
                             title = stringResource(R.string.join_telegram_group),
                             description = stringResource(R.string.join_telegram_group_detail),
-                            onClick = { uriHandler.openUri("https://t.me/ReSukiSU") }
+                            onClick = { uriHandler.openUri("https://t.me/midori") }
                         )
                     }
                     item {
