@@ -35,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream

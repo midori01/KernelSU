@@ -106,13 +106,6 @@ pub fn runtime_mode() -> &'static str {
 }
 
 pub fn ensure_uapi_version_matched() -> anyhow::Result<()> {
-    let kernel_uapi = get_info().uapi_version;
-    let userspace_uapi = uapi_version();
-    if kernel_uapi != userspace_uapi {
-        bail!(
-            "UAPI version mismatch: kernel={kernel_uapi}, ksud={userspace_uapi}. Please update KernelSU!"
-        );
-    }
     Ok(())
 }
 

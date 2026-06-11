@@ -13,7 +13,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.FileProvider
 import com.resukisu.resukisu.BuildConfig
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.data.update.ManagerUpdateRepository
 import com.resukisu.resukisu.data.update.ZipRangeArchive
 import com.resukisu.resukisu.ksuApp

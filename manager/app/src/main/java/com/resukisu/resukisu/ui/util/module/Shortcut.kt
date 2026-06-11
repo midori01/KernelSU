@@ -15,7 +15,7 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.scale
 import androidx.core.net.toUri
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.data.appPreferences
 import com.resukisu.resukisu.ui.MainActivity
 import com.resukisu.resukisu.ui.util.getRootShell

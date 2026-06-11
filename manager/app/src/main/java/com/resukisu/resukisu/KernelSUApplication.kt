@@ -1,5 +1,7 @@
 package com.resukisu.resukisu
 
+import com.midori.su.manager.R
+import com.midori.su.manager.BuildConfig
 import android.annotation.SuppressLint
 import android.app.Application
 import android.os.Build

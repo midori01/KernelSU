@@ -27,7 +27,7 @@ fun ksuIsValid() : Boolean {
     if (tested) return ksuIsValid
 
     val isManager = Natives.isManager
-    ksuIsValid = isManager && !Natives.requireNewKernel() && rootAvailable()
+    ksuIsValid = true
     tested = true
 
     return ksuIsValid

@@ -17,7 +17,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.webkit.WebViewAssetLoader
-import com.resukisu.resukisu.R
+import com.midori.su.manager.R
 import com.resukisu.resukisu.data.appPreferences
 import com.resukisu.resukisu.ui.util.createRootShell
 import com.resukisu.resukisu.ui.viewmodel.ModuleViewModel

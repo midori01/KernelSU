@@ -7,7 +7,7 @@ import android.os.Parcelable
 import android.os.SystemClock
 import android.system.Os
 import android.util.Log
-import com.resukisu.resukisu.BuildConfig
+import com.midori.su.manager.BuildConfig
 import com.resukisu.resukisu.Natives
 import com.resukisu.resukisu.ksuApp
 import com.topjohnwu.superuser.CallbackList

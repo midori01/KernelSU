@@ -22,6 +22,11 @@ on:
         required: false
         default: ''
         type: string
+      version_code:
+        description: 'Manager version code'
+        required: false
+        default: ''
+        type: string
 
 
 jobs:
@@ -31,6 +36,9 @@ jobs:
     container:
       image: ghcr.io/ylarod/ddk-min:${{ inputs.kmi }}-${{ inputs.ddk_release }}
       options: --privileged
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - name: Checkout source code
@@ -40,6 +48,7 @@ jobs:
       env:
         EXPECTED_PR_BUILD_SIZE: ${{ inputs.expected_pr_build_size }}
         EXPECTED_PR_BUILD_HASH: ${{ inputs.expected_pr_build_hash }}
+        MANAGER_VERSION_CODE: ${{ inputs.version_code }}
       run: |
         git config --global --add safe.directory /__w/ReSukiSU/ReSukiSU
         cd kernel
@@ -59,12 +68,14 @@ jobs:
           EXTRA_ARGS="KSU_EXPECTED_PR_BUILD_SIZE=$EXPECTED_PR_BUILD_SIZE KSU_EXPECTED_PR_BUILD_HASH=$EXPECTED_PR_BUILD_HASH"
         fi
 
+        if [ -n "$MANAGER_VERSION_CODE" ]; then
+          EXTRA_ARGS="$EXTRA_ARGS MANAGER_VERSION_CODE=$MANAGER_VERSION_CODE"
+        fi
+
         CONFIG_KSU=m CONFIG_KSU_MULTI_MANAGER_SUPPORT=y CONFIG_KSU_TRACEPOINT_HOOK=y CC=clang make $EXTRA_ARGS
         
         echo "=== Build completed ==="
-        # Create output directory in GitHub workspace
         mkdir -p /github/workspace/out
-        # Copy with KMI-specific naming
         OUTPUT_NAME="${{ inputs.kmi }}_kernelsu.ko"
         cp kernelsu.ko "/github/workspace/out/$OUTPUT_NAME"
         
