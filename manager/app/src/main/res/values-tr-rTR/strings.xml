@@ -77,7 +77,6 @@
   <string name="safe_mode">Güvenli mod</string>
   <string name="reboot_to_apply">Etkili olması için yeniden başlatın</string>
   <string name="module_magisk_conflict">Magisk ile yaşanan bir çakışma nedeniyle modüller kullanılamıyor!</string>
-  <string name="home_mount_system">Bağlama sistemi</string>
   <string name="unavailable">Mevcut değil</string>
   <string name="module_restore">Modülü geri yükle</string>
   <string name="module_restore_message">Modülleri son yedeklemeden geri yükleyin.</string>
@@ -247,4 +246,28 @@
   <string name="backup_failed">Yedekleme başarısız oldu</string>
   <string name="restore_success">Geri yükleme başarıyla tamamlandı</string>
   <string name="restore_failed">Geri yükleme başarısız oldu</string>
+  <string name="jailbreak_mode">Jailbreak modu</string>
+  <string name="contributors">Katkıda Bulunanlar</string>
+  <string name="support">Destek</string>
+  <string name="home_metamodule_status">Metamodül durumu</string>
+  <string name="home_seccomp_status">Seccomp durumu</string>
+  <string name="seccomp_status_not_supported">Desteklenmiyor</string>
+  <string name="seccomp_status_strict">Katı</string>
+  <string name="seccomp_status_filter">Filtre</string>
+  <string name="seccomp_status_disabled">Devre dışı</string>
+  <string name="seccomp_status_unknown">Bilinmiyor</string>
+  <string name="module_sort_stars_low_to_high">Sırala (Düşük → Yüksek)</string>
+  <string name="module_sort_stars_high_to_low">Sırala (Yüksek → Düşük)</string>
+  <string name="settings_adb_root">ADB Root</string>
+  <string name="settings_adb_root_summary">Run adbd daemon with root privileges</string>
+  <string name="settings_selinux_hide">Hide SELinux modification</string>
+  <string name="settings_selinux_hide_summary">Prevent applications from detecting SELinux modifications</string>
+  <string name="settings_selinux_hide_reboot_required">Reboot to take effect</string>
+  <string name="settings_selinux_hide_failed">Error: %d</string>
+  <string name="allow_shell">Always grant root to Shell</string>
+  <string name="allow_shell_summary">Always allow adb shell to call su. Do not enable this unless absolutely necessary.</string>
+  <string name="enable_adb">Force enable adb on boot</string>
+  <string name="enable_adb_summary">Force enable USB debugging and disable adb authentication. Do not enable this unless absolutely necessary.</string>
+  <string name="advanced_options">Advanced Options</string>
+  <string name="expand">Expand</string>
 </resources>

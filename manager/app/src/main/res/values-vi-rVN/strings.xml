@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="issue_report_title">Gặp rắc rối à?</string>
+  <string name="issue_report_title">Gặp rắc rối?</string>
   <string name="issue_report_body">Gặp một lỗi hoặc có góp ý?</string>
   <string name="issue_report_body_2">Hãy báo cáo nhanh nhất có thể!</string>
   <string name="issue_report_github">Báo cáo trên GitHub</string>
@@ -77,7 +77,6 @@
   <string name="safe_mode">Chế độ an toàn</string>
   <string name="reboot_to_apply">Khởi động lại để có hiệu lực</string>
   <string name="module_magisk_conflict">Các mô-đun không khả dụng do xung đột với Magisk!</string>
-  <string name="home_mount_system">Hệ thống gắn kết</string>
   <string name="unavailable">Không khả dụng</string>
   <string name="module_restore">Khôi phục mô-đun</string>
   <string name="module_restore_message">Khôi phục các mô-đun từ bản sao lưu gần nhất.</string>
@@ -247,4 +246,28 @@
   <string name="backup_failed">Sao lưu thất bại</string>
   <string name="restore_success">Khôi phục thành công</string>
   <string name="restore_failed">Khôi phục thất bại</string>
+  <string name="jailbreak_mode">Chế độ Jailbreak</string>
+  <string name="contributors">Những người đóng góp</string>
+  <string name="support">Hỗ trợ</string>
+  <string name="home_metamodule_status">Trạng thái mô-đun meta</string>
+  <string name="home_seccomp_status">Trạng thái Seccomp</string>
+  <string name="seccomp_status_not_supported">Không được hỗ trợ</string>
+  <string name="seccomp_status_strict">Nghiêm ngặt</string>
+  <string name="seccomp_status_filter">Bộ lọc</string>
+  <string name="seccomp_status_disabled">Đã tắt</string>
+  <string name="seccomp_status_unknown">Không xác định</string>
+  <string name="module_sort_stars_low_to_high">Sắp xếp (Thấp → Cao)</string>
+  <string name="module_sort_stars_high_to_low">Sắp xếp (Cao → Thấp)</string>
+  <string name="settings_adb_root">ADB Root</string>
+  <string name="settings_adb_root_summary">Run adbd daemon with root privileges</string>
+  <string name="settings_selinux_hide">Hide SELinux modification</string>
+  <string name="settings_selinux_hide_summary">Prevent applications from detecting SELinux modifications</string>
+  <string name="settings_selinux_hide_reboot_required">Reboot to take effect</string>
+  <string name="settings_selinux_hide_failed">Error: %d</string>
+  <string name="allow_shell">Always grant root to Shell</string>
+  <string name="allow_shell_summary">Always allow adb shell to call su. Do not enable this unless absolutely necessary.</string>
+  <string name="enable_adb">Force enable adb on boot</string>
+  <string name="enable_adb_summary">Force enable USB debugging and disable adb authentication. Do not enable this unless absolutely necessary.</string>
+  <string name="advanced_options">Advanced Options</string>
+  <string name="expand">Expand</string>
 </resources>
