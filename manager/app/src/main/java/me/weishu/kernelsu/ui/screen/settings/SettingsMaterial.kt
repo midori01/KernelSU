@@ -218,6 +218,27 @@ fun SettingPagerMaterial(
                                 }
                             )
                         }
+                        if (uiState.isSusfsInstalled) add {
+                            SegmentedListItem(
+                                onClick = {
+                                    actions.onOpenWebUi("susfs4ksu", "SUSFS for KernelSU")
+                                },
+                                headlineContent = { Text(stringResource(R.string.settings_susfs4ksu)) },
+                                supportingContent = { Text(stringResource(R.string.settings_susfs4ksu_summary)) },
+                                leadingContent = {
+                                    Icon(
+                                        Icons.Filled.Build,
+                                        stringResource(R.string.settings_susfs4ksu)
+                                    )
+                                },
+                                trailingContent = {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        null
+                                    )
+                                }
+                            )
+                        }
                     }
                 )
             }
