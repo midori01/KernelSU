@@ -242,6 +242,23 @@ fun SettingPagerMiuix(
                                     }
                                 )
                             }
+                            if (uiState.isSusfsInstalled) {
+                                ArrowPreference(
+                                    title = stringResource(R.string.settings_susfs4ksu),
+                                    summary = stringResource(R.string.settings_susfs4ksu_summary),
+                                    startAction = {
+                                        Icon(
+                                            Icons.Rounded.Build,
+                                            modifier = Modifier.padding(end = 6.dp),
+                                            contentDescription = stringResource(id = R.string.settings_susfs4ksu),
+                                            tint = colorScheme.onBackground
+                                        )
+                                    },
+                                    onClick = {
+                                        actions.onOpenWebUi("susfs4ksu", "SUSFS for KernelSU")
+                                    }
+                                )
+                            }
                         }
                     }
 

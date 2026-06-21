@@ -12,11 +12,16 @@
     <string name="home_kernel">核心版本</string>
     <string name="home_manager_version">管理工具</string>
     <string name="home_fingerprint">指紋資訊</string>
+    <string name="home_android_version">Android 版本</string>
+    <string name="home_security_patch">安全性修補程式等級</string>
+    <string name="home_hook_type">鈎子類型</string>
     <string name="home_selinux_status">SELinux 狀態</string>
     <string name="selinux_status_disabled">已停用</string>
     <string name="selinux_status_enforcing">強制執行</string>
     <string name="selinux_status_permissive">容許執行</string>
     <string name="selinux_status_unknown">不明</string>
+    <string name="home_susfs_version">SUSFS 版本</string>
+    <string name="home_droidspaces_version">Droidspaces 版本</string>
     <string name="superuser">授權</string>
     <string name="module_failed_to_enable">無法啟用模組：%s</string>
     <string name="module_failed_to_disable">無法停用模組：%s</string>

@@ -16,8 +16,15 @@ data class SystemInfo(
     val managerVersion: String,
     val deviceModel: String,
     val fingerprint: String,
+    val androidVersion: String,
+    val securityPatch: String,
+    val hookType: String,
     val selinuxStatus: String,
-    val seccompStatus: Int
+    val seccompStatus: Int,
+    val susfsVersion: String,
+    val droidspacesVersion: String,
+    val driverName: String,
+    val oemUnlock: String
 )
 
 fun getManagerVersion(context: Context): ManagerVersion {
