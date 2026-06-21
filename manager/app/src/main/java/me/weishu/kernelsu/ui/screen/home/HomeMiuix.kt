@@ -168,12 +168,12 @@ fun HomePagerMiuix(
                             state = state,
                             actions = actions,
                         )
-//                        if (state.checkUpdateEnabled) {
-//                            UpdateCard(state = state, actions = actions)
-//                        }
+                        if (state.checkUpdateEnabled) {
+                            UpdateCard(state = state, actions = actions)
+                        }
                         InfoCard(systemInfo = state.systemInfo)
-                        DonateCard(onOpenUrl = actions.onOpenUrl)
-                        LearnMoreCard(onOpenUrl = actions.onOpenUrl)
+//                        DonateCard(onOpenUrl = actions.onOpenUrl)
+//                        LearnMoreCard(onOpenUrl = actions.onOpenUrl)
                     }
                     Spacer(Modifier.height(bottomInnerPadding))
                 }
@@ -252,9 +252,9 @@ private fun StatusCard(
                     }
                 }
                 val workingMode = when (state.lkmMode) {
-                    null -> if (Build.SUPPORTED_64_BIT_ABIS.isEmpty()) " <32-BIT>" else " <LEGACY>"
-                    true -> " <LKM>"
-                    else -> " <GKI>"
+                    null -> if (Build.SUPPORTED_64_BIT_ABIS.isEmpty()) " BUILT-IN<32-BIT>" else " BUILT-IN<LEGACY>"
+                    true -> " LKM<GKI>"
+                    else -> " BUILT-IN<GKI>"
                 }
                 val workingText = "${stringResource(id = R.string.home_working)}$workingMode$workingState"
 
@@ -316,7 +316,7 @@ private fun StatusCard(
                                 Spacer(Modifier.height(2.dp))
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
-                                    text = stringResource(R.string.home_working_version, "${state.ksuVersion}-${state.kernelUAPIVersion}"),
+                                    text = stringResource(R.string.home_working_version, "${state.ksuVersion}"),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
                                 )
@@ -449,7 +449,7 @@ private fun StatusCard(
         }
     }
 }
-
+/*
 @Composable
 private fun LearnMoreCard(
     onOpenUrl: (String) -> Unit,
@@ -489,7 +489,7 @@ private fun DonateCard(onOpenUrl: (String) -> Unit) {
         )
     }
 }
-
+*/
 @Composable
 private fun InfoCard(systemInfo: SystemInfo) {
     @Composable
@@ -522,6 +522,14 @@ private fun InfoCard(systemInfo: SystemInfo) {
             InfoText(title = stringResource(R.string.home_kernel), content = systemInfo.kernelVersion)
             InfoText(title = stringResource(R.string.home_device_model), content = systemInfo.deviceModel)
             InfoText(title = stringResource(R.string.home_fingerprint), content = systemInfo.fingerprint)
+            InfoText(title = stringResource(R.string.home_android_version), content = systemInfo.androidVersion)
+            InfoText(title = stringResource(R.string.home_security_patch), content = systemInfo.securityPatch)
+            if (systemInfo.hookType.isNotEmpty() && systemInfo.hookType != "N/A" && systemInfo.hookType != "Unknown") {
+                InfoText(
+                    title = stringResource(R.string.home_hook_type),
+                    content = systemInfo.hookType
+                )
+            }
             val selinuxDisplay = when (systemInfo.selinuxStatus) {
                 "Enforcing" -> stringResource(R.string.selinux_status_enforcing)
                 "Permissive" -> stringResource(R.string.selinux_status_permissive)
@@ -539,11 +547,29 @@ private fun InfoCard(systemInfo: SystemInfo) {
                 2 -> stringResource(R.string.seccomp_status_filter)
                 else -> stringResource(R.string.seccomp_status_unknown)
             }
+            val showSusfs = systemInfo.susfsVersion.isNotEmpty() && systemInfo.susfsVersion != "Not supported"
+            val showDroidspaces = systemInfo.droidspacesVersion.isNotEmpty()
+            val anyAfterSeccomp = showSusfs || showDroidspaces
+
             InfoText(
                 title = stringResource(R.string.home_seccomp_status),
                 content = seccompDisplay,
-                bottomPadding = 0.dp
+                bottomPadding = if (anyAfterSeccomp) 24.dp else 0.dp
             )
+            if (showSusfs) {
+                InfoText(
+                    title = stringResource(R.string.home_susfs_version),
+                    content = systemInfo.susfsVersion,
+                    bottomPadding = if (showDroidspaces) 24.dp else 0.dp
+                )
+            }
+            if (showDroidspaces) {
+                InfoText(
+                    title = stringResource(R.string.home_droidspaces_version),
+                    content = systemInfo.droidspacesVersion,
+                    bottomPadding = 0.dp
+                )
+            }
         }
     }
 }
@@ -586,8 +612,15 @@ private val previewSystemInfo = SystemInfo(
     managerVersion = "3.0.0 (30000)",
     deviceModel = "Xiaomi 17 Pro Max",
     fingerprint = "Xiaomi/popsicle/popsicle:16/BQ2A.250705.001-BP2A.250605.031.A3/OS3.0.313.0.WPBCNXM:user/release-keys",
+    androidVersion = "16 (API level 36)",
+    securityPatch = "1989-06-04",
+    hookType = "Unknown",
     selinuxStatus = "Enforcing",
-    seccompStatus = 2
+    seccompStatus = 2,
+    susfsVersion = "",
+    droidspacesVersion = "",
+    driverName = "MidoriSU",
+    oemUnlock = ""
 )
 
 private val previewUriHandler = object : UriHandler {
@@ -624,8 +657,8 @@ private fun HomeScreenPreviewContent(
                 actions = actions
             )
             InfoCard(previewSystemInfo.copy(selinuxStatus = selinuxStatus))
-            DonateCard(onOpenUrl = {})
-            LearnMoreCard(onOpenUrl = {})
+//            DonateCard(onOpenUrl = {})
+//            LearnMoreCard(onOpenUrl = {})
         }
     }
 }
@@ -674,7 +707,7 @@ private fun previewHomeScreenState(
     isRootAvailable = ksuVersion != null,
     isSafeMode = isSafeMode,
     isLateLoadMode = isLateLoadMode,
-    checkUpdateEnabled = false,
+    checkUpdateEnabled = true,
     latestVersionInfo = LatestVersionInfo(),
     currentManagerVersionCode = 10000,
     superuserCount = superuserCount,

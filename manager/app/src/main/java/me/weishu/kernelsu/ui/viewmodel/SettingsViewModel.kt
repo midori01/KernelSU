@@ -55,6 +55,7 @@ class SettingsViewModel(
             // WebUI modules shortcut entry
             val isToolkitInstalled = isWebuiModuleInstalled("ksu_toolkit")
             val isKpatchNextInstalled = isWebuiModuleInstalled("KPatch-Next")
+            val isSusfsInstalled = isWebuiModuleInstalled("susfs4ksu")
 
             // Async loading for natives/features
             val suCompatStatus = repo.getSuCompatStatus()
@@ -100,6 +101,7 @@ class SettingsViewModel(
                     colorSpec = colorSpec,
                     isToolkitInstalled = isToolkitInstalled,
                     isKpatchNextInstalled = isKpatchNextInstalled,
+                    isSusfsInstalled = isSusfsInstalled,
                     suCompatStatus = suCompatStatus,
                     suCompatMode = suCompatMode,
                     isSuEnabled = isSuEnabled,
