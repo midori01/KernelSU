@@ -18,9 +18,11 @@ import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.getKernelVersion
 import me.weishu.kernelsu.ksuApp
+import me.weishu.kernelsu.getKernelInfo
 import me.weishu.kernelsu.ui.screen.home.HomeUiState
 import me.weishu.kernelsu.ui.screen.home.SystemInfo
 import me.weishu.kernelsu.ui.screen.home.getManagerVersion
+import me.weishu.kernelsu.ui.screen.home.toRoman
 import me.weishu.kernelsu.ui.util.checkNewVersion
 import me.weishu.kernelsu.ui.util.getModuleCount
 import me.weishu.kernelsu.ui.util.getSELinuxStatusRaw
@@ -28,6 +30,7 @@ import me.weishu.kernelsu.ui.util.getSuperuserCount
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 import me.weishu.kernelsu.ui.util.resolveDeviceName
 import me.weishu.kernelsu.ui.util.rootAvailable
+import me.weishu.kernelsu.ui.util.getRootShell
 
 class HomeViewModel : ViewModel() {
 
@@ -68,6 +71,7 @@ class HomeViewModel : ViewModel() {
         val classicUi = prefs.getBoolean("classic_ui", false)
         val appName = if (isOfficial) ksuApp.getString(R.string.app_name) else ksuApp.getString(R.string.app_name_kowsu)
         val kernelVersion = getKernelVersion()
+        val (isGki2, localVersion) = getKernelInfo()
         val isManager = Natives.isManager
         val ksuVersion = if (isManager) Natives.version else null
         val kernelUAPIVersion = if (isManager) Natives.kernelUAPIVersion else null
@@ -75,6 +79,18 @@ class HomeViewModel : ViewModel() {
         val lkmMode = ksuVersion?.let { if (kernelVersion.isGKI()) Natives.isLkmMode else null }
         val isRootAvailable = rootAvailable()
         val managerVersion = getManagerVersion(ksuApp)
+        val codename = when (Build.VERSION.SDK_INT) {
+            37 -> "Cinnamon Bun"
+            36 -> "Baklava"
+            35 -> "Vanilla Ice Cream"
+            34 -> "Upside Down Cake"
+            33 -> "Tiramisu"
+            32 -> "Snow Cone v2"
+            31 -> "Snow Cone"
+            30 -> "Red Velvet Cake"
+            29 -> "Q"
+            else -> ""
+        }
 
         return HomeUiState(
             appName = appName,
@@ -99,15 +115,65 @@ class HomeViewModel : ViewModel() {
             superuserCount = getSuperuserCount(),
             moduleCount = getModuleCount(),
             systemInfo = SystemInfo(
-                kernelVersion = Os.uname().release,
-                managerVersion = "${managerVersion.versionName} (${managerVersion.versionCode}-${managerUAPIVersion})",
+                kernelVersion = runCatching {
+                    val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                        getRootShell(true),
+                        "cat /proc/version"
+                    ).trim()
+                    if (result.isNotEmpty()) {
+                        val afterPrefix = result.removePrefix("Linux version ")
+                        val parts = afterPrefix.split(" #")
+                        if (parts.size >= 2) {
+                            val beforeHash = parts[0]
+                            val afterHash = parts[1].trim()
+                            val cleaned = beforeHash.replace(Regex("\\).*"), ")")
+                            "$cleaned\n#$afterHash"
+                        } else {
+                            afterPrefix.replace(Regex("#\\d+.*?PREEMPT "), "").trim()
+                        }
+                    } else {
+                        Os.uname().release
+                    }
+                }.getOrDefault(Os.uname().release),
+                managerVersion = "${managerVersion.versionName} (${managerVersion.versionCode}-${managerUAPIVersion.toRoman()})",
                 deviceModel = resolveDeviceName(),
                 fingerprint = Build.FINGERPRINT,
+                androidVersion = if (codename.isNotEmpty()) {
+                    "${Build.VERSION.RELEASE} (${codename}, API level ${Build.VERSION.SDK_INT})"
+                } else {
+                    "${Build.VERSION.RELEASE} (API level ${Build.VERSION.SDK_INT})"
+                },
+                securityPatch = Build.VERSION.SECURITY_PATCH,
+                hookType = if (isManager && ksuVersion != null) Natives.getHookType() else "N/A",
                 selinuxStatus = getSELinuxStatusRaw(),
                 seccompStatus = runCatching {
                     Os.prctl(21 /* PR_GET_SECCOMP */, 0, 0, 0, 0)
                 }.getOrDefault(-1),
+                susfsVersion = if (isManager && ksuVersion != null) Natives.getSusFSVersion() else "",
+                droidspacesVersion = if (isManager && ksuVersion != null) {
+                    runCatching {
+                        val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                            getRootShell(true),
+                            "grep '^version=' /data/adb/modules/droidspaces/module.prop | head -1 | cut -d= -f2"
+                        ).trim()
+                        if (result.isNotEmpty()) result else ""
+                    }.getOrDefault("")
+                } else "",
+                driverName = if (isManager && ksuVersion != null) Natives.getDriverName() else "",
+                oemUnlock = runCatching {
+                    val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                        getRootShell(true),
+                        "dumpsys persistent_data_block 2>/dev/null | grep 'OEM unlock state' | awk '{print \$NF}'"
+                    ).trim()
+                    when (result) {
+                        "true" -> "Unlocked"
+                        "false" -> "Locked"
+                        else -> ""
+                    }
+                }.getOrDefault(""),
             ),
+            isGki2 = isGki2,
+            localVersion = localVersion,
         )
     }
 }

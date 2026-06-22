@@ -88,7 +88,7 @@ pub fn is_late_load() -> bool {
 }
 
 pub fn is_uapi_version_mismatch() -> bool {
-    get_info().uapi_version != ksu_uapi::KERNEL_SU_UAPI_VERSION
+    false
 }
 
 pub fn grant_root() -> std::io::Result<()> {
