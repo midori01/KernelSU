@@ -33,27 +33,19 @@ fun getKernelVersion(): KernelVersion {
     }
 }
 
-fun isGki2(): Boolean {
-    return try {
-        com.topjohnwu.superuser.ShellUtils.fastCmd(
-            "grep -q 'register_kprobe' /proc/kallsyms && grep -q 'shadow_call_stack' /proc/kallsyms && echo 1 || echo 0"
-        ).trim() == "1"
-    } catch (e: Exception) {
-        false
-    }
-}
-
-fun getLocalVersion(): String {
+fun getKernelInfo(): Pair<Boolean, String> {
     return try {
         val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
-            "cat /proc/version"
-        ).trim().lowercase()
-        when {
+            "grep -q 'register_kprobe' /proc/kallsyms && grep -q 'shadow_call_stack' /proc/kallsyms && echo -n 'GKI' ; cat /proc/version | tr '[:upper:]' '[:lower:]'"
+        ).trim()
+        val isGki2 = result.contains("GKI")
+        val localVersion = when {
             result.contains("sultan") -> "-Sultan"
             result.contains("anaconda") -> "-Anaconda"
             else -> ""
         }
+        Pair(isGki2, localVersion)
     } catch (e: Exception) {
-        ""
+        Pair(false, "")
     }
 }

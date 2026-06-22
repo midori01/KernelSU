@@ -18,8 +18,7 @@ import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.getKernelVersion
 import me.weishu.kernelsu.ksuApp
-import me.weishu.kernelsu.isGki2
-import me.weishu.kernelsu.getLocalVersion
+import me.weishu.kernelsu.getKernelInfo
 import me.weishu.kernelsu.ui.screen.home.HomeUiState
 import me.weishu.kernelsu.ui.screen.home.SystemInfo
 import me.weishu.kernelsu.ui.screen.home.getManagerVersion
@@ -71,6 +70,7 @@ class HomeViewModel : ViewModel() {
         val classicUi = prefs.getBoolean("classic_ui", false)
         val appName = if (isOfficial) ksuApp.getString(R.string.app_name) else ksuApp.getString(R.string.app_name_kowsu)
         val kernelVersion = getKernelVersion()
+        val (isGki2, localVersion) = getKernelInfo()
         val isManager = Natives.isManager
         val ksuVersion = if (isManager) Natives.version else null
         val kernelUAPIVersion = if (isManager) Natives.kernelUAPIVersion else null
@@ -171,8 +171,8 @@ class HomeViewModel : ViewModel() {
                     }
                 }.getOrDefault(""),
             ),
-            isGki2 = isGki2(),
-            localVersion = getLocalVersion(),
+            isGki2 = isGki2,
+            localVersion = localVersion,
         )
     }
 }
