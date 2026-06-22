@@ -29,6 +29,7 @@ data class SettingsUiState(
     // WebUI Modules shortcut entry
     val isToolkitInstalled: Boolean = false,
     val isKpatchNextInstalled: Boolean = false,
+    val isSusfsInstalled: Boolean = false,
 
     // Su Compat
     val suCompatStatus: String = "",
