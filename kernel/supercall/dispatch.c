@@ -690,21 +690,54 @@ static int add_try_umount(void __user *arg)
     return 0;
 }
 
-static int do_get_hook_mode(void __user *arg)
+static int do_get_hook_type(void __user *arg)
 {
-    struct ksu_get_hook_mode_cmd cmd = {0};
+    struct ksu_hook_type_cmd cmd = {0};
 
+#ifndef CONFIG_KSU_SUSFS
 #ifdef CONFIG_HAVE_SYSCALL_TRACEPOINTS
-    strscpy(cmd.mode, "Tracepoint", sizeof(cmd.mode));
+    strscpy(cmd.hook_type, "Tracepoint", sizeof(cmd.hook_type));
 #else
-    strscpy(cmd.mode, "Kprobes", sizeof(cmd.mode));
+    strscpy(cmd.hook_type, "Kprobes", sizeof(cmd.hook_type));
+#endif
+#elif defined(CONFIG_HAVE_SYSCALL_TRACEPOINTS) || defined(CONFIG_KPROBES)
+    strscpy(cmd.hook_type, "Hybrid", sizeof(cmd.hook_type));
+#else
+    strscpy(cmd.hook_type, "Inline", sizeof(cmd.hook_type));
 #endif
 
     if (copy_to_user(arg, &cmd, sizeof(cmd))) {
-        pr_err("get_hook_mode: copy_to_user failed\n");
+        pr_err("get_hook_type: copy_to_user failed\n");
         return -EFAULT;
     }
 
+    return 0;
+}
+
+static int do_get_susfs_version(void __user *arg)
+{
+    struct ksu_susfs_version_cmd cmd = { 0 };
+
+#ifdef CONFIG_KSU_SUSFS
+    strscpy(cmd.version, SUSFS_VERSION, sizeof(cmd.version));
+#else
+    strscpy(cmd.version, "Not supported", sizeof(cmd.version));
+#endif
+
+    if (copy_to_user(arg, &cmd, sizeof(cmd))) {
+        return -EFAULT;
+    }
+    return 0;
+}
+
+static int do_get_driver_name(void __user *arg)
+{
+    struct ksu_driver_name_cmd cmd = { 0 };
+    strscpy(cmd.name, "NEXT", sizeof(cmd.name));
+
+    if (copy_to_user(arg, &cmd, sizeof(cmd))) {
+        return -EFAULT;
+    }
     return 0;
 }
 
@@ -926,9 +959,21 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
         .perm_check = only_root 
     },
     {
-        .cmd = KSU_IOCTL_GET_HOOK_MODE,
-        .name = "GET_HOOK_MODE",
-        .handler = do_get_hook_mode,
+        .cmd = KSU_IOCTL_HOOK_TYPE,
+        .name = "HOOK_TYPE",
+        .handler = do_get_hook_type,
+        .perm_check = manager_or_root
+    },
+    {
+        .cmd = KSU_IOCTL_SUSFS_VERSION,
+        .name = "SUSFS_VERSION",
+        .handler = do_get_susfs_version,
+        .perm_check = manager_or_root
+    },
+    {
+        .cmd = KSU_IOCTL_DRIVER_NAME,
+        .name = "DRIVER_NAME",
+        .handler = do_get_driver_name,
         .perm_check = manager_or_root
     },
     {
