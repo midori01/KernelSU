@@ -54,7 +54,7 @@ fun HomePager(
     val actions = HomeActions(
         onInstallClick = { navigator.push(Route.Install) },
         onSuperuserClick = { if (!uiState.showRequireKernelWarning) mainState.animateToPage(1) },
-        onModuleClick = { if (!uiState.showRequireKernelWarning) mainState.animateToPage(2) },
+        onModuleClick = { if (!uiState.showRequireKernelWarning) mainState.animateToPage(3) },
         onOpenUrl = uriHandler::openUri,
         onJailbreakClick = {
             loadingDialog.showLoading()

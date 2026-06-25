@@ -33,6 +33,16 @@ internal sealed class InstallMethod : Parcelable {
         override val summary: String? = null
     ) : InstallMethod()
 
+    @Parcelize
+    data object BackupBoot : InstallMethod() {
+        override val label: Int get() = R.string.backup_boot
+    }
+
+    @Parcelize
+    data object FlashBootImg : InstallMethod() {
+        override val label: Int get() = R.string.flash_boot_img
+    }
+
     abstract val label: Int
 
     @IgnoredOnParcel

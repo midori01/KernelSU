@@ -604,3 +604,11 @@ fun restartApp(packageName: String, userId: Int? = null) {
 fun isWebuiModuleInstalled(modId: String): Boolean {
     return SuFile("/data/adb/modules/$modId/webroot/index.html").exists()
 }
+
+fun flashBootBackup(cmd: String, onStdout: (String) -> Unit, onStderr: (String) -> Unit): FlashResult {
+    return FlashResult(flashWithIO(cmd, onStdout, onStderr))
+}
+
+fun flashBootImgCmd(cmd: String, onStdout: (String) -> Unit, onStderr: (String) -> Unit): FlashResult {
+    return FlashResult(flashWithIO(cmd, onStdout, onStderr))
+}

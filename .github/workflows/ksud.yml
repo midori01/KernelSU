@@ -13,11 +13,19 @@ on:
         required: false
         type: boolean
         default: false
+      version_name:
+        required: false
+        type: string
+        default: ""
+      version_code:
+        required: false
+        type: string
+        default: ""
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
@@ -52,6 +60,8 @@ jobs:
     - name: Build ksud
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        KSU_VERSION_NAME: ${{ inputs.version_name }}
+        KSU_VERSION_CODE: ${{ inputs.version_code }}
       run: |
         source .github/scripts/setup-rust-build.sh ${{ inputs.target }} 26
         cargo build --target $TRIPLE --release --manifest-path ./userspace/ksud/Cargo.toml

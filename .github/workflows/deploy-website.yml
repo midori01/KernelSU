@@ -1,13 +1,6 @@
 name: Deploy Website
 
 on:
-  push:
-    branches:
-      - main
-      - website
-    paths:
-      - '.github/workflows/deploy-website.yml'
-      - 'website/**'
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -31,7 +24,7 @@ jobs:
         working-directory: ./website
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # Not needed if lastUpdated is not enabled
       - name: Setup Node
