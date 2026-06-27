@@ -534,7 +534,12 @@ private fun InfoCard(systemInfo: SystemInfo) {
         ) {
             InfoText(title = stringResource(R.string.home_manager_version), content = systemInfo.managerVersion)
             InfoText(title = stringResource(R.string.home_kernel), content = systemInfo.kernelVersion)
-            InfoText(title = stringResource(R.string.home_device_model), content = systemInfo.deviceModel)
+            val deviceInfo = if (systemInfo.socInfo.isNotEmpty()) {
+                "${systemInfo.deviceModel} (${systemInfo.socInfo})"
+            } else {
+                systemInfo.deviceModel
+            }
+            InfoText(title = stringResource(R.string.home_device_model), content = deviceInfo)
             InfoText(title = stringResource(R.string.home_fingerprint), content = systemInfo.fingerprint)
             InfoText(title = stringResource(R.string.home_android_version), content = systemInfo.androidVersion)
             InfoText(title = stringResource(R.string.home_security_patch), content = systemInfo.securityPatch)
@@ -625,6 +630,7 @@ private val previewSystemInfo = SystemInfo(
     kernelVersion = "6.12.23-android16-5-g123456789000-abogki123456789-4k",
     managerVersion = "3.0.0 (30000)",
     deviceModel = "Xiaomi 17 Pro Max",
+    socInfo = "QTI SM8850",
     fingerprint = "Xiaomi/popsicle/popsicle:16/BQ2A.250705.001-BP2A.250605.031.A3/OS3.0.313.0.WPBCNXM:user/release-keys",
     androidVersion = "16 (API level 36)",
     securityPatch = "1989-06-04",

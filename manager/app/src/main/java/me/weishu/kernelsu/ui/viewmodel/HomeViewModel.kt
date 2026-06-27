@@ -65,6 +65,25 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    private fun getSocInfo(): String {
+        return try {
+            val clazz = Class.forName("android.os.SystemProperties")
+            val method = clazz.getMethod("get", String::class.java, String::class.java)
+            val manufacturer = (method.invoke(null, "ro.soc.manufacturer", null) as? String)?.trim()
+            val model = (method.invoke(null, "ro.soc.model", null) as? String)?.trim()
+
+            when {
+                !manufacturer.isNullOrEmpty() && !model.isNullOrEmpty() ->
+                    "$manufacturer $model"
+                !manufacturer.isNullOrEmpty() -> manufacturer
+                !model.isNullOrEmpty() -> model
+                else -> ""
+            }
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
     private fun buildState(): HomeUiState {
         val prefs = ksuApp.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val isOfficial = prefs.getBoolean("enable_official_launcher", false)
@@ -137,6 +156,7 @@ class HomeViewModel : ViewModel() {
                 }.getOrDefault(Os.uname().release),
                 managerVersion = "${managerVersion.versionName} (${managerVersion.versionCode}-${managerUAPIVersion.toRoman()})",
                 deviceModel = resolveDeviceName(),
+                socInfo = getSocInfo(),
                 fingerprint = Build.FINGERPRINT,
                 androidVersion = if (codename.isNotEmpty()) {
                     "${Build.VERSION.RELEASE} (${codename}, API level ${Build.VERSION.SDK_INT})"

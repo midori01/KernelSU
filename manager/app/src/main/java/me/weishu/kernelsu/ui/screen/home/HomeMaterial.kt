@@ -599,7 +599,11 @@ private fun InfoCard(systemInfo: SystemInfo) {
             InfoCardItem(
                 icon = Icons.Outlined.PhoneAndroid,
                 label = stringResource(R.string.home_device_model),
-                content = systemInfo.deviceModel
+                content = if (systemInfo.socInfo.isNotEmpty()) {
+                    "${systemInfo.deviceModel} (${systemInfo.socInfo})"
+                } else {
+                    systemInfo.deviceModel
+                }
             )
 
             Spacer(Modifier.height(16.dp))
@@ -716,6 +720,7 @@ private val previewSystemInfo = SystemInfo(
     kernelVersion = "6.1.0-android14-0-g123456789000-ab12345678",
     managerVersion = "3.0.0 (30000)",
     deviceModel = "Google Pixel 6 Pro",
+    socInfo = "Google Tensor",
     fingerprint = "google/raven/raven:14/AP1A.240305.019:user/release-keys",
     androidVersion = "16 (API level 36)",
     securityPatch = "1989-06-04",
