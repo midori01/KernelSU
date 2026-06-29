@@ -688,6 +688,53 @@ static int do_disable_escape_to_root(void __user *arg)
     return 0;
 }
 
+static int do_get_hook_type(void __user *arg)
+{
+    struct ksu_hook_type_cmd cmd = { 0 };
+
+#ifdef CONFIG_KSU_SUSFS
+    const char *type = "Inline";
+#else
+    const char *type = "Kprobes";
+#endif
+
+    strscpy(cmd.hook_type, type, sizeof(cmd.hook_type));
+
+    if (copy_to_user(arg, &cmd, sizeof(cmd))) {
+        pr_err("get_hook_type: copy_to_user failed\n");
+        return -EFAULT;
+    }
+
+    return 0;
+}
+
+static int do_get_susfs_version(void __user *arg)
+{
+    struct ksu_susfs_version_cmd cmd = { 0 };
+
+#ifdef CONFIG_KSU_SUSFS
+    strscpy(cmd.version, SUSFS_VERSION, sizeof(cmd.version));
+#else
+    strscpy(cmd.version, "Not supported", sizeof(cmd.version));
+#endif
+
+    if (copy_to_user(arg, &cmd, sizeof(cmd))) {
+        return -EFAULT;
+    }
+    return 0;
+}
+
+static int do_get_driver_name(void __user *arg)
+{
+    struct ksu_driver_name_cmd cmd = { 0 };
+    strscpy(cmd.name, "TIANN", sizeof(cmd.name));
+
+    if (copy_to_user(arg, &cmd, sizeof(cmd))) {
+        return -EFAULT;
+    }
+    return 0;
+}
+
 // IOCTL handlers mapping table
 // clang-format off
 static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
@@ -834,6 +881,24 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
         .name = "DISABLE_ESCAPE_TO_ROOT", 
         .handler = do_disable_escape_to_root, 
         .perm_check = only_root 
+    },
+    {
+        .cmd = KSU_IOCTL_HOOK_TYPE,
+        .name = "HOOK_TYPE",
+        .handler = do_get_hook_type,
+        .perm_check = manager_or_root
+    },
+    {
+        .cmd = KSU_IOCTL_SUSFS_VERSION,
+        .name = "SUSFS_VERSION",
+        .handler = do_get_susfs_version,
+        .perm_check = manager_or_root
+    },
+    {
+        .cmd = KSU_IOCTL_DRIVER_NAME,
+        .name = "DRIVER_NAME",
+        .handler = do_get_driver_name,
+        .perm_check = manager_or_root
     },
     {
         .cmd = 0,
