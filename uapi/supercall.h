@@ -172,6 +172,14 @@ struct ksu_hook_type_cmd {
     char hook_type[32]; // Output: hook type string
 };
 
+struct ksu_susfs_version_cmd {
+    char version[32];
+};
+
+struct ksu_driver_name_cmd {
+    char name[32];
+};
+
 DEFINE_KSU_UAPI_CONST(__u8, DYNAMIC_MANAGER_OP_SET, 0)
 DEFINE_KSU_UAPI_CONST(__u8, DYNAMIC_MANAGER_OP_GET, 1)
 DEFINE_KSU_UAPI_CONST(__u8, DYNAMIC_MANAGER_OP_WIPE, 2)
@@ -236,6 +244,8 @@ DEFINE_KSU_UAPI_CONST(__u32, KSU_IOCTL_DISABLE_ESCAPE_TO_ROOT, _IO('K', 21))
 DEFINE_KSU_UAPI_CONST(__u32, KSU_IOCTL_GET_FULL_VERSION, _IOC(_IOC_READ, 'K', 100, 0))
 DEFINE_KSU_UAPI_CONST(__u32, KSU_IOCTL_HOOK_TYPE, _IOC(_IOC_READ, 'K', 101, 0))
 // 102 = ENABLE_KPM (KernelPatch Module),deprecated
+DEFINE_KSU_UAPI_CONST(__u32, KSU_IOCTL_SUSFS_VERSION, _IOC(_IOC_READ, 'K', 102, 0))
+DEFINE_KSU_UAPI_CONST(__u32, KSU_IOCTL_DRIVER_NAME, _IOC(_IOC_READ, 'K', 104, 0))
 DEFINE_KSU_UAPI_CONST(__u32, KSU_IOCTL_DYNAMIC_MANAGER, _IOC(_IOC_READ | _IOC_WRITE, 'K', 103, 0))
 // 104 = old get_managers, deprecated
 DEFINE_KSU_UAPI_CONST(__u32, KSU_IOCTL_GET_MANAGERS, _IOC(_IOC_READ | _IOC_WRITE, 'K', 105, 0))
