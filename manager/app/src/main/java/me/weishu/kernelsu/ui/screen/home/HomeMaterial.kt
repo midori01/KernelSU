@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -31,9 +33,16 @@ import androidx.compose.material.icons.outlined.LocalPolice
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.PhoneAndroid
 import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.outlined.Widgets
+import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.LockOpen
+import androidx.compose.material.icons.outlined.Android
+import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -50,6 +59,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
@@ -95,11 +106,13 @@ fun HomePagerMaterial(
                 state = state,
                 actions = actions,
             )
+        /*
             if (state.showManagerPrBuildWarning) {
                 WarningCard(stringResource(id = R.string.home_pr_build_warning))
             } else if (state.showKernelPrBuildWarning) {
                 WarningCard(stringResource(id = R.string.home_pr_kernel_warning))
             }
+        */
 //            if (state.showVersionMismatchWarning) {
 //                WarningCard(
 //                    stringResource(
@@ -143,12 +156,12 @@ fun HomePagerMaterial(
             if (state.showRootWarning) {
                 WarningCard(stringResource(id = R.string.grant_root_failed))
             }
-//            if (state.checkUpdateEnabled) {
-//                UpdateCard(state = state, actions = actions)
-//            }
+            if (state.checkUpdateEnabled) {
+                UpdateCard(state = state, actions = actions)
+            }
             InfoCard(systemInfo = state.systemInfo)
-            DonateCard(onOpenUrl = actions.onOpenUrl)
-            LearnMoreCard(onOpenUrl = actions.onOpenUrl)
+//            DonateCard(onOpenUrl = actions.onOpenUrl)
+//            LearnMoreCard(onOpenUrl = actions.onOpenUrl)
             Spacer(Modifier.height(bottomInnerPadding))
         }
     }
@@ -213,7 +226,7 @@ private fun StatusCard(
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TonalCard(
             containerColor = if (state.ksuVersion != null) {
-                MaterialTheme.colorScheme.secondaryContainer
+                Color.Transparent
             } else {
                 MaterialTheme.colorScheme.errorContainer
             },
@@ -223,117 +236,150 @@ private fun StatusCard(
                 }
             }
         ) {
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = if (state.ksuVersion != null) listOf(
+                                MaterialTheme.colorScheme.secondaryContainer,
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            ) else listOf(
+                                MaterialTheme.colorScheme.errorContainer,
+                                MaterialTheme.colorScheme.errorContainer
+                            ),
+                            start = Offset(0f, 0f),
+                            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                        )
+                    )
             ) {
-                when {
-                    state.ksuVersion != null -> {
-                        val workingMode = when (state.lkmMode) {
-                            null -> if (Build.SUPPORTED_64_BIT_ABIS.isEmpty()) "32-BIT" else "LEGACY"
-                            true -> "LKM"
-                            else -> "GKI"
-                        }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    when {
+                        state.ksuVersion != null -> {
+                            val workingMode = when {
+                                state.lkmMode == true -> "LKM <GKI>"
+                                state.lkmMode == false && state.kernelVersion.is5_10OrAbove() -> {
+                                    when {
+                                        state.localVersion.contains("-Sultan") -> "BUILT-IN <SULTAN>"
+                                        state.localVersion.contains("-Anaconda") -> "BUILT-IN <ANACONDA>"
+                                        !state.isGki2 -> "BUILT-IN <NON-GKI>"
+                                        else -> "BUILT-IN <GKI>"
+                                    }
+                                }
+                                else -> if (Build.SUPPORTED_64_BIT_ABIS.isEmpty()) "BUILT-IN <32-BIT>" else "BUILT-IN <LEGACY>"
+                            }
 
-                        Icon(Icons.Outlined.CheckCircle, stringResource(R.string.home_working))
-                        Column(Modifier.padding(start = 20.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = stringResource(id = R.string.home_working),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                if (workingMode.isNotEmpty()) {
+                            Icon(Icons.Outlined.CheckCircle, stringResource(R.string.home_working))
+                            Column(Modifier.padding(start = 20.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = stringResource(id = R.string.home_working),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    if (workingMode.isNotEmpty()) {
+                                        Spacer(Modifier.width(8.dp))
+                                        StatusTag(
+                                            label = workingMode,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                                            backgroundColor = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Spacer(Modifier.weight(1f))
+                                    if (state.isSafeMode) {
+                                        Spacer(Modifier.width(8.dp))
+                                        StatusTag(
+                                            label = stringResource(id = R.string.safe_mode),
+                                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                                            backgroundColor = MaterialTheme.colorScheme.errorContainer
+                                        )
+                                    }
+                                    if (state.isLateLoadMode) {
+                                        Spacer(Modifier.width(8.dp))
+                                        StatusTag(
+                                            label = stringResource(id = R.string.jailbreak_mode),
+                                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                                            backgroundColor = MaterialTheme.colorScheme.errorContainer
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.height(4.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "Driver",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
                                     Spacer(Modifier.width(8.dp))
+                                    val driverLabel = state.systemInfo.driverName
                                     StatusTag(
-                                        label = workingMode,
+                                        label = if (driverLabel.isNotEmpty()) "$driverLabel <${state.ksuVersion}-${state.formattedKernelUAPIVersion}>" else "<${state.ksuVersion}-${state.formattedKernelUAPIVersion}>",
                                         contentColor = MaterialTheme.colorScheme.onPrimary,
                                         backgroundColor = MaterialTheme.colorScheme.primary
                                     )
                                 }
-                                if (state.isSafeMode) {
-                                    Spacer(Modifier.width(8.dp))
-                                    StatusTag(
-                                        label = stringResource(id = R.string.safe_mode),
-                                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                                        backgroundColor = MaterialTheme.colorScheme.errorContainer
-                                    )
-                                }
-                                if (state.isLateLoadMode) {
-                                    Spacer(Modifier.width(8.dp))
-                                    StatusTag(
-                                        label = stringResource(id = R.string.jailbreak_mode),
-                                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                                        backgroundColor = MaterialTheme.colorScheme.errorContainer
-                                    )
-                                }
                             }
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = stringResource(R.string.home_working_version, "${state.ksuVersion}-${state.kernelUAPIVersion}"),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            if (classicUi) {
-                                Spacer(Modifier.height(4.dp))
+                        }
+
+                        state.kernelVersion.isGKI() -> {
+                            Icon(Icons.Outlined.Warning, stringResource(R.string.home_not_installed))
+                            Column(
+                                modifier = Modifier
+                                    .padding(start = 20.dp)
+                                    .weight(1f)
+                            ) {
                                 Text(
-                                    text = stringResource(
-                                        R.string.home_superuser_count, getSuperuserCount()
-                                    ), style = MaterialTheme.typography.bodyMedium
+                                    text = stringResource(R.string.home_not_installed),
+                                    style = MaterialTheme.typography.titleMedium
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Text(
-                                    text = stringResource(R.string.home_module_count, getModuleCount()),
+                                    text = stringResource(R.string.home_click_to_install),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                            if (state.isSELinuxPermissive) {
+                                Button(
+                                    onClick = actions.onJailbreakClick,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.error,
+                                        contentColor = MaterialTheme.colorScheme.onError
+                                    )
+                                ) {
+                                    Text(stringResource(R.string.home_jailbreak))
+                                }
+                            }
+                        }
+
+                        else -> {
+                            Icon(Icons.Outlined.Block, stringResource(R.string.home_unsupported))
+                            Column(Modifier.padding(start = 20.dp)) {
+                                Text(
+                                    text = stringResource(R.string.home_unsupported),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    text = stringResource(R.string.home_unsupported_reason),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
                         }
                     }
-
-                    state.kernelVersion.isGKI() -> {
-                        Icon(Icons.Outlined.Warning, stringResource(R.string.home_not_installed))
-                        Column(
-                            modifier = Modifier
-                                .padding(start = 20.dp)
-                                .weight(1f)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.home_not_installed),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = stringResource(R.string.home_click_to_install),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                        if (state.isSELinuxPermissive) {
-                            Button(
-                                onClick = actions.onJailbreakClick,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.onError
-                                )
-                            ) {
-                                Text(stringResource(R.string.home_jailbreak))
-                            }
-                        }
-                    }
-
-                    else -> {
-                        Icon(Icons.Outlined.Block, stringResource(R.string.home_unsupported))
-                        Column(Modifier.padding(start = 20.dp)) {
-                            Text(
-                                text = stringResource(R.string.home_unsupported),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = stringResource(R.string.home_unsupported_reason),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
+                }
+                val unlocked = state.systemInfo.oemUnlock == "Unlocked"
+                if (state.systemInfo.oemUnlock.isNotEmpty()) {
+                    Icon(
+                        imageVector = if (unlocked) Icons.Outlined.LockOpen else Icons.Outlined.Lock,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 24.dp),
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                    )
                 }
             }
         }
@@ -434,7 +480,7 @@ private fun WarningCard(
         TonalCard(containerColor = color, content = content)
     }
 }
-
+/*
 @Composable
 private fun LearnMoreCard(onOpenUrl: (String) -> Unit) {
     val url = stringResource(R.string.home_learn_kernelsu_url)
@@ -479,7 +525,7 @@ private fun DonateCard(onOpenUrl: (String) -> Unit) {
         }
     }
 }
-
+*/
 @Composable
 private fun InfoCard(systemInfo: SystemInfo) {
     val isOfficial = LocalEnableOfficialLauncher.current
@@ -530,21 +576,6 @@ private fun InfoCard(systemInfo: SystemInfo) {
             )
 
             InfoCardItem(
-                icon = Icons.Outlined.Memory,
-                label = stringResource(R.string.home_kernel),
-                content = systemInfo.kernelVersion
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            InfoCardItem(
-                icon = Icons.Outlined.PhoneAndroid,
-                label = stringResource(R.string.home_device_model),
-                content = systemInfo.deviceModel
-            )
-
-            Spacer(Modifier.height(16.dp))
-            InfoCardItem(
                 icon = {
                     Icon(
                         painter = painterResource(if (isOfficial) R.drawable.ic_launcher_foreground else R.drawable.ic_launcher_kowsu),
@@ -559,10 +590,51 @@ private fun InfoCard(systemInfo: SystemInfo) {
 
             Spacer(Modifier.height(16.dp))
             InfoCardItem(
+                icon = Icons.Outlined.Memory,
+                label = stringResource(R.string.home_kernel),
+                content = systemInfo.kernelVersion
+            )
+
+            Spacer(Modifier.height(16.dp))
+            InfoCardItem(
+                icon = Icons.Outlined.PhoneAndroid,
+                label = stringResource(R.string.home_device_model),
+                content = if (systemInfo.socInfo.isNotEmpty()) {
+                    "${systemInfo.deviceModel} (${systemInfo.socInfo})"
+                } else {
+                    systemInfo.deviceModel
+                }
+            )
+
+            Spacer(Modifier.height(16.dp))
+            InfoCardItem(
                 icon = Icons.Outlined.Fingerprint,
                 label = stringResource(R.string.home_fingerprint),
                 content = systemInfo.fingerprint
             )
+
+            Spacer(Modifier.height(16.dp))
+            InfoCardItem(
+                icon = Icons.Outlined.Android,
+                label = stringResource(R.string.home_android_version),
+                content = systemInfo.androidVersion
+            )
+
+            Spacer(Modifier.height(16.dp))
+            InfoCardItem(
+                icon = Icons.Outlined.SystemUpdate,
+                label = stringResource(R.string.home_security_patch),
+                content = systemInfo.securityPatch
+            )
+
+            if (systemInfo.hookType.isNotEmpty() && systemInfo.hookType != "N/A" && systemInfo.hookType != "Unknown") {
+                Spacer(Modifier.height(16.dp))
+                InfoCardItem(
+                    icon = Icons.Outlined.Link,
+                    label = stringResource(R.string.home_hook_type),
+                    content = systemInfo.hookType
+                )
+            }
 
             Spacer(Modifier.height(16.dp))
             val selinuxDisplay = when (systemInfo.selinuxStatus) {
@@ -590,6 +662,23 @@ private fun InfoCard(systemInfo: SystemInfo) {
                 label = stringResource(R.string.home_seccomp_status),
                 content = seccompDisplay
             )
+
+            if (systemInfo.susfsVersion.isNotEmpty() && systemInfo.susfsVersion != "Not supported") {
+                Spacer(Modifier.height(16.dp))
+                InfoCardItem(
+                    icon = Icons.Outlined.Storage,
+                    label = stringResource(R.string.home_susfs_version),
+                    content = systemInfo.susfsVersion
+                )
+            }
+            if (systemInfo.droidspacesVersion.isNotEmpty()) {
+                Spacer(Modifier.height(16.dp))
+                InfoCardItem(
+                    icon = Icons.Outlined.Layers,
+                    label = stringResource(R.string.home_droidspaces_version),
+                    content = systemInfo.droidspacesVersion
+                )
+            }
         }
     }
 }
@@ -631,9 +720,17 @@ private val previewSystemInfo = SystemInfo(
     kernelVersion = "6.1.0-android14-0-g123456789000-ab12345678",
     managerVersion = "3.0.0 (30000)",
     deviceModel = "Google Pixel 6 Pro",
+    socInfo = "Google Tensor",
     fingerprint = "google/raven/raven:14/AP1A.240305.019:user/release-keys",
+    androidVersion = "16 (API level 36)",
+    securityPatch = "1989-06-04",
+    hookType = "Unknown",
     selinuxStatus = "Enforcing",
-    seccompStatus = 2
+    seccompStatus = 2,
+    susfsVersion = "",
+    droidspacesVersion = "",
+    driverName = "MidoriSU",
+    oemUnlock = ""
 )
 
 private val previewUriHandler = object : UriHandler {
@@ -671,8 +768,8 @@ private fun HomeScreenPreviewContent(
                 actions = actions
             )
             InfoCard(previewSystemInfo.copy(selinuxStatus = selinuxStatus))
-            DonateCard(onOpenUrl = {})
-            LearnMoreCard(onOpenUrl = {})
+//            DonateCard(onOpenUrl = {})
+//            LearnMoreCard(onOpenUrl = {})
         }
     }
 }
@@ -710,6 +807,8 @@ private fun previewHomeScreenState(
     moduleCount: Int = 0,
     selinuxStatus: String = "Enforcing",
     classicUi: Boolean = false,
+    isGki2: Boolean = true,
+    localVersion: String = "-midori",
 ) = HomeUiState(
     appName = "KernelSU",
     classicUi = classicUi,
@@ -723,7 +822,7 @@ private fun previewHomeScreenState(
     isRootAvailable = ksuVersion != null,
     isSafeMode = isSafeMode,
     isLateLoadMode = isLateLoadMode,
-    checkUpdateEnabled = false,
+    checkUpdateEnabled = true,
     latestVersionInfo = me.weishu.kernelsu.ui.util.module.LatestVersionInfo(),
     currentManagerVersionCode = 10000,
     superuserCount = superuserCount,
@@ -731,5 +830,7 @@ private fun previewHomeScreenState(
     systemInfo = previewSystemInfo.copy(selinuxStatus = selinuxStatus),
     kernelUAPIVersion = 1,
     managerUAPIVersion = 1,
-    uapiMismatch = false
+    uapiMismatch = false,
+    isGki2 = isGki2,
+    localVersion = localVersion
 )
