@@ -10,7 +10,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.captionBar
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
@@ -31,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -73,7 +70,6 @@ import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.MainActivity
-import me.weishu.kernelsu.ui.component.bottombar.useNavigationRail
 import me.weishu.kernelsu.ui.component.miuix.ScaleDialog
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.theme.keyColorOptions
@@ -293,8 +289,14 @@ fun ColorPaletteScreenMiuix(
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
                     ) {
-                        SwitchPreference(
-                            title = stringResource(id = R.string.settings_official_icon),
+                        val iconModes = listOf(
+                            stringResource(R.string.app_name_midorisu),
+                            stringResource(R.string.app_name_kowsu),
+                            stringResource(R.string.app_name_official),
+                        )
+                        OverlayDropdownPreference(
+                            title = stringResource(id = R.string.settings_app_icon),
+                            items = iconModes,
                             startAction = {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_launcher_monochrome),
@@ -307,16 +309,24 @@ fun ColorPaletteScreenMiuix(
                                     tint = colorScheme.onBackground
                                 )
                             },
-                            checked = uiState.enableOfficialLauncher,
-                            onCheckedChange = { enabled ->
-                                actions.onSetEnableOfficialLauncher(enabled)
+                            selectedIndex = uiState.appIconMode,
+                            onSelectedIndexChange = { mode ->
+                                actions.onSetAppIconMode(mode)
                                 val pm = context.packageManager
                                 val mainComponent = ComponentName(context, MainActivity::class.java)
                                 val aliasComponent = ComponentName(context, "me.weishu.kernelsu.MainActivityOfficial")
-                                val (enableComp, disableComp) = if (enabled) aliasComponent to mainComponent else mainComponent to aliasComponent
-
-                                pm.setComponentEnabledSetting(enableComp, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-                                pm.setComponentEnabledSetting(disableComp, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+                                val kowsuComponent = ComponentName(context, "me.weishu.kernelsu.MainActivityKowsu")
+                                val target = when (mode) {
+                                    1 -> kowsuComponent
+                                    2 -> aliasComponent
+                                    else -> mainComponent
+                                }
+                                listOf(mainComponent, aliasComponent, kowsuComponent).forEach { comp ->
+                                    pm.setComponentEnabledSetting(comp,
+                                        if (comp == target) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                                        else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                                        PackageManager.DONT_KILL_APP)
+                                }
                             }
                         )
 
@@ -512,7 +522,6 @@ private fun ThemePreviewCardMiuix(
     val screenWidth = configuration.screenWidthDp.toFloat()
     val screenHeight = configuration.screenHeightDp.toFloat()
     val screenRatio = screenWidth / screenHeight
-    val useRail = useNavigationRail(enableFloatingBottomBar)
 
     val seedColor = if (keyColor == 0) colorScheme.primary else Color(keyColor)
     val effectiveStyle = if (keyColor == 0) PaletteStyle.TonalSpot else paletteStyle
@@ -551,97 +560,90 @@ private fun ThemePreviewCardMiuix(
                 .background(bgColor)
                 .border(1.dp, colorScheme.outline, RoundedCornerShape(20.dp))
         ) {
-            val content = @Composable {
-                Column {
-                    Row(
-                        modifier = Modifier
-                            .height(if (useRail) 36.dp else 48.dp)
-                            .fillMaxWidth()
-                            .padding(start = 12.dp, top = if (useRail) 12.dp else 24.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.app_name),
-                            fontSize = 12.sp,
-                            color = textColor
-                        )
-                    }
+            Column {
+                Row(
+                    modifier = Modifier
+                        .height(48.dp)
+                        .fillMaxWidth()
+                        .padding(start = 12.dp, top = 24.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.app_name_official),
+                        fontSize = 12.sp,
+                        color = textColor
+                    )
+                }
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(65.dp)
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(45.dp)
-                            .padding(horizontal = 8.dp)
+                            .weight(1f)
+                            .fillMaxHeight()
                             .clip(RoundedCornerShape(6.dp))
                             .background(accentCardColor)
                     )
-
-                    BoxWithConstraints(modifier = Modifier.weight(1f)) {
-                        val smallCardHeight = 12.dp
-                        val smallCardCount = when {
-                            maxHeight >= 96.dp -> 2
-                            maxHeight >= 72.dp -> 1
-                            else -> 0
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 8.dp, vertical = 6.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(cardColor)
-                            )
-                            repeat(smallCardCount) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(smallCardHeight)
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(cardColor)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (useRail) {
-                Row {
                     Column(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .width(30.dp)
-                            .background(navBarColor),
-                        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        repeat(4) {
-                            Box(
-                                modifier = Modifier
-                                    .size(13.dp)
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(if (it == 0) navSelectedColor else navUnselectedColor)
-                            )
-                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(cardColor)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(cardColor)
+                        )
                     }
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .width(0.5.dp)
-                            .background(textColor.copy(alpha = 0.1f))
+                            .fillMaxWidth()
+                            .weight(0.8f)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(cardColor)
                     )
-                    Box(modifier = Modifier.weight(1f)) { content() }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(.1f)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(cardColor)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(.1f)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(cardColor)
+                    )
                 }
-            } else {
-                content()
+
             }
 
-            if (!useRail && enableFloatingBottomBar) {
+            if (enableFloatingBottomBar) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -670,7 +672,7 @@ private fun ThemePreviewCardMiuix(
                         }
                     }
                 }
-            } else if (!useRail) {
+            } else {
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)

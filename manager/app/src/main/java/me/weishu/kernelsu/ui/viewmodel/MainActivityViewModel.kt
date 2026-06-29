@@ -60,7 +60,7 @@ class MainActivityViewModel(
             "key_color",
             "color_style",
             "color_spec",
-            "enable_official_launcher",
+            "app_icon_mode",
             "classic_ui",
             "show_switch_icon",
             "scroll_animation",
@@ -87,7 +87,7 @@ private class MainPageState(
 }
 
 object MainPagerConfig {
-    const val PAGE_COUNT = 4
+    const val PAGE_COUNT = 5
     const val LAST_PAGE_INDEX = PAGE_COUNT - 1
 
     fun coercePage(page: Int): Int = page.coerceIn(0, LAST_PAGE_INDEX)

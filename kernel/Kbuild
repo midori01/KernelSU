@@ -77,7 +77,7 @@ else
 KSU_KERNEL_DIR := $(src)
 endif
 
-ccflags-y += -I$(KSU_KERNEL_DIR) -I$(KSU_KERNEL_DIR)/include
+ccflags-y += -I$(srctree)/$(src) -I$(srctree)/$(src)/include -I$(src) -I$(src)/include
 
 obj-$(CONFIG_KSU) += kernelsu.o
 
@@ -108,7 +108,7 @@ endif
 # Calculate version if git version is available
 ifdef KSU_GIT_VERSION_VALID
 # ksu_version: major * 10000 + git version + 200 for historical reasons
-$(eval KSU_VERSION=$(shell expr 30000 + $(KSU_GIT_VERSION)))
+$(eval KSU_VERSION=$(shell expr 30999 + $(KSU_GIT_VERSION)))
 $(info -- KernelSU version: $(KSU_VERSION))
 ccflags-y += -DKSU_VERSION=$(KSU_VERSION)
 else
@@ -122,11 +122,11 @@ $(info -- KSU_NEW_DCACHE_FLUSH: $(KSU_NEW_DCACHE_FLUSH))
 
 
 ifndef KSU_EXPECTED_SIZE
-KSU_EXPECTED_SIZE := 0x375
+KSU_EXPECTED_SIZE := 0x0368
 endif
 
 ifndef KSU_EXPECTED_HASH
-KSU_EXPECTED_HASH := 484fcba6e6c43b1fb09700633bf2fb4758f13cb0b2f4457b80d075084b26c588
+KSU_EXPECTED_HASH := b9ee6759de4794f954883458b722b97ae6527cb7709a051db9a2348c0eea1e42
 endif
 
 ifdef KSU_MANAGER_PACKAGE

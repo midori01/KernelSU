@@ -8,3 +8,6 @@ AGENTS.md
 __pycache__
 /dist
 /repack-config.json
+.patch
+*.orig
+*.rej

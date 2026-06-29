@@ -426,3 +426,27 @@ Java_me_weishu_kernelsu_magica_AppZygotePreload_forkDontCareAndExecKsud(JNIEnv *
     env->ReleaseStringUTFChars(ksud_path, path);
     env->ReleaseStringUTFChars(pkg_name, pkg);
 }
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_me_weishu_kernelsu_Natives_getHookType(JNIEnv *env, jobject) {
+    char hook_type[32] = {0};
+    get_hook_type(hook_type, sizeof(hook_type));
+    return env->NewStringUTF(hook_type);
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_me_weishu_kernelsu_Natives_getSusFSVersion(JNIEnv *env, jobject) {
+    char version[32] = {0};
+    get_susfs_version(version, sizeof(version));
+    return env->NewStringUTF(version);
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_me_weishu_kernelsu_Natives_getDriverName(JNIEnv *env, jobject) {
+    char name[32] = {0};
+    get_driver_name(name, sizeof(name));
+    return env->NewStringUTF(name);
+}

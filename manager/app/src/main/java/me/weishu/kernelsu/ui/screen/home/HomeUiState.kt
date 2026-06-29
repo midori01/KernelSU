@@ -3,6 +3,13 @@ package me.weishu.kernelsu.ui.screen.home
 import androidx.compose.runtime.Immutable
 import me.weishu.kernelsu.KernelVersion
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
+import me.weishu.kernelsu.ui.screen.home.toRoman
+
+data class LatestKsuDriverInfo(
+    val tag: String = "",
+    val driverVersion: Int = 0,
+    val releaseUrl: String = "",
+)
 
 @Immutable
 data class HomeUiState(
@@ -24,7 +31,13 @@ data class HomeUiState(
     val checkUpdateEnabled: Boolean,
     val latestVersionInfo: LatestVersionInfo,
     val currentManagerVersionCode: Long,
+    val superuserCount: Int,
+    val moduleCount: Int,
+    val kernelModuleCount: Int,
     val systemInfo: SystemInfo,
+    val isGki2: Boolean,
+    val localVersion: String,
+    val latestKsuDriverInfo: LatestKsuDriverInfo = LatestKsuDriverInfo(),
 ) {
     val isSELinuxPermissive: Boolean
         get() = systemInfo.selinuxStatus == "Permissive"
@@ -55,11 +68,20 @@ data class HomeUiState(
 
     val hasUpdate: Boolean
         get() = latestVersionInfo.versionCode > currentManagerVersionCode
+
+    val formattedManagerUAPIVersion: String
+        get() = managerUAPIVersion.toRoman()
+
+    val formattedKernelUAPIVersion: String
+        get() = kernelUAPIVersion?.toRoman() ?: "N"
 }
 
 @Immutable
 data class HomeActions(
     val onInstallClick: () -> Unit,
+    val onSuperuserClick: () -> Unit,
+    val onModuleClick: () -> Unit,
     val onOpenUrl: (String) -> Unit,
+    val onKernelModuleClick: () -> Unit,
     val onJailbreakClick: () -> Unit = {},
 )

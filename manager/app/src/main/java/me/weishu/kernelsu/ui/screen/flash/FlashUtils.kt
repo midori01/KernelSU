@@ -91,6 +91,12 @@ sealed class FlashIt : Parcelable {
 
     @Parcelize
     data object FlashUninstall : FlashIt()
+
+    @Parcelize
+    data object BackupBoot : FlashIt()
+
+    @Parcelize
+    data class FlashBootImg(val uri: Uri) : FlashIt()
 }
 
 fun flashModulesSequentially(
@@ -136,6 +142,36 @@ fun flashIt(
 
         FlashIt.FlashRestore -> restoreBoot(onStdout, onStderr)
         FlashIt.FlashUninstall -> uninstallPermanently(onStdout, onStderr)
+
+        is FlashIt.BackupBoot -> {
+            val slot = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                me.weishu.kernelsu.ui.util.getRootShell(true),
+                "getprop ro.boot.slot_suffix"
+            ).trim()
+            val timestamp = java.text.SimpleDateFormat("yyyyMMdd-HHmmss", java.util.Locale.getDefault()).format(java.util.Date())
+            val outputPath = "/sdcard/Download/boot_backup_${timestamp}.img"
+            val cmd = "dd if=/dev/block/by-name/boot$slot of=$outputPath bs=1M"
+            val result = me.weishu.kernelsu.ui.util.flashBootBackup(cmd, onStdout, onStderr)
+            onStdout("boot.img backed up to: $outputPath")
+            result
+        }
+
+        is FlashIt.FlashBootImg -> {
+            val slot = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                me.weishu.kernelsu.ui.util.getRootShell(true),
+                "getprop ro.boot.slot_suffix"
+            ).trim()
+            val cacheFile = java.io.File(me.weishu.kernelsu.ksuApp.cacheDir, "boot_flash.img")
+            me.weishu.kernelsu.ksuApp.contentResolver.openInputStream(flashIt.uri)?.use { input ->
+                cacheFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            val cmd = "dd if=${cacheFile.absolutePath} of=/dev/block/by-name/boot$slot bs=1M"
+            val result = me.weishu.kernelsu.ui.util.flashBootImgCmd(cmd, onStdout, onStderr)
+            cacheFile.delete()
+            result
+        }
     }
 }
 
@@ -168,6 +204,10 @@ fun FlashEffect(
                 }
                 logContent.append(it).append("\n")
             }, onStderr = {
+                currentText += "$it\n"
+                mainHandler.post {
+                    onTextUpdate(currentText)
+                }
                 logContent.append(it).append("\n")
             }).apply {
                 if (code != 0) {
