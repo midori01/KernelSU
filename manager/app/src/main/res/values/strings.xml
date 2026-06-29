@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">KernelSU</string>
-    <string name="app_name_kowsu" translatable="false">KowSU</string>
+    <string name="app_name_kowsu" translatable="false">MidoriSU</string>
     <string name="home">Home</string>
     <string name="home_not_installed">Not installed</string>
     <string name="home_click_to_install">Tap to install</string>
     <string name="home_working">Working</string>
+    <string name="home_driver">Driver</string>
     <string name="home_working_version">Version: %s</string>
     <string name="home_superuser_count">Superusers: %d</string>
     <string name="home_module_count">Modules: %d</string>
@@ -16,6 +17,18 @@
     <string name="home_kernel">Kernel version</string>
     <string name="home_manager_version">Manager version</string>
     <string name="home_fingerprint">Fingerprint</string>
+    <string name="home_android_version">Android version</string>
+    <string name="home_security_patch">Security patch level</string>
+    <string name="home_hook_type">Hook type</string> 
+    <string name="hook_manual">Manual</string>
+    <string name="hook_hybrid">Hybrid</string>
+    <string name="hook_kprobes">Kprobes</string>
+    <string name="hook_tracepoint">Tracepoint</string>
+    <string name="hook_inline">Inline</string>
+    <string name="hook_syscall_tamper">Syscall Table Tamper</string>
+    <string name="hook_bl_hijack">Branch with Link Hijack</string>
+    <string name="hook_manual_susfs">De-inlined SUSFS / Manual</string>
+    <string name="hook_hybrid_susfs">De-inlined SUSFS / Hybrid</string>
     <string name="home_selinux_status">SELinux status</string>
     <string name="selinux_status_disabled">Disabled</string>
     <string name="selinux_status_enforcing">Enforcing</string>
@@ -27,6 +40,8 @@
     <string name="seccomp_status_strict">Strict</string>
     <string name="seccomp_status_filter">Filter</string>
     <string name="seccomp_status_unknown">Unknown</string>
+    <string name="home_susfs_version">SUSFS version</string>
+    <string name="home_droidspaces_version">Droidspaces version</string>
     <string name="superuser">Superuser</string>
     <string name="sulog_log_files">Log files</string>
     <string name="sulog_failed_to_load">Failed to load sulog</string>
@@ -132,6 +147,8 @@
     <string name="settings_kernelsu_toolkit_summary">Utility tool for KernelSU extra feature.</string>
     <string name="settings_kpatch_next">KPatch Next</string>
     <string name="settings_kpatch_next_summary">Standalone implementation of KPM support.</string>
+    <string name="settings_susfs4ksu">SUSFS for KernelSU</string>
+    <string name="settings_susfs4ksu_summary">Manage SUSFS configuration.</string>
     <string name="settings_profile_template">App Profile template</string>
     <string name="settings_profile_template_summary">Manage local and online template of App Profile.</string>
     <string name="app_profile_template_create">Create template</string>
@@ -171,6 +188,8 @@
     <string name="install_inactive_slot_warning">Your device will be **FORCED** to boot to the current inactive slot after a reboot!\nOnly use this option after OTA is done.\nContinue?</string>
     <string name="flash_module">Flash module</string>
     <string name="anykernel_install">Flash AnyKernel</string>
+    <string name="backup_boot">Backup boot.img</string>
+    <string name="flash_boot_img">Flash boot.img</string>
     <string name="jailbreak_flash_warning">You are in **Jailbreak mode**. Flashing a partition on a device with a **locked bootloader** will break AVB (Android Verified Boot) and may cause the device to **fail to boot**.\n\nMake sure your bootloader is unlocked before proceeding!</string>
     <string name="jailbreak_flash_warning_countdown">Continue (%1$d)</string>
     <string name="install_next">Next</string>
@@ -306,4 +325,7 @@
     <string name="profile_flags_desc_no_new_privs">Prevent further privilege escalation via KernelSU from within the context of this root profile.</string>
     <string name="module_shortcut_copy_scheme">Copy URL scheme</string>
     <string name="module_shortcut_scheme_copied">URL scheme copied</string>
+    <string name="kconfig_title">Kconfig</string>
+    <string name="kconfig_search">Search kernel config…</string>
+    <string name="share">Share</string>
 </resources>

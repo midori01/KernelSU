@@ -3,7 +3,8 @@
     <string name="home">首頁</string>
     <string name="home_not_installed">尚未安裝</string>
     <string name="home_click_to_install">點選開始安裝</string>
-    <string name="home_working">已開始運作</string>
+    <string name="home_working">運作中</string>
+    <string name="home_driver">驅動</string>
     <string name="home_working_version">版本：%s</string>
     <string name="home_superuser_count">授權：%d 個應用程式</string>
     <string name="home_unsupported">未受支援</string>
@@ -12,11 +13,26 @@
     <string name="home_kernel">核心版本</string>
     <string name="home_manager_version">管理工具</string>
     <string name="home_fingerprint">指紋資訊</string>
+    <string name="home_android_version">Android 版本</string>
+    <string name="home_security_patch">安全性修補程式等級</string>
+    <string name="home_hook_type">鈎子類型</string>
+    <string name="hook_manual">手動</string>
+    <string name="hook_hybrid">混合</string>
+    <string name="hook_kprobes">動態探針</string>
+    <string name="hook_tracepoint">靜態追蹤點</string>
+    <string name="hook_inline">內聯</string>
+    <string name="hook_syscall_tamper">系統調用表篡改</string>
+    <string name="hook_bl_hijack">分支連結劫持</string>
+    <string name="hook_manual_susfs">去內聯 / 手動</string>
+    <string name="hook_hybrid_susfs">去內聯 / 混合</string>
     <string name="home_selinux_status">SELinux 狀態</string>
+    <string name="home_seccomp_status">Seccomp 狀態</string>
     <string name="selinux_status_disabled">已停用</string>
     <string name="selinux_status_enforcing">強制執行</string>
     <string name="selinux_status_permissive">容許執行</string>
     <string name="selinux_status_unknown">不明</string>
+    <string name="home_susfs_version">SUSFS 版本</string>
+    <string name="home_droidspaces_version">Droidspaces 版本</string>
     <string name="superuser">授權</string>
     <string name="module_failed_to_enable">無法啟用模組：%s</string>
     <string name="module_failed_to_disable">無法停用模組：%s</string>
@@ -169,4 +185,7 @@
     <string name="sort_by_update_time">更新時間</string>
     <string name="sort_reverse">倒序</string>
     <string name="profile_flags_desc_no_new_privs">防止在此 Root Profile 的上下文中透過 KernelSU 進一步提升權限</string>
+    <string name="kconfig_title">核心配置</string>
+    <string name="kconfig_search">搜尋核心配置…</string>
+    <string name="share">分享</string>
 </resources>

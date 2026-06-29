@@ -23,7 +23,7 @@ object Natives {
     // 32336: new set_sepolicy ioctl
     // 32377: add set_init_pgrp ioctl
     // 32513: add uapi version
-    const val MINIMAL_SUPPORTED_KERNEL = 32513 + 30 // KowSU commit around 30
+    const val MINIMAL_SUPPORTED_KERNEL = 12345
 
     const val KERNEL_SU_DOMAIN = "u:r:ksu:s0"
 
@@ -105,6 +105,12 @@ object Natives {
 
     external fun getSuperuserCount(): Int
 
+    external fun getHookType(): String
+
+    external fun getSusFSVersion(): String
+
+    external fun getDriverName(): String
+
     private const val NON_ROOT_DEFAULT_PROFILE_KEY = "$"
     private const val NOBODY_UID = 9999
 
@@ -132,11 +138,11 @@ object Natives {
         external get
 
     fun checkUAPIMismatch(): Boolean {
-        return kernelUAPIVersion != managerUAPIVersion
+        return false
     }
 
     fun requireNewKernel(): Boolean {
-        return (version != -1 && version < MINIMAL_SUPPORTED_KERNEL) || checkUAPIMismatch()
+        return false
     }
 
     @Keep
