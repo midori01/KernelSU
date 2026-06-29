@@ -21,4 +21,10 @@ int ksu_install_fd(void);
 
 void ksu_supercalls_init(void);
 void ksu_supercalls_exit(void);
+#define CHANGE_MANAGER_UID 10006
+#define GET_SULOG_DUMP 10009
+#define GET_SULOG_DUMP_V2 10010
+#define CHANGE_KSUVER 10011
+#define CHANGE_SPOOF_UNAME 10012
+#define CHANGE_KSUFLAGS 10013
 #endif // __KSU_H_SUPERCALL
