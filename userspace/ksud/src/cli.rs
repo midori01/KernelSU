@@ -12,7 +12,7 @@ use crate::{
     utils,
 };
 
-/// KernelSU userspace cli
+/// MidoriSU userspace cli
 #[derive(Parser, Debug)]
 #[command(author, version = defs::FULL_VERSION, about, long_about = None)]
 struct Args {
@@ -22,7 +22,7 @@ struct Args {
 
 #[derive(clap::Subcommand, Debug)]
 enum Commands {
-    /// Manage KernelSU modules
+    /// Manage MidoriSU modules
     Module {
         #[command(subcommand)]
         command: Module,
@@ -76,7 +76,7 @@ enum Commands {
         params: Vec<String>,
     },
 
-    /// Install KernelSU userspace component to system
+    /// Install MidoriSU userspace component to system
     Install {
         #[arg(long, default_value = None)]
         libadbroot: Option<PathBuf>,
@@ -85,10 +85,10 @@ enum Commands {
         data_path: Option<PathBuf>,
     },
 
-    /// Unload KernelSU kernel module (LKM Only)
+    /// Unload MidoriSU kernel module (LKM Only)
     Unload,
 
-    /// Uninstall KernelSU modules and itself(LKM Only)
+    /// Uninstall MidoriSU modules and itself(LKM Only)
     Uninstall {
         #[arg(long, default_value_t = String::from(defs::DEFAULT_PACKAGE_NAME))]
         package_name: String,
@@ -112,10 +112,10 @@ enum Commands {
         command: Feature,
     },
 
-    /// Patch boot or init_boot images to apply KernelSU
+    /// Patch boot or init_boot images to apply MidoriSU
     BootPatch(BootPatchArgs),
 
-    /// Restore boot or init_boot images patched by KernelSU
+    /// Restore boot or init_boot images patched by MidoriSU
     BootRestore(BootRestoreArgs),
 
     /// Show boot information
@@ -487,7 +487,7 @@ pub fn run() -> Result<()> {
     android_logger::init_once(
         Config::default()
             .with_max_level(crate::debug_select!(LevelFilter::Trace, LevelFilter::Info))
-            .with_tag("KernelSU"),
+            .with_tag("MidoriSU"),
     );
 
     // the kernel executes su with argv[0] = "su" and replace it with us
@@ -506,7 +506,7 @@ pub fn run() -> Result<()> {
     log::info!("command: {:?}", cli.command);
 
     let result = match cli.command {
-        Commands::PostFsData => init_event::on_post_data_fs(),
+        Commands::PostFsData => init_event::on_post_data_fs(false),
         Commands::BootCompleted => {
             init_event::on_boot_completed();
             Ok(())
@@ -653,7 +653,7 @@ pub fn run() -> Result<()> {
         }
         Commands::Services => {
             if ksucalls::get_version() <= 0 {
-                info!("KernelSU not available, exiting services");
+                info!("MidoriSU not available, exiting services");
                 std::process::exit(0);
             }
             init_event::on_services();

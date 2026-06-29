@@ -226,6 +226,7 @@ private fun SelectInstallMethod(
             is InstallMethod.DirectInstall -> onSelected(option)
             is InstallMethod.DirectInstallToInactiveSlot -> confirmDialog.showConfirm(dialogTitle, dialogContent)
             is InstallMethod.AnyKernel -> onSelectAnyKernel()
+            else -> onSelected(option)
         }
     }
 

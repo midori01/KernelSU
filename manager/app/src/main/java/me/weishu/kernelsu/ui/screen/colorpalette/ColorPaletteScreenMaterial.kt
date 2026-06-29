@@ -67,6 +67,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -150,7 +151,7 @@ fun ColorPaletteScreenMaterial(
                 isAmoled = isAmoled,
                 paletteStyle = colorStyle,
                 colorSpec = colorSpec,
-                officialIcon = uiState.enableOfficialLauncher,
+                appIconMode = uiState.appIconMode,
                 classicUi = uiState.classicUi,
             )
 
@@ -245,21 +246,29 @@ fun ColorPaletteScreenMaterial(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
                 ) {
-                    val launcherOptions = listOf(false, true)
-                    launcherOptions.forEachIndexed { index, isOfficial ->
-                        ExpressiveToggleButton(
-                            checked = uiState.enableOfficialLauncher == isOfficial,
+                    val launcherOptions = listOf(0, 1, 2)
+                    launcherOptions.forEachIndexed { index, mode ->
+                        ToggleButton(
+                            checked = uiState.appIconMode == mode,
                             onCheckedChange = { enabled ->
                                 if (enabled) {
-                                    actions.onSetEnableOfficialLauncher(isOfficial)
+                                    actions.onSetAppIconMode(mode)
                                     val pm = context.packageManager
                                     val mainComponent = ComponentName(context, MainActivity::class.java)
                                     val aliasComponent = ComponentName(context, "me.weishu.kernelsu.MainActivityOfficial")
-                                    val (enableComp, disableComp) = if (isOfficial) aliasComponent to mainComponent else mainComponent to aliasComponent
-
+                                    val kowsuComponent = ComponentName(context, "me.weishu.kernelsu.MainActivityKowsu")
+                                    val target = when (mode) {
+                                        1 -> kowsuComponent
+                                        2 -> aliasComponent
+                                        else -> mainComponent
+                                    }
+                                    listOf(mainComponent, aliasComponent, kowsuComponent).forEach { comp ->
+                                        pm.setComponentEnabledSetting(comp,
+                                            if (comp == target) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                                            else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                                            PackageManager.DONT_KILL_APP)
+                                    }
                                     haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
-                                    pm.setComponentEnabledSetting(enableComp, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-                                    pm.setComponentEnabledSetting(disableComp, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
                                 }
                             },
                             modifier = Modifier
@@ -267,7 +276,7 @@ fun ColorPaletteScreenMaterial(
                                 .semantics { role = Role.RadioButton },
                             shapes = when (index) {
                                 0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                                1 -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                2 -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                                 else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                             },
                         ) {
@@ -276,14 +285,28 @@ fun ColorPaletteScreenMaterial(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    painter = painterResource(id = if (isOfficial) R.drawable.ic_launcher_monochrome else R.drawable.ic_launcher_kowsu),
+                                    painter = painterResource(
+                                        id = when (mode) {
+                                            0 -> R.drawable.ic_launcher_midorisu
+                                            1 -> R.drawable.ic_launcher_kowsu
+                                            2 -> R.drawable.ic_launcher_monochrome
+                                            else -> R.drawable.ic_launcher_midorisu
+                                        }
+                                    ),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(24.dp)
                                         .wrapContentSize(unbounded = true)
                                         .requiredSize(48.dp)
                                 )
-                                Text(if (isOfficial) stringResource(R.string.app_name_official) else stringResource(R.string.app_name))
+                                Text(
+                                    when (mode) {
+                                        0 -> stringResource(R.string.app_name_midorisu)
+                                        1 -> stringResource(R.string.app_name_kowsu)
+                                        2 -> stringResource(R.string.app_name_official)
+                                        else -> stringResource(R.string.app_name_midorisu)
+                                    }
+                                )
                             }
                         }
                     }
@@ -449,7 +472,7 @@ private fun ThemePreviewCard(
     isAmoled: Boolean = false,
     paletteStyle: PaletteStyle = PaletteStyle.TonalSpot,
     colorSpec: ColorSpec.SpecVersion = ColorSpec.SpecVersion.SPEC_2025,
-    officialIcon: Boolean = false,
+    appIconMode: Int = 0,
     classicUi: Boolean = false,
 ) {
     val configuration = LocalConfiguration.current
@@ -489,7 +512,12 @@ private fun ThemePreviewCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (officialIcon) stringResource(R.string.app_name_official) else stringResource(R.string.app_name),
+                            text = when (appIconMode) {
+                                0 -> stringResource(R.string.app_name_midorisu)
+                                1 -> stringResource(R.string.app_name_kowsu)
+                                2 -> stringResource(R.string.app_name_official)
+                                else -> stringResource(R.string.app_name_midorisu)
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             color = colorScheme.onSurface
                         )

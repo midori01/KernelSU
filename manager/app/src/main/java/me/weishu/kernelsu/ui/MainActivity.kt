@@ -80,9 +80,13 @@ import me.weishu.kernelsu.ui.screen.modulerepo.ModuleRepoDetailScreen
 import me.weishu.kernelsu.ui.screen.modulerepo.ModuleRepoScreen
 import me.weishu.kernelsu.ui.screen.settings.SettingPager
 import me.weishu.kernelsu.ui.screen.sulog.SulogScreen
+import me.weishu.kernelsu.ui.screen.dmesg.DmesgScreen
 import me.weishu.kernelsu.ui.screen.superuser.SuperUserPager
 import me.weishu.kernelsu.ui.screen.template.AppProfileTemplateScreen
 import me.weishu.kernelsu.ui.screen.templateeditor.TemplateEditorScreen
+import me.weishu.kernelsu.ui.screen.kconfig.KconfigScreen
+import me.weishu.kernelsu.ui.screen.kallsyms.KallsymsScreen
+import me.weishu.kernelsu.ui.screen.kernelmodule.KernelModuleScreen
 import me.weishu.kernelsu.ui.theme.KernelSUTheme
 import me.weishu.kernelsu.ui.theme.LocalClassicUi
 import me.weishu.kernelsu.ui.theme.LocalColorMode
@@ -220,7 +224,11 @@ class MainActivity : ComponentActivity() {
                             entryProvider = entryProvider {
                                 entry<Route.Main> { mainScreenEntry() }
                                 entry<Route.About> { AboutScreen() }
+                                entry<Route.Kallsyms> { KallsymsScreen() }
                                 entry<Route.Sulog> { SulogScreen() }
+                                entry<Route.Dmesg> { DmesgScreen() }
+                                entry<Route.Kconfig> { KconfigScreen() }
+                                entry<Route.KernelModule> { KernelModuleScreen() }
                                 entry<Route.ColorPalette> { ColorPaletteScreen() }
                                 entry<Route.AppProfileTemplate> { AppProfileTemplateScreen() }
                                 entry<Route.TemplateEditor> { key -> TemplateEditorScreen(key.template, key.readOnly) }
@@ -451,8 +459,9 @@ fun MainPage(
     when (page) {
         0 -> HomePager(navigator, bottomInnerPadding, isCurrentPage)
         1 -> SuperUserPager(navigator, bottomInnerPadding, isCurrentPage)
-        2 -> ModulePager(bottomInnerPadding, isCurrentPage)
-        3 -> SettingPager(navigator, bottomInnerPadding)
+        2 -> KconfigScreen()
+        3 -> ModulePager(bottomInnerPadding, isCurrentPage)
+        4 -> SettingPager(navigator, bottomInnerPadding)
     }
 }
 
