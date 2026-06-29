@@ -52,7 +52,7 @@ data class AppSettings(
     val keyColor: Int,
     val paletteStyle: PaletteStyle,
     val colorSpec: ColorSpec.SpecVersion,
-    val enableOfficialLauncher: Boolean,
+    val appIconMode: Int,
     val classicUi: Boolean,
     val showSwitchIcon: Boolean,
     val scrollAnimation: Boolean,
@@ -102,12 +102,13 @@ object ThemeController {
         } catch (_: Exception) {
             ColorSpec.SpecVersion.SPEC_2025
         }
-        val enableOfficialLauncher = repo.enableOfficialLauncher
+
+        val appIconMode = repo.appIconMode
         val classicUi = repo.classicUi
         val showSwitchIcon = repo.showSwitchIcon
         val scrollAnimation = repo.scrollAnimation
 
-        return AppSettings(colorMode, keyColor, paletteStyle, colorSpec, enableOfficialLauncher, classicUi, showSwitchIcon, scrollAnimation)
+        return AppSettings(colorMode, keyColor, paletteStyle, colorSpec, appIconMode, classicUi, showSwitchIcon, scrollAnimation)
     }
 }
 
@@ -119,7 +120,7 @@ fun KernelSUTheme(
 ) {
     CompositionLocalProvider(
         LocalColorMode provides appSettings.colorMode.value,
-        LocalEnableOfficialLauncher provides appSettings.enableOfficialLauncher,
+        LocalAppIconMode provides appSettings.appIconMode,
         LocalClassicUi provides appSettings.classicUi,
         LocalShowSwitchIcon provides appSettings.showSwitchIcon,
         LocalScrollAnimation provides appSettings.scrollAnimation,
@@ -151,7 +152,7 @@ fun isInDarkTheme(): Boolean {
 
 val LocalColorMode = staticCompositionLocalOf { 0 }
 
-val LocalEnableOfficialLauncher = staticCompositionLocalOf { false }
+val LocalAppIconMode = staticCompositionLocalOf { 0 }
 
 val LocalClassicUi = staticCompositionLocalOf { false }
 
