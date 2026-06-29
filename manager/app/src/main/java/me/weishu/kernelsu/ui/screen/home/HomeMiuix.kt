@@ -27,7 +27,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.runtime.Composable
@@ -37,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +57,8 @@ import me.weishu.kernelsu.ui.theme.isInDarkTheme
 import me.weishu.kernelsu.ui.util.BlurredBar
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
+import me.weishu.kernelsu.ui.navigation3.Navigator
+import me.weishu.kernelsu.ui.navigation3.Route
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
@@ -65,6 +70,7 @@ import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.blur.LayerBackdrop
 import top.yukonga.miuix.kmp.blur.layerBackdrop
 import top.yukonga.miuix.kmp.icon.MiuixIcons
@@ -81,6 +87,7 @@ fun HomePagerMiuix(
     state: HomeUiState,
     actions: HomeActions,
     bottomInnerPadding: Dp,
+    navigator: Navigator
 ) {
     val scrollBehavior = MiuixScrollBehavior()
     val enableBlur = LocalEnableBlur.current
@@ -94,6 +101,7 @@ fun HomePagerMiuix(
                 scrollBehavior = scrollBehavior,
                 backdrop = backdrop,
                 barColor = barColor,
+                navigator = navigator,
             )
         },
         popupHost = { },
@@ -172,8 +180,8 @@ fun HomePagerMiuix(
                             actions = actions,
                         )
                         InfoCard(systemInfo = state.systemInfo)
-                        DonateCard(onOpenUrl = actions.onOpenUrl)
-                        LearnMoreCard(onOpenUrl = actions.onOpenUrl)
+//                        DonateCard(onOpenUrl = actions.onOpenUrl)
+//                        LearnMoreCard(onOpenUrl = actions.onOpenUrl)
                     }
                     Spacer(Modifier.height(bottomInnerPadding))
                 }
@@ -222,11 +230,20 @@ private fun TopBar(
     scrollBehavior: ScrollBehavior,
     backdrop: LayerBackdrop?,
     barColor: Color,
+    navigator: Navigator,
 ) {
     BlurredBar(backdrop) {
         TopAppBar(
             color = barColor,
             title = appName,
+            navigationIcon = {
+                IconButton(onClick = { navigator.push(Route.Kallsyms) }) {
+                    Icon(
+                        imageVector = Icons.Outlined.DataObject,
+                        contentDescription = "kallsyms"
+                    )
+                }
+            },
             actions = {
                 RebootListPopupMiuix()
             },
@@ -251,12 +268,21 @@ private fun StatusCard(
                         append(" [${stringResource(id = R.string.jailbreak_mode)}]")
                     }
                 }
-                val workingMode = when (state.lkmMode) {
-                    null -> if (Build.SUPPORTED_64_BIT_ABIS.isEmpty()) " <32-BIT>" else " <LEGACY>"
-                    true -> " <LKM>"
-                    else -> " <GKI>"
+                val workingMode = when {
+                    state.lkmMode == true -> "LKM <GKI>"
+                    state.lkmMode == false && state.kernelVersion.is5_10OrAbove() -> {
+                        when {
+                            state.localVersion.contains("-Sultan") -> "BUILT-IN <SULTAN>"
+                            state.localVersion.contains("-Anaconda") -> "BUILT-IN <ANACONDA>"
+                            !state.isGki2 -> "BUILT-IN <NON-GKI>"
+                            else -> "BUILT-IN <GKI>"
+                        }
+                    }
+                    else -> if (Build.SUPPORTED_64_BIT_ABIS.isEmpty()) "BUILT-IN <32-BIT>" else "BUILT-IN <LEGACY>"
                 }
-                val workingText = "${stringResource(id = R.string.home_working)}$workingMode$workingState"
+                val driverLabel = state.systemInfo.driverName
+                val driverText = if (driverLabel.isNotEmpty()) "  $driverLabel" else ""
+                val workingText = "${stringResource(id = R.string.home_working)}$driverText$workingState"
 
                 Row(
                     modifier = Modifier
@@ -316,7 +342,14 @@ private fun StatusCard(
                                 Spacer(Modifier.height(2.dp))
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
-                                    text = stringResource(R.string.home_working_version, "${state.ksuVersion}-${state.kernelUAPIVersion}"),
+                                    text = workingMode,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                )
+                                Spacer(Modifier.height(2.dp))
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = stringResource(R.string.home_working_version, "${state.ksuVersion}-${state.formattedKernelUAPIVersion}"),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
                                 )
@@ -449,7 +482,7 @@ private fun StatusCard(
         }
     }
 }
-
+/*
 @Composable
 private fun LearnMoreCard(
     onOpenUrl: (String) -> Unit,
@@ -489,7 +522,7 @@ private fun DonateCard(onOpenUrl: (String) -> Unit) {
         )
     }
 }
-
+*/
 @Composable
 private fun InfoCard(systemInfo: SystemInfo) {
     @Composable
@@ -498,6 +531,7 @@ private fun InfoCard(systemInfo: SystemInfo) {
         content: String,
         bottomPadding: Dp = 24.dp
     ) {
+        val context = LocalContext.current
         Text(
             text = title,
             fontSize = MiuixTheme.textStyles.headline1.fontSize,
@@ -508,7 +542,13 @@ private fun InfoCard(systemInfo: SystemInfo) {
             text = content,
             fontSize = MiuixTheme.textStyles.body2.fontSize,
             color = colorScheme.onSurfaceVariantSummary,
-            modifier = Modifier.padding(top = 2.dp, bottom = bottomPadding)
+            modifier = Modifier
+                .padding(top = 2.dp, bottom = bottomPadding)
+                .clickable {
+                    val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                    val clip = android.content.ClipData.newPlainText(title, content)
+                    clipboard.setPrimaryClip(clip)
+                }
         )
     }
 
@@ -520,8 +560,21 @@ private fun InfoCard(systemInfo: SystemInfo) {
         ) {
             InfoText(title = stringResource(R.string.home_manager_version), content = systemInfo.managerVersion)
             InfoText(title = stringResource(R.string.home_kernel), content = systemInfo.kernelVersion)
-            InfoText(title = stringResource(R.string.home_device_model), content = systemInfo.deviceModel)
+            val deviceInfo = if (systemInfo.socInfo.isNotEmpty()) {
+                "${systemInfo.deviceModel} (${systemInfo.socInfo})"
+            } else {
+                systemInfo.deviceModel
+            }
+            InfoText(title = stringResource(R.string.home_device_model), content = deviceInfo)
             InfoText(title = stringResource(R.string.home_fingerprint), content = systemInfo.fingerprint)
+            InfoText(title = stringResource(R.string.home_android_version), content = systemInfo.androidVersion)
+            InfoText(title = stringResource(R.string.home_security_patch), content = systemInfo.securityPatch)
+            if (systemInfo.hookType.isNotEmpty() && systemInfo.hookType != "N/A" && systemInfo.hookType != "Unknown") {
+                InfoText(
+                    title = stringResource(R.string.home_hook_type),
+                    content = getHookTypeDisplayName(systemInfo.hookType, LocalContext.current)
+                )
+            }
             val selinuxDisplay = when (systemInfo.selinuxStatus) {
                 "Enforcing" -> stringResource(R.string.selinux_status_enforcing)
                 "Permissive" -> stringResource(R.string.selinux_status_permissive)
@@ -539,11 +592,29 @@ private fun InfoCard(systemInfo: SystemInfo) {
                 2 -> stringResource(R.string.seccomp_status_filter)
                 else -> stringResource(R.string.seccomp_status_unknown)
             }
+            val showSusfs = systemInfo.susfsVersion.isNotEmpty() && systemInfo.susfsVersion != "Not supported"
+            val showDroidspaces = systemInfo.droidspacesVersion.isNotEmpty()
+            val anyAfterSeccomp = showSusfs || showDroidspaces
+
             InfoText(
                 title = stringResource(R.string.home_seccomp_status),
                 content = seccompDisplay,
-                bottomPadding = 0.dp
+                bottomPadding = if (anyAfterSeccomp) 24.dp else 0.dp
             )
+            if (showSusfs) {
+                InfoText(
+                    title = stringResource(R.string.home_susfs_version),
+                    content = systemInfo.susfsVersion,
+                    bottomPadding = if (showDroidspaces) 24.dp else 0.dp
+                )
+            }
+            if (showDroidspaces) {
+                InfoText(
+                    title = stringResource(R.string.home_droidspaces_version),
+                    content = systemInfo.droidspacesVersion,
+                    bottomPadding = 0.dp
+                )
+            }
         }
     }
 }
@@ -585,9 +656,17 @@ private val previewSystemInfo = SystemInfo(
     kernelVersion = "6.12.23-android16-5-g123456789000-abogki123456789-4k",
     managerVersion = "3.0.0 (30000)",
     deviceModel = "Xiaomi 17 Pro Max",
+    socInfo = "QTI SM8850",
     fingerprint = "Xiaomi/popsicle/popsicle:16/BQ2A.250705.001-BP2A.250605.031.A3/OS3.0.313.0.WPBCNXM:user/release-keys",
+    androidVersion = "16 (API level 36)",
+    securityPatch = "1989-06-04",
+    hookType = "Unknown",
     selinuxStatus = "Enforcing",
-    seccompStatus = 2
+    seccompStatus = 2,
+    susfsVersion = "",
+    droidspacesVersion = "",
+    driverName = "MidoriSU",
+    oemUnlock = ""
 )
 
 private val previewUriHandler = object : UriHandler {
@@ -624,8 +703,8 @@ private fun HomeScreenPreviewContent(
                 actions = actions
             )
             InfoCard(previewSystemInfo.copy(selinuxStatus = selinuxStatus))
-            DonateCard(onOpenUrl = {})
-            LearnMoreCard(onOpenUrl = {})
+//            DonateCard(onOpenUrl = {})
+//            LearnMoreCard(onOpenUrl = {})
         }
     }
 }
@@ -662,6 +741,8 @@ private fun previewHomeScreenState(
     superuserCount: Int = 0,
     moduleCount: Int = 0,
     selinuxStatus: String = "Enforcing",
+    isGki2: Boolean = true,
+    localVersion: String = "-midori",
 ) = HomeUiState(
     appName = "KernelSU",
     kernelVersion = KernelVersion(6, 1, 0),
@@ -674,7 +755,7 @@ private fun previewHomeScreenState(
     isRootAvailable = ksuVersion != null,
     isSafeMode = isSafeMode,
     isLateLoadMode = isLateLoadMode,
-    checkUpdateEnabled = false,
+    checkUpdateEnabled = true,
     latestVersionInfo = LatestVersionInfo(),
     currentManagerVersionCode = 10000,
     superuserCount = superuserCount,
@@ -683,4 +764,6 @@ private fun previewHomeScreenState(
     kernelUAPIVersion = 1,
     managerUAPIVersion = 1,
     uapiMismatch = false,
+    isGki2 = isGki2,
+    localVersion = localVersion,
 )
