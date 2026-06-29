@@ -25,9 +25,11 @@ import androidx.compose.material.icons.filled.Fence
 import androidx.compose.material.icons.filled.FolderDelete
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Policy
+import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.RemoveModerator
 import androidx.compose.material.icons.filled.Update
+import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.material3.Icon
@@ -114,6 +116,15 @@ fun SettingPagerMaterial(
                                 summary = stringResource(id = R.string.settings_check_update_summary),
                                 checked = uiState.checkModuleUpdate,
                                 onCheckedChange = actions.onSetCheckModuleUpdate
+                            )
+                        },
+                        {
+                            SegmentedSwitchItem(
+                                icon = Icons.Filled.NewReleases,
+                                title = stringResource(R.string.settings_check_ksu_driver_update),
+                                summary = stringResource(R.string.settings_check_ksu_driver_update_summary),
+                                checked = uiState.checkKsuDriverUpdate,
+                                onCheckedChange = actions.onSetCheckKsuDriverUpdate
                             )
                         }
                     )
@@ -217,6 +228,27 @@ fun SettingPagerMaterial(
                                 }
                             )
                         }
+                        if (uiState.isSusfsInstalled) add {
+                            SegmentedListItem(
+                                onClick = {
+                                    actions.onOpenWebUi("susfs4ksu", "SUSFS for KernelSU")
+                                },
+                                headlineContent = { Text(stringResource(R.string.settings_susfs4ksu)) },
+                                supportingContent = { Text(stringResource(R.string.settings_susfs4ksu_summary)) },
+                                leadingContent = {
+                                    Icon(
+                                        Icons.Filled.Build,
+                                        stringResource(R.string.settings_susfs4ksu)
+                                    )
+                                },
+                                trailingContent = {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        null
+                                    )
+                                }
+                            )
+                        }
                     }
                 )
             }
@@ -275,6 +307,15 @@ fun SettingPagerMaterial(
                                 enabled = uiState.selinuxHideStatus == "supported",
                                 checked = uiState.isSelinuxHideEnabled,
                                 onCheckedChange = actions.onSetSelinuxHideEnabled
+                            )
+                        },
+                        {
+                            SegmentedSwitchItem(
+                                icon = Icons.Filled.VerifiedUser,
+                                title = stringResource(id = R.string.settings_selinux_enforcing),
+                                summary = if (uiState.isSelinuxEnforcing) stringResource(R.string.selinux_status_enforcing) else stringResource(R.string.selinux_status_permissive),
+                                checked = uiState.isSelinuxEnforcing,
+                                onCheckedChange = actions.onSetSelinuxEnforcing
                             )
                         },
                         {

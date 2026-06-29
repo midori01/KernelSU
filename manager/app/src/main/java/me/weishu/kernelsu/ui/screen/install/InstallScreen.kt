@@ -77,6 +77,8 @@ fun InstallScreen() {
                 if (isAbDevice) add(InstallMethod.DirectInstallToInactiveSlot)
             }
             if (rootAvailable) add(InstallMethod.AnyKernel())
+                add(InstallMethod.BackupBoot)
+                add(InstallMethod.FlashBootImg)
         }
     }
 
@@ -194,6 +196,16 @@ fun InstallScreen() {
         }
     }
 
+    val selectBootImgLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            it.data?.data?.let { uri ->
+                navigator.push(Route.Flash(FlashIt.FlashBootImg(uri)))
+            }
+        }
+    }
+
     val state = InstallUiState(
         installMethod = installMethod,
         lkmSelection = lkmSelection,
@@ -213,9 +225,19 @@ fun InstallScreen() {
     )
     val actions = InstallScreenActions(
         onBack = dropUnlessResumed { navigator.pop() },
-        onSelectMethod = { method -> installMethod = method },
         onSelectBootImage = {
             selectImageLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply { type = "application/octet-stream" })
+        },
+        onSelectMethod = { method ->
+            when (method) {
+                is InstallMethod.BackupBoot -> {
+                    navigator.push(Route.Flash(FlashIt.BackupBoot))
+                }
+                is InstallMethod.FlashBootImg -> {
+                    selectBootImgLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply { type = "application/octet-stream" })
+                }
+                else -> installMethod = method
+            }
         },
         onSelectAnyKernel = {
             selectAnyKernelLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply {

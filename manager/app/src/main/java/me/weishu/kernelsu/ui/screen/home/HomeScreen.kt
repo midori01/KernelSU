@@ -55,8 +55,9 @@ fun HomePager(
     val actions = HomeActions(
         onInstallClick = { navigator.push(Route.Install) },
         onSuperuserClick = { if (!uiState.showRequireKernelWarning) mainState.animateToPage(1) },
-        onModuleClick = { if (!uiState.showRequireKernelWarning) mainState.animateToPage(2) },
+        onModuleClick = { if (!uiState.showRequireKernelWarning) mainState.animateToPage(3) },
         onOpenUrl = uriHandler::openUri,
+        onKernelModuleClick = { navigator.push(Route.KernelModule) },
         onJailbreakClick = {
             loadingDialog.showLoading()
             context.startService(Intent(context, MagicaService::class.java))
@@ -77,12 +78,14 @@ fun HomePager(
             state = uiState,
             actions = actions,
             bottomInnerPadding = bottomInnerPadding,
+            navigator = navigator,
         )
 
         UiMode.Material -> HomePagerMaterial(
             state = uiState,
             actions = actions,
             bottomInnerPadding = bottomInnerPadding,
+            navigator = navigator,
         )
     }
 }

@@ -13,7 +13,7 @@ use rustix::process::chdir;
 use std::path::Path;
 use std::process::Command;
 
-pub fn on_post_data_fs() -> Result<()> {
+pub fn on_post_data_fs(is_soft_reboot: bool) -> Result<()> {
     if let Err(e) = ksucalls::ensure_uapi_version_matched() {
         error!("{e:#}, skip on_post_fs_data");
         return Ok(());
@@ -44,7 +44,7 @@ pub fn on_post_data_fs() -> Result<()> {
         // we should still ensure module directory exists in safe mode
         // because we may need to operate the module dir in safe mode
         warn!("safe mode, skip common post-fs-data.d scripts");
-    } else {
+    } else if !is_soft_reboot {
         // Then exec common post-fs-data scripts
         if let Err(e) = crate::module::exec_common_scripts("post-fs-data.d", true) {
             warn!("exec common post-fs-data scripts failed: {e}");
@@ -99,15 +99,17 @@ pub fn on_post_data_fs() -> Result<()> {
         warn!("init features failed: {e}");
     }
 
-    // execute metamodule post-fs-data script first (priority)
-    if let Err(e) = metamodule::exec_stage_script("post-fs-data", true) {
-        warn!("exec metamodule post-fs-data script failed: {e}");
-    }
+    if !is_soft_reboot {
+        // execute metamodule post-fs-data script first (priority)
+        if let Err(e) = metamodule::exec_stage_script("post-fs-data", true) {
+            warn!("exec metamodule post-fs-data script failed: {e}");
+        }
 
-    // exec modules post-fs-data scripts
-    // TODO: Add timeout
-    if let Err(e) = crate::module::exec_stage_script("post-fs-data", true) {
-        warn!("exec post-fs-data scripts failed: {e}");
+        // exec modules post-fs-data scripts
+        // TODO: Add timeout
+        if let Err(e) = crate::module::exec_stage_script("post-fs-data", true) {
+            warn!("exec post-fs-data scripts failed: {e}");
+        }
     }
 
     // load system.prop
@@ -269,7 +271,7 @@ pub fn soft_reboot() -> Result<()> {
         warn!("stop exited with status: {status}");
     }
     info!("post-fs-data");
-    on_post_data_fs()?;
+    on_post_data_fs(true)?;
     info!("start");
     let status = Command::new("start").status().context("start failed")?;
     if !status.success() {
@@ -281,6 +283,16 @@ pub fn soft_reboot() -> Result<()> {
         warn!("wait for boot completed failed: {e}");
     }
     on_boot_completed();
+
+    // Workaround for wireless debugging dropping on soft reboot
+    if let Ok(out) = Command::new("settings").args(["get", "global", "adb_wifi_enabled"]).output() {
+        if String::from_utf8_lossy(&out.stdout).trim() == "1" {
+            info!("Kicking wireless debugging...");
+            let _ = Command::new("settings").args(["put", "global", "adb_wifi_enabled", "0"]).status();
+            std::thread::sleep(std::time::Duration::from_secs(1));
+            let _ = Command::new("settings").args(["put", "global", "adb_wifi_enabled", "1"]).status();
+        }
+    }
 
     unsafe {
         _exit(0);

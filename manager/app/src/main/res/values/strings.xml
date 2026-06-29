@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name_official" translatable="false">KernelSU</string>
+    <string name="app_name_midorisu" translatable="false">MidoriSU</string>
+    <string name="app_name_kowsu" translatable="false">KowSU</string>
+    <string name="settings_app_icon">App icon</string>
     <string name="home">Home</string>
     <string name="home_not_installed">Not installed</string>
     <string name="home_click_to_install">Tap to install</string>
     <string name="home_working">Working</string>
+    <string name="home_driver">Driver</string>
     <string name="home_working_version">Version: %s</string>
     <string name="home_superuser_count">Superusers: %d</string>
     <string name="home_module_count">Modules: %d</string>
@@ -15,6 +19,18 @@
     <string name="home_kernel">Kernel version</string>
     <string name="home_manager_version">Manager version</string>
     <string name="home_fingerprint">Fingerprint</string>
+    <string name="home_android_version">Android version</string>
+    <string name="home_security_patch">Security patch level</string>
+    <string name="home_hook_type">Hook type</string> 
+    <string name="hook_manual">Manual</string>
+    <string name="hook_hybrid">Hybrid</string>
+    <string name="hook_kprobes">Kprobes</string>
+    <string name="hook_tracepoint">Tracepoint Syscall Redirect</string>
+    <string name="hook_inline">Inline</string>
+    <string name="hook_syscall_tamper">Syscall Table Tampering</string>
+    <string name="hook_bl_hijack">Inline Call Site Hijacking</string>
+    <string name="hook_manual_susfs">De-inlined SUSFS / Manual</string>
+    <string name="hook_hybrid_susfs">De-inlined SUSFS / Hybrid</string>
     <string name="home_selinux_status">SELinux status</string>
     <string name="selinux_status_disabled">Disabled</string>
     <string name="selinux_status_enforcing">Enforcing</string>
@@ -26,6 +42,10 @@
     <string name="seccomp_status_strict">Strict</string>
     <string name="seccomp_status_filter">Filter</string>
     <string name="seccomp_status_unknown">Unknown</string>
+    <string name="home_susfs_version">SUSFS version</string>
+    <string name="home_droidspaces_version">Droidspaces version</string>
+    <string name="home_rekernel_version">Re:Kernel version</string>
+    <string name="home_rekernel_x_version">Re:Kernel-X version</string>
     <string name="superuser">Superuser</string>
     <string name="sulog_log_files">Log files</string>
     <string name="sulog_failed_to_load">Failed to load SU log</string>
@@ -47,6 +67,8 @@
     <string name="module_failed_to_enable">Failed to enable module: %s</string>
     <string name="module_failed_to_disable">Failed to disable module: %s</string>
     <string name="module_empty">No module installed</string>
+    <string name="kernel_modules">Kmod</string>
+    <string name="kernel_modules_search">Search kernel modules…</string>
     <string name="module">Module</string>
     <string name="module_install_prompt_with_name">The following modules will be installed: %1$s</string>
     <string name="module_sort_action_first">Action first</string>
@@ -131,6 +153,8 @@
     <string name="settings_kernelsu_toolkit_summary">Utility tool for KernelSU extra feature.</string>
     <string name="settings_kpatch_next">KPatch Next</string>
     <string name="settings_kpatch_next_summary">Standalone implementation of KPM support.</string>
+    <string name="settings_susfs4ksu">SUSFS for KernelSU</string>
+    <string name="settings_susfs4ksu_summary">Manage SUSFS configuration.</string>
     <string name="settings_profile_template">App Profile template</string>
     <string name="settings_profile_template_summary">Manage local and online template of App Profile.</string>
     <string name="app_profile_template_create">Create template</string>
@@ -156,7 +180,9 @@
     <string name="settings_enable_predictive_back">Predictive back gesture</string>
     <string name="settings_enable_predictive_back_summary">Enable predictive back gesture support.</string>
     <string name="settings_module_check_update">Check for module updates</string>
-    <string name="grant_root_failed">Failed to grant Root!</string>
+    <string name="settings_check_ksu_driver_update">Check KSU driver updates</string>
+    <string name="settings_check_ksu_driver_update_summary">Automatically check for KSU driver updates on startup.</string>
+    <string name="grant_root_failed">Failed to grant root!</string>
     <string name="home_pr_build_warning">This is a PR debug build. Do NOT use it in production!</string>
     <string name="home_pr_kernel_warning">The kernel was built with PR signature support. This is not a production kernel!</string>
     <string name="action">Action</string>
@@ -170,6 +196,8 @@
     <string name="install_inactive_slot_warning">Your device will be **FORCED** to boot to the current inactive slot after a reboot!\nOnly use this option after OTA is done.\nContinue?</string>
     <string name="flash_module">Flash module</string>
     <string name="anykernel_install">Flash AnyKernel</string>
+    <string name="backup_boot">Backup boot.img</string>
+    <string name="flash_boot_img">Flash boot.img</string>
     <string name="jailbreak_flash_warning">You are in **Jailbreak mode**. Flashing a partition on a device with a **locked bootloader** will break AVB (Android Verified Boot) and may cause the device to **fail to boot**.\n\nMake sure your bootloader is unlocked before proceeding!</string>
     <string name="jailbreak_flash_warning_countdown">Continue (%1$d)</string>
     <string name="install_next">Next</string>
@@ -204,9 +232,10 @@
     <string name="settings_selinux_hide_summary">Prevent applications from detecting SELinux modifications</string>
     <string name="settings_selinux_hide_reboot_required">Reboot to take effect</string>
     <string name="settings_selinux_hide_failed">Error: %d</string>
+    <string name="settings_selinux_enforcing">SELinux mode switch</string>
     <string name="settings_sulog">SU Log</string>
-    <string name="settings_sulog_summary">Record Root-related events into KernelSU sulog files</string>
-    <string name="settings_avc_spoof">Avc log spoofing</string>
+    <string name="settings_sulog_summary">Record root-related events into KernelSU sulog files.</string>
+    <string name="settings_avc_spoof">AVC Log spoofing</string>
     <string name="settings_avc_spoof_summary">Fix selinux context leak caused by avc denial in audit log.</string>
     <string name="feature_status_unsupported_summary">Kernel does not support this feature</string>
     <string name="feature_status_managed_summary">This feature is managed by a module</string>
@@ -314,4 +343,12 @@
     <string name="nav_rail_collapse">Collapse navigation rail</string>
     <string name="settings_navigation_badge">Module badge</string>
     <string name="settings_navigation_badge_summary">Show the enabled module count on the navigation bar, or the pending update count in red</string>
+    <string name="kallsyms_title">Kallsyms</string>
+    <string name="kallsyms_search">Search kallsyms…</string>
+    <string name="dmesg_title">dmesg</string>
+    <string name="dmesg_search">Search dmesg…</string>
+    <string name="kconfig_title">Kconfig</string>
+    <string name="kconfig_search">Search kernel config…</string>
+    <string name="share">Share</string>
+>>>>>>> 30e293881 (Midori)
 </resources>
