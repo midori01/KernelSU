@@ -4,6 +4,7 @@
     <string name="home_not_installed">未安装</string>
     <string name="home_click_to_install">点击安装</string>
     <string name="home_working">工作中</string>
+    <string name="home_driver">驱动</string>
     <string name="home_working_version">版本：%s</string>
     <string name="home_superuser_count">超级用户数：%d</string>
     <string name="home_unsupported">不支持</string>
@@ -16,6 +17,15 @@
     <string name="home_android_version">Android 版本</string>
     <string name="home_security_patch">安全补丁级别</string>
     <string name="home_hook_type">钩子类型</string>
+    <string name="hook_manual">手动</string>
+    <string name="hook_hybrid">混合</string>
+    <string name="hook_kprobes">动态探针</string>
+    <string name="hook_tracepoint">静态追踪点</string>
+    <string name="hook_inline">内联</string>
+    <string name="hook_syscall_tamper">系统调用表篡改</string>
+    <string name="hook_bl_hijack">分支链接劫持</string>
+    <string name="hook_manual_susfs">去内联 / 手动</string>
+    <string name="hook_hybrid_susfs">去内联 / 混合</string>
     <string name="home_selinux_status">SELinux 状态</string>
     <string name="selinux_status_disabled">被禁用</string>
     <string name="selinux_status_enforcing">强制执行</string>

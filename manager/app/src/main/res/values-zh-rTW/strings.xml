@@ -3,7 +3,8 @@
     <string name="home">首頁</string>
     <string name="home_not_installed">尚未安裝</string>
     <string name="home_click_to_install">點選開始安裝</string>
-    <string name="home_working">已開始運作</string>
+    <string name="home_working">運作中</string>
+    <string name="home_driver">驅動</string>
     <string name="home_working_version">版本：%s</string>
     <string name="home_superuser_count">授權：%d 個應用程式</string>
     <string name="home_unsupported">未受支援</string>
@@ -15,7 +16,17 @@
     <string name="home_android_version">Android 版本</string>
     <string name="home_security_patch">安全性修補程式等級</string>
     <string name="home_hook_type">鈎子類型</string>
+    <string name="hook_manual">手動</string>
+    <string name="hook_hybrid">混合</string>
+    <string name="hook_kprobes">動態探針</string>
+    <string name="hook_tracepoint">靜態追蹤點</string>
+    <string name="hook_inline">內聯</string>
+    <string name="hook_syscall_tamper">系統調用表篡改</string>
+    <string name="hook_bl_hijack">分支連結劫持</string>
+    <string name="hook_manual_susfs">去內聯 / 手動</string>
+    <string name="hook_hybrid_susfs">去內聯 / 混合</string>
     <string name="home_selinux_status">SELinux 狀態</string>
+    <string name="home_seccomp_status">Seccomp 狀態</string>
     <string name="selinux_status_disabled">已停用</string>
     <string name="selinux_status_enforcing">強制執行</string>
     <string name="selinux_status_permissive">容許執行</string>

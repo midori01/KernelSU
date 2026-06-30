@@ -1,5 +1,5 @@
 package me.weishu.kernelsu.ui.screen.home
-
+import me.weishu.kernelsu.R
 import android.content.Context
 import androidx.compose.runtime.Immutable
 import androidx.core.content.pm.PackageInfoCompat
@@ -35,6 +35,21 @@ fun getManagerVersion(context: Context): ManagerVersion {
         versionName = packageInfo.versionName!!,
         versionCode = versionCode
     )
+}
+
+fun getHookTypeDisplayName(hookType: String, context: Context): String {
+    val map = mapOf(
+        "Manual" to R.string.hook_manual,
+        "Hybrid" to R.string.hook_hybrid,
+        "Kprobes" to R.string.hook_kprobes,
+        "Tracepoint" to R.string.hook_tracepoint,
+        "Inline" to R.string.hook_inline,
+        "Syscall Table Tamper" to R.string.hook_syscall_tamper,
+        "Branch with Link Hijack" to R.string.hook_bl_hijack,
+        "De-inlined SUSFS / Manual" to R.string.hook_manual_susfs,
+        "De-inlined SUSFS / Hybrid" to R.string.hook_hybrid_susfs
+    )
+    return map[hookType]?.let { context.getString(it) } ?: hookType
 }
 
 fun Int.toRoman(): String {

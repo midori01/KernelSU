@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -310,7 +311,7 @@ private fun StatusCard(
                                 Spacer(Modifier.height(4.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
-                                        text = "Driver",
+                                        text = stringResource(R.string.home_driver),
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                     Spacer(Modifier.width(8.dp))
@@ -632,7 +633,7 @@ private fun InfoCard(systemInfo: SystemInfo) {
                 InfoCardItem(
                     icon = Icons.Outlined.Link,
                     label = stringResource(R.string.home_hook_type),
-                    content = systemInfo.hookType
+                    content = getHookTypeDisplayName(systemInfo.hookType, LocalContext.current)
                 )
             }
 

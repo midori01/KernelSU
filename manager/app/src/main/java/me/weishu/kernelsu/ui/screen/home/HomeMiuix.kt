@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -546,7 +547,7 @@ private fun InfoCard(systemInfo: SystemInfo) {
             if (systemInfo.hookType.isNotEmpty() && systemInfo.hookType != "N/A" && systemInfo.hookType != "Unknown") {
                 InfoText(
                     title = stringResource(R.string.home_hook_type),
-                    content = systemInfo.hookType
+                    content = getHookTypeDisplayName(systemInfo.hookType, LocalContext.current)
                 )
             }
             val selinuxDisplay = when (systemInfo.selinuxStatus) {
