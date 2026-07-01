@@ -3,7 +3,6 @@
 #include <linux/fdtable.h>
 #include <linux/file.h>
 #include <linux/fs.h>
-#include <linux/kprobes.h>
 #include <linux/pid.h>
 #include <linux/slab.h>
 #include <linux/syscalls.h>
@@ -87,7 +86,7 @@ extern uint32_t ksuver_override;
 extern uint32_t ksuflags_override;
 
 // downstream: make sure to pass arg as reference, this can allow us to extend things.
-static int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user **arg)
+int midorisu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user **arg)
 {
 
     if (magic1 != KSU_INSTALL_MAGIC1)
@@ -101,19 +100,7 @@ static int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void 
 
     // Check if this is a request to install KSU fd
     if (magic2 == KSU_INSTALL_MAGIC2) {
-        struct ksu_install_fd_tw *tw;
-
-        tw = kzalloc(sizeof(*tw), GFP_ATOMIC);
-        if (!tw)
-            return 0;
-
-        tw->outp = (int __user *)arg4;
-        tw->cb.func = ksu_install_fd_tw_func;
-
-        if (task_work_add(current, &tw->cb, TWA_RESUME)) {
-            kfree(tw);
-            pr_warn("install fd add task_work failed\n");
-        }
+        return ksu_supercall_reboot_handler(arg);
     }
 
     // downstream: extensions go here!
@@ -253,37 +240,30 @@ static int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void 
     return 0;
 }
 
-static int reboot_handler_pre(struct kprobe *p, struct pt_regs *regs)
+int ksu_supercall_reboot_handler(void __user **arg)
 {
-    struct pt_regs *real_regs = PT_REAL_REGS(regs);
-    int magic1 = (int)PT_REGS_PARM1(real_regs);
-    int magic2 = (int)PT_REGS_PARM2(real_regs);
-    int cmd = (int)PT_REGS_PARM3(real_regs);
-    void __user **arg = (void __user **)&PT_REGS_SYSCALL_PARM4(real_regs);
+    struct ksu_install_fd_tw *tw;
 
-    return ksu_handle_sys_reboot(magic1, magic2, cmd, arg);
+    tw = kzalloc(sizeof(*tw), GFP_KERNEL);
+    if (!tw)
+        return 0;
 
+    tw->outp = (int __user *)(*arg);
+    tw->cb.func = ksu_install_fd_tw_func;
+
+    if (task_work_add(current, &tw->cb, TWA_RESUME)) {
+        kfree(tw);
+        pr_warn("install fd add task_work failed\n");
+    }
+
+    return 0;
 }
-
-static struct kprobe reboot_kp = {
-    .symbol_name = REBOOT_SYMBOL,
-    .pre_handler = reboot_handler_pre,
-};
 
 void __init ksu_supercalls_init(void)
 {
-    int rc;
-
     ksu_supercall_dump_commands();
 
     tiny_sulog_init_heap(); // grab heap memory for sulog
-
-    rc = register_kprobe(&reboot_kp);
-    if (rc) {
-        pr_err("reboot kprobe failed: %d\n", rc);
-    } else {
-        pr_info("reboot kprobe registered successfully\n");
-    }
 }
 
 void __exit ksu_supercalls_exit(void)
@@ -294,6 +274,5 @@ void __exit ksu_supercalls_exit(void)
         sulog_buf_ptr = NULL;
     }
 
-    unregister_kprobe(&reboot_kp);
     ksu_supercall_cleanup_state();
 }
