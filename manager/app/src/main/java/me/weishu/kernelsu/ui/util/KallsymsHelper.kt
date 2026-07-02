@@ -2,6 +2,7 @@ package me.weishu.kernelsu.ui.util
 
 import com.topjohnwu.superuser.io.SuFile
 import com.topjohnwu.superuser.io.SuFileInputStream
+import com.topjohnwu.superuser.io.SuFileOutputStream
 import java.io.InputStreamReader
 
 private const val KALLSYMS_PATH = "/proc/kallsyms"
@@ -19,12 +20,30 @@ fun readKallsyms(): List<KallsymsEntry> {
     val suFile = SuFile(KALLSYMS_PATH)
     if (!suFile.isFile) return emptyList()
 
+    val kptrFile = SuFile("/proc/sys/kernel/kptr_restrict")
+    val originalValue = if (kptrFile.isFile) {
+        SuFileInputStream.open(kptrFile).bufferedReader().use { it.readLine()?.trim() }
+    } else null
+
+    if (originalValue != "0") {
+        try { SuFileOutputStream.open(kptrFile).bufferedWriter().use { it.write("0") } } catch (_: Exception) {}
+    }
+
     val lines = mutableListOf<String>()
-    SuFileInputStream.open(suFile).use { input ->
-        InputStreamReader(input).buffered().useLines { sequence ->
-            lines.addAll(sequence)
+    try {
+        SuFileInputStream.open(suFile).use { input ->
+            InputStreamReader(input).buffered().useLines { sequence ->
+                lines.addAll(sequence)
+            }
+        }
+    } finally {
+        if (originalValue != "0" && originalValue != null) {
+            try {
+                SuFileOutputStream.open(kptrFile).bufferedWriter().use { it.write(originalValue) }
+            } catch (_: Exception) {}
         }
     }
+
     return lines.mapNotNull { parseKallsymsLine(it) }
 }
 
