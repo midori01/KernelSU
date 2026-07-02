@@ -118,9 +118,9 @@ fun SettingScreen(navigator: DestinationsNavigator) {
     var kernelUmountStatus by rememberSaveable { mutableStateOf("") }
     var adbRootStatus by rememberSaveable { mutableStateOf("") }
     var selinuxHideStatus by rememberSaveable { mutableStateOf("") }
-    var sulogStatus by remember { mutableStateOf("unsupported") }
+    var sulogStatus by rememberSaveable { mutableStateOf("") }
     var isSulogEnabled by rememberSaveable { mutableStateOf(false) }
-    var avcSpoofStatus by remember { mutableStateOf("unsupported") }
+    var avcSpoofStatus by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         suCompatStatus = getFeatureStatus("su_compat")

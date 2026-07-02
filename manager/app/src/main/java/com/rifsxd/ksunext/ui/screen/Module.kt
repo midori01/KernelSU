@@ -1060,93 +1060,6 @@ fun ModuleItem(
                         Column(
                             modifier = Modifier.fillMaxWidth(0.8f)
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                LabelItem(
-                                    text = formatSize(module.size)
-                                )
-                                if (module.remove) {
-                                    LabelItem(
-                                        text = stringResource(R.string.uninstalled),
-                                        style = LabelItemDefaults.style.copy(
-                                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                                        )
-                                    )
-                                }
-                                if (!Natives.isZygiskEnabled() && module.zygiskRequired && !module.remove) {
-                                    LabelItem(
-                                        text = stringResource(R.string.zygisk_required),
-                                        style = LabelItemDefaults.style.copy(
-                                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                                        )
-                                    )
-                                }
-                                if (module.isMetaModule && !module.remove) {
-                                    LabelItem(
-                                        text = stringResource(R.string.meta_module),
-                                        style = LabelItemDefaults.style.copy(
-                                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                        )
-                                    )
-                                }
-                                if (module.isZygisk && !module.remove) {
-                                    LabelItem(
-                                        text = stringResource(R.string.zygisk),
-                                        style = LabelItemDefaults.style.copy(
-                                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                        )
-                                    )
-                                }
-                                if (module.enabled && !module.remove) {
-                                    if (module.hasWebUi && filterZygiskModules) {
-                                        LabelItem(
-                                            text = stringResource(R.string.webui),
-                                            style = LabelItemDefaults.style.copy(
-                                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                            )
-                                        )
-                                    }
-                                    if (module.hasActionScript && filterZygiskModules) {
-                                        LabelItem(
-                                            text = stringResource(R.string.action),
-                                            style = LabelItemDefaults.style.copy(
-                                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                            )
-                                        )
-                                    }
-                                }
-                                if (updateUrl.isNotEmpty() && !module.remove && !module.update) {
-                                    LabelItem(
-                                        text = stringResource(R.string.module_update_available),
-                                        style = LabelItemDefaults.style.copy(
-                                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                                        )
-                                    )
-                                }
-                                if (!module.remove) {
-                                    if (module.update) {
-                                        LabelItem(
-                                            text = stringResource(R.string.module_updated),
-                                            style = LabelItemDefaults.style.copy(
-                                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                                            )
-                                        )
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
                             Text(
                                 text = module.name,
                                 fontSize = MaterialTheme.typography.titleMedium.fontSize,
@@ -1227,6 +1140,93 @@ fun ModuleItem(
                         maxLines = 3,
                         textDecoration = textDecoration
                     )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        LabelItem(
+                            text = formatSize(module.size)
+                        )
+                        if (module.remove) {
+                            LabelItem(
+                                text = stringResource(R.string.uninstalled),
+                                style = LabelItemDefaults.style.copy(
+                                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            )
+                        }
+                        if (!Natives.isZygiskEnabled() && module.zygiskRequired && !module.remove) {
+                            LabelItem(
+                                text = stringResource(R.string.zygisk_required),
+                                style = LabelItemDefaults.style.copy(
+                                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            )
+                        }
+                        if (module.isMetaModule && !module.remove) {
+                            LabelItem(
+                                text = stringResource(R.string.meta_module),
+                                style = LabelItemDefaults.style.copy(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            )
+                        }
+                        if (module.isZygisk && !module.remove) {
+                            LabelItem(
+                                text = stringResource(R.string.zygisk),
+                                style = LabelItemDefaults.style.copy(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            )
+                        }
+                        if (module.enabled && !module.remove) {
+                            if (module.hasWebUi && filterZygiskModules) {
+                                LabelItem(
+                                    text = stringResource(R.string.webui),
+                                    style = LabelItemDefaults.style.copy(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                )
+                            }
+                            if (module.hasActionScript && filterZygiskModules) {
+                                LabelItem(
+                                    text = stringResource(R.string.action),
+                                    style = LabelItemDefaults.style.copy(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                )
+                            }
+                        }
+                        if (updateUrl.isNotEmpty() && !module.remove && !module.update) {
+                            LabelItem(
+                                text = stringResource(R.string.module_update_available),
+                                style = LabelItemDefaults.style.copy(
+                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                            )
+                        }
+                        if (!module.remove) {
+                            if (module.update) {
+                                LabelItem(
+                                    text = stringResource(R.string.module_updated),
+                                    style = LabelItemDefaults.style.copy(
+                                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                    )
+                                )
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(2.dp))
 
