@@ -138,10 +138,10 @@ fun SuLogScreen(
                     }
                 },
                 dropdownContent = {
-                    var showDropdown by remember { mutableStateOf(false) }
+                    var showFilterMenu by remember { mutableStateOf(false) }
 
                     IconButton(
-                        onClick = { showDropdown = true },
+                        onClick = { showFilterMenu = true },
                     ) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
