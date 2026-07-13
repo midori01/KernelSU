@@ -45,9 +45,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
+import java.io.BufferedInputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.zip.ZipInputStream
 
 enum class FlashingStatus {
     FLASHING,
@@ -134,11 +136,19 @@ fun FlashScreen(
         when {
             flashIt is FlashIt.FlashModules && !confirmed -> {
                 val uris = flashIt.uris
-                val moduleNames =
-                    uris.mapIndexed { index, uri -> "\n${index + 1}. ${uri.getFileName(context)}" }
-                        .joinToString("")
-                val confirmContent =
-                    context.getString(R.string.module_install_prompt_with_name, moduleNames)
+                val modules = withContext(Dispatchers.IO) {
+                    uris.map { uri -> uri.getModuleMetadata(context) }
+                }
+                val moduleDetails = modules.mapIndexed { index, module ->
+                    buildString {
+                        append("${index + 1}. ${module.fileName}\n")
+                        append("- ${context.getString(R.string.module_id)}: ${module.id}\n")
+                        append("- ${context.getString(R.string.module)}: ${module.name}\n")
+                        append("- ${context.getString(R.string.module_version)}: ${module.version}\n")
+                        append("- ${context.getString(R.string.module_author)}: ${module.author}\n")
+                    }
+                }.joinToString("\n\n")
+                val confirmContent = moduleDetails
                 val confirmTitle = context.getString(R.string.module)
                 val result = confirmDialog.awaitConfirm(
                     title = confirmTitle,
@@ -369,6 +379,49 @@ fun FlashScreen(
             )
         }
     }
+}
+
+data class ModuleMetadata(
+    val id: String,
+    val name: String,
+    val version: String,
+    val author: String,
+    val fileName: String,
+)
+
+fun Uri.getModuleMetadata(context: Context): ModuleMetadata {
+    val fileName = getFileName(context)
+    val properties = mutableMapOf<String, String>()
+
+    try {
+        context.contentResolver.openInputStream(this)?.use { inputStream ->
+            ZipInputStream(BufferedInputStream(inputStream)).use { zip ->
+                var entry = zip.nextEntry
+                while (entry != null) {
+                    if (!entry.isDirectory && entry.name == "module.prop") {
+                        zip.bufferedReader(Charsets.UTF_8).useLines { lines ->
+                            lines.forEach { line ->
+                                val trimmed = line.trim()
+                                if (trimmed.isEmpty() || trimmed.startsWith("#") || !trimmed.contains("=")) return@forEach
+                                val (key, value) = trimmed.split("=", limit = 2)
+                                properties[key.trim()] = value.trim()
+                            }
+                        }
+                        break
+                    }
+                    entry = zip.nextEntry
+                }
+            }
+        }
+    } catch (ignored: Exception) {
+    }
+
+    val id = properties["id"].takeUnless { it.isNullOrBlank() } ?: "unknown"
+    val name = properties["name"].takeUnless { it.isNullOrBlank() } ?: "unknown"
+    val version = properties["version"].takeUnless { it.isNullOrBlank() } ?: "unknown"
+    val author = properties["author"].takeUnless { it.isNullOrBlank() } ?: "unknown"
+
+    return ModuleMetadata(id = id, name = name, version = version, author = author, fileName = fileName)
 }
 
 fun Uri.getFileName(context: Context): String {
