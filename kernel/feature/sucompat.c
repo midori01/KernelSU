@@ -1,5 +1,3 @@
-#include "linux/file.h"
-#include "linux/namei.h"
 #include <linux/compiler_types.h>
 #include <linux/preempt.h>
 #include <linux/printk.h>
@@ -13,6 +11,12 @@
 #include <linux/version.h>
 #include <linux/sched/task_stack.h>
 #include <linux/ptrace.h>
+#include <linux/susfs_def.h>
+#include <linux/namei.h>
+#include <linux/minmax.h>
+#include <linux/fs_struct.h>
+#include "selinux/selinux.h"
+#include "objsec.h"
 
 #include "arch.h"
 #include "policy/allowlist.h"
@@ -20,29 +24,37 @@
 #include "klog.h" // IWYU pragma: keep
 #include "runtime/ksud.h"
 #include "feature/sucompat.h"
+#include "feature/adb_root.h"
 #include "policy/app_profile.h"
 #include "hook/syscall_hook.h"
 #include "sulog/event.h"
-#include "ksu.h"
-#include "util.h"
 
 #define SU_PATH "/system/bin/su"
 #define SH_PATH "/system/bin/sh"
 
 extern void write_sulog(uint8_t sym);
+static const char sh_path[] = SH_PATH;
+static const char su_path[] = SU_PATH;
+static const char ksud_path[] = KSUD_PATH;
 
-bool ksu_su_compat_enabled __read_mostly = true;
+DEFINE_STATIC_KEY_TRUE(ksu_su_compat_enabled);
 
 static int su_compat_feature_get(u64 *value)
 {
-    *value = ksu_su_compat_enabled ? 1 : 0;
+    if (static_key_enabled(&ksu_su_compat_enabled))
+        *value = 1;
+    else
+        *value = 0;
     return 0;
 }
 
 static int su_compat_feature_set(u64 value)
 {
     bool enable = value != 0;
-    ksu_su_compat_enabled = enable;
+    if (enable)
+        static_branch_enable(&ksu_su_compat_enabled);
+    else
+        static_branch_disable(&ksu_su_compat_enabled);
     pr_info("su_compat: set to %d\n", enable);
     return 0;
 }
@@ -56,245 +68,236 @@ static const struct ksu_feature_handler su_compat_handler = {
 
 static void __user *userspace_stack_buffer(const void *d, size_t len)
 {
-    // To avoid having to mmap a page in userspace, just write below the stack
-    // pointer.
     char __user *p = (void __user *)current_user_stack_pointer() - len;
-
     return copy_to_user(p, d, len) ? NULL : p;
+}
+
+static char __user *sh_user_path(void)
+{
+    static const char sh_path[] = "/system/bin/sh";
+    return userspace_stack_buffer(sh_path, sizeof(sh_path));
 }
 
 static char __user *ksud_user_path(void)
 {
     static const char ksud_path[] = KSUD_PATH;
-
     return userspace_stack_buffer(ksud_path, sizeof(ksud_path));
 }
 
-static char __user *empty_user_path(void)
+static const char __user *get_user_arg_ptr(struct user_arg_ptr argv, int nr)
 {
-    return userspace_stack_buffer("", sizeof(""));
-}
+	const char __user *native;
 
-static const char su_path[] = SU_PATH;
-
-static bool is_ksud_exists()
-{
-    struct path path;
-
-    if (kern_path(KSUD_PATH, 0, &path) < 0) {
-        return false;
-    }
-    path_put(&path);
-    return true;
-}
-
-static __always_inline bool ksu_is_user_string_su(const char __user **filename_user)
-{
-	uintptr_t buf;
-	const char su[16] = SU_PATH;
-
-	// sugar prep
-	uintptr_t *su_p = (uintptr_t *)su;
-	uintptr_t __user *fn_p = (uintptr_t __user *)untagged_addr(*(char **)filename_user);
-
-	// assert /system/bin/su\0 = 15 bytes.
-	BUILD_BUG_ON(sizeof(SU_PATH) + 1 != 16);
-
-	/*
-	 * it seems this is actually the slowest part, so we peek last word first to speed it up
-	 * NOTE: get_user rets EFAULT on err, so if we are copying a pointer
-	 * that goes to nothing, we also detect that and ret fast
-	 *
-	 * first read overreads, reading 8 bytes, "bin/su\0?" /  4 bytes, "su\0?" when we only need 7/3
-	 * but this is fine as we are guaranteed alignment, hardware provides trailing garbeg
-	 * if it is specially crafted and hits a page guard, we just get EFAULT anyway
-	 *
-	 * on 64-bit we do this in 2 word compare, 4 on 32-bit, little endian only!
-	 *
-	 */
-
-#ifdef CONFIG_64BIT
-	if (get_user(buf, &fn_p[1]))
-		return false;
-
-	if (likely((buf & 0x00FFFFFFFFFFFFFFUL) != (su_p[1] & 0x00FFFFFFFFFFFFFFUL)))
-		return false;
-
-#else
-	if (get_user(buf, &fn_p[3]))
-		return false;
-
-	if (likely((buf & 0x00FFFFFFUL) != (su_p[3] & 0x00FFFFFFUL)))
-		return false;
-
-	if (unlikely(get_user(buf, &fn_p[2])))
-		return false;
-
-	if (buf != su_p[2])
-		return false;
-
-	if (unlikely(get_user(buf, &fn_p[1])))
-		return false;
-
-	if (unlikely(buf != su_p[1]))
-		return false;
+#ifdef CONFIG_COMPAT
+	if (unlikely(argv.is_compat)) {
+		compat_uptr_t compat;
+		if (get_user(compat, argv.ptr.compat + nr))
+			return ERR_PTR(-EFAULT);
+		return compat_ptr(compat);
+	}
 #endif
-	// last word
-	if (unlikely(get_user(buf, &fn_p[0])))
-		return false;
 
-	if (unlikely(buf != su_p[0]))
-		return false;
-	
-	return true;
+	if (get_user(native, argv.ptr.native + nr))
+		return ERR_PTR(-EFAULT);
+
+	return native;
 }
 
-long ksu_handle_faccessat_sucompat(int orig_nr, struct pt_regs *regs)
-{
-    const char __user **filename_user, *orig_filename;
-    long ret;
-    const struct cred *old_cred;
+/*
+ * return 0 -> No further checks should be required afterwards
+ * return non-zero -> Further checks should be continued afterwards
+ */
+int ksu_handle_execveat_init(struct filename *filename, struct user_arg_ptr *argv_user, struct user_arg_ptr *envp_user) {
+    int ret;
 
-    if (!ksu_is_allow_uid_for_current(current_uid().val)) {
-        goto do_orig_facessat;
-    }
+    if (current->pid == 1)
+        return -EINVAL;
 
-    filename_user = (const char __user **)&PT_REGS_PARM2(regs);
+    if (!is_init(get_current_cred()))
+        return -EINVAL;
 
-    if (ksu_is_user_string_su(filename_user)) {
-        old_cred = override_creds(ksu_cred);
-        if (is_ksud_exists()) {
-            write_sulog('a');
-            pr_info("faccessat su->ksud!\n");
-            orig_filename = *filename_user;
-            *filename_user = ksud_user_path();
-            ret = ksu_syscall_table[orig_nr](regs);
-            revert_creds(old_cred);
-            *filename_user = orig_filename;
+    if (unlikely(!strcmp(filename->name, KSUD_PATH))) {
+        const char __user *argv_user_ptr = get_user_arg_ptr(*argv_user, 0);
+        struct ksu_sulog_pending_event *pending_root = NULL;
+        struct ksu_sulog_pending_event *pending_sucompat = NULL;
+
+        pr_info("hook_manager: escape to root for init executing ksud: %d\n", current->pid);
+        pending_root = ksu_sulog_capture_root_execve(filename->name, (struct user_arg_ptr*)argv_user, GFP_KERNEL);
+        pending_sucompat = ksu_sulog_capture_sucompat(filename->name, argv_user, GFP_KERNEL);
+        ret = escape_to_root_for_init();
+        if (ret) {
+            pr_err("escape_to_root_for_init() failed: %d\n", ret);
+            ksu_sulog_emit_pending(pending_root, ret, GFP_KERNEL);
+            ksu_sulog_emit_pending(pending_sucompat, ret, GFP_KERNEL);
             return ret;
-        } else {
-            revert_creds(old_cred);
         }
+        if (!argv_user_ptr || IS_ERR(argv_user_ptr)) {
+            pr_err("!argv_user_ptr || IS_ERR(argv_user_ptr)\n");
+            ksu_sulog_emit_pending(pending_root, -EFAULT, GFP_KERNEL);
+            ksu_sulog_emit_pending(pending_sucompat, -EFAULT, GFP_KERNEL);
+            return 0;
+        }
+        ksu_sulog_emit_pending(pending_root, ret, GFP_KERNEL);
+        ksu_sulog_emit_pending(pending_sucompat, ret, GFP_KERNEL);
+        return 0;
     }
 
-do_orig_facessat:
-    return ksu_syscall_table[orig_nr](regs);
+    if (likely(!strstr(filename->name, "/app_process") && !strstr(filename->name, "/adbd"))) {
+        pr_info("susfs: mark no sucompat checks for pid: '%d', exec: '%s'\n", current->pid, filename->name);
+        susfs_set_current_proc_umounted();
+        return 0;
+    }
+
+#ifdef CONFIG_COMPAT
+    if (unlikely(envp_user->is_compat))
+        ret = ksu_adb_root_handle_execve(filename->name, (void ***)&envp_user->ptr.compat);
+    else
+        ret = ksu_adb_root_handle_execve(filename->name, (void ***)&envp_user->ptr.native);
+#else
+    ret = ksu_adb_root_handle_execve(filename->name, (void ***)&envp_user->ptr.native);
+#endif
+
+    if (ret)
+        pr_err("adb root failed: %d\n", ret);
+
+    return ret;
 }
 
-long ksu_handle_stat_sucompat(int orig_nr, struct pt_regs *regs)
+int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr,
+                 void *argv_user, void *envp_user,
+                 int *__never_use_flags)
 {
-    const char __user **filename_user, *orig_filename;
-    long ret;
-    const struct cred *old_cred;
-
-    if (!ksu_is_allow_uid_for_current(current_uid().val)) {
-        goto do_orig_stat;
-    }
-
-    filename_user = (const char __user **)&PT_REGS_PARM2(regs);
-
-    if (ksu_is_user_string_su(filename_user)) {
-        old_cred = override_creds(ksu_cred);
-        if (is_ksud_exists()) {
-            pr_info("newfstatat su->ksud!\n");
-            write_sulog('s');
-            orig_filename = *filename_user;
-            *filename_user = ksud_user_path();
-            ret = ksu_syscall_table[orig_nr](regs);
-            revert_creds(old_cred);
-            *filename_user = orig_filename;
-            return ret;
-        } else {
-            revert_creds(old_cred);
-        }
-    }
-
-do_orig_stat:
-    return ksu_syscall_table[orig_nr](regs);
-}
-
-long ksu_handle_execve_sucompat(const char __user **filename_user, int orig_nr, struct pt_regs *regs)
-{
-    const char __user *fn;
-    const char __user *const __user *argv_user = (const char __user *const __user *)PT_REGS_PARM2(regs);
+    struct filename *filename;
+    const char __user *argv_user_ptr = get_user_arg_ptr(*((struct user_arg_ptr*)argv_user), 0);
+    struct ksu_sulog_pending_event *pending_root = NULL;
     struct ksu_sulog_pending_event *pending_sucompat = NULL;
-    char path[sizeof(su_path) + 1];
-    long ret, orig_regs[5];
-    unsigned long addr;
-    int tmp_fd;
-    struct file *ksud_file;
-    const struct cred *old_cred;
+    int ret;
 
-    if (unlikely(!filename_user))
-        goto do_orig_execve;
+    if (unlikely(!filename_ptr))
+        return 0;
 
-    if (!ksu_is_allow_uid_for_current(current_uid().val))
-        goto do_orig_execve;
+    filename = *filename_ptr;
+    if (IS_ERR(filename))
+        return 0;
 
-    if (!ksu_is_user_string_su(filename_user))
-        goto do_orig_execve;
+    if (!ksu_handle_execveat_init(filename, (struct user_arg_ptr*)argv_user, (struct user_arg_ptr*)envp_user))
+        return 0;
+
+    if (!(__ksu_is_allow_uid_for_current(current_uid().val)))
+        return 0;
+
+    if (likely(memcmp(filename->name, su_path, sizeof(su_path)))) {
+        if (!argv_user_ptr || IS_ERR(argv_user_ptr))
+            return 0;
+        pending_root = ksu_sulog_capture_root_execve(filename->name, (struct user_arg_ptr*)argv_user, GFP_KERNEL);
+        ksu_sulog_emit_pending(pending_root, 0, GFP_KERNEL);
+        return 0;
+    }
+
+    if (current_chrooted()) {
+        pr_err("ksu_handle_execveat_sucompat: su found but NOT allowed! Because current process is running in chrooted environment\n");
+        return 0;
+    }
+
+    pr_info("ksu_handle_execveat_sucompat: su found\n");
 
     write_sulog('x');
-    pr_info("sys_execve su found\n");
+    memcpy((void *)filename->name, ksud_path, sizeof(ksud_path));
 
-    tmp_fd = get_unused_fd_flags(O_CLOEXEC);
-    if (tmp_fd < 0) {
-        pr_err("alloc tmp fd err: %d\n", tmp_fd);
-        goto do_orig_execve;
-    }
-
-    old_cred = override_creds(ksu_cred);
-    ksud_file = filp_open(KSUD_PATH, O_PATH, 0);
-    revert_creds(old_cred);
-    if (IS_ERR(ksud_file)) {
-        pr_err("open ksud err: %ld\n", PTR_ERR(ksud_file));
-        put_unused_fd(tmp_fd);
-        goto do_orig_execve;
-    }
-
-    fd_install(tmp_fd, ksud_file);
-
-    pending_sucompat = ksu_sulog_capture_sucompat(*filename_user, argv_user, GFP_KERNEL);
-    // execve(file, argv, environ)
-    // execveat(fd, file, argv, environ, flags)
-    orig_regs[0] = regs->__PT_PARM1_REG;
-    orig_regs[1] = regs->__PT_PARM2_REG;
-    orig_regs[2] = regs->__PT_PARM3_REG;
-    orig_regs[3] = regs->__PT_SYSCALL_PARM4_REG;
-    orig_regs[4] = regs->__PT_PARM5_REG;
-    regs->__PT_PARM5_REG = AT_EMPTY_PATH;
-    regs->__PT_SYSCALL_PARM4_REG = regs->__PT_PARM3_REG;
-    regs->__PT_PARM3_REG = regs->__PT_PARM2_REG;
-    regs->__PT_PARM2_REG = empty_user_path();
-    regs->__PT_PARM1_REG = tmp_fd;
-
+    pending_root = ksu_sulog_capture_root_execve(filename->name, (struct user_arg_ptr*)argv_user, GFP_KERNEL);
+    pending_sucompat = ksu_sulog_capture_sucompat(filename->name, (struct user_arg_ptr*)argv_user, GFP_KERNEL);
     ret = escape_with_root_profile();
-    if (ret) {
-        pr_err("escape_with_root_profile failed: %ld\n", ret);
+    if (ret)
+        pr_err("escape_with_root_profile() failed: %d\n", ret);
+
+    if (!argv_user_ptr || IS_ERR(argv_user_ptr)) {
+        pr_err("!argv_user_ptr || IS_ERR(argv_user_ptr)\n");
+        ksu_sulog_emit_pending(pending_root, ret, GFP_KERNEL);
+        ksu_sulog_emit_pending(pending_sucompat, ret, GFP_KERNEL);
+        return 0;
     }
+
+    ksu_sulog_emit_pending(pending_root, ret, GFP_KERNEL);
     ksu_sulog_emit_pending(pending_sucompat, ret, GFP_KERNEL);
-
-    ret = ksu_syscall_table[__NR_execveat](regs);
-    if (ret < 0) {
-        ksu_close_fd(tmp_fd);
-        regs->__PT_PARM1_REG = orig_regs[0];
-        regs->__PT_PARM2_REG = orig_regs[1];
-        regs->__PT_PARM3_REG = orig_regs[2];
-        regs->__PT_SYSCALL_PARM4_REG = orig_regs[3];
-        regs->__PT_PARM5_REG = orig_regs[4];
-    }
-    return ret;
-
-do_orig_execve:
-    return ksu_syscall_table[orig_nr](regs);
+    return 0;
 }
 
-// sucompat: permitted process can execute 'su' to gain root access.
+extern struct static_key_true is_first_zygote;
+
+int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
+            void *envp, int *flags)
+{
+    if (static_branch_unlikely(&is_first_zygote))
+        (void)ksu_handle_execveat_ksud(fd, filename_ptr, argv, envp, flags);
+
+    return ksu_handle_execveat_sucompat(fd, filename_ptr, argv, envp, flags);
+}
+
+int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,
+             int *__unused_flags)
+{
+    char path[sizeof(su_path) + 1] = {0};
+
+    strncpy_from_user(path, *filename_user, sizeof(path));
+
+    if (unlikely(!memcmp(path, su_path, sizeof(su_path)))) {
+        if (current_chrooted()) {
+            pr_err("ksu_handle_faccessat: su found but NOT allowed! Because current process is running in chrooted environment\n");
+            return 0;
+        }
+        write_sulog('a');
+        pr_info("ksu_handle_faccessat: su->sh!\n");
+        *filename_user = sh_user_path();
+    }
+
+    return 0;
+}
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+int ksu_handle_stat(int *dfd, struct filename **filename, int *flags) {
+    if (unlikely(IS_ERR(*filename) || (*filename)->name == NULL))
+        return 0;
+
+    if (likely(memcmp((*filename)->name, su_path, sizeof(su_path))))
+        return 0;
+
+    if (current_chrooted()) {
+        pr_err("ksu_handle_stat: su found but NOT allowed! Because current process is running in chrooted environment\n");
+        return 0;
+    }
+    write_sulog('s');
+    pr_info("ksu_handle_stat: su->sh!\n");
+    memcpy((void *)((*filename)->name), sh_path, sizeof(sh_path));
+    return 0;
+}
+#else
+int ksu_handle_stat(int *dfd, const char __user **filename_user, int *flags)
+{
+    if (unlikely(!filename_user))
+        return 0;
+
+    char path[sizeof(su_path) + 1] = {0};
+
+    strncpy_from_user(path, *filename_user, sizeof(path));
+
+    if (unlikely(!memcmp(path, su_path, sizeof(su_path)))) {
+        if (current_chrooted()) {
+            pr_err("ksu_handle_stat: su found but NOT allowed! Because current process is running in chrooted environment\n");
+            return 0;
+        }
+        write_sulog('s');
+        pr_info("ksu_handle_stat: su->sh!\n");
+        *filename_user = sh_user_path();
+    }
+
+    return 0;
+}
+#endif
+
 void __init ksu_sucompat_init()
 {
-    if (ksu_register_feature_handler(&su_compat_handler)) {
+    if (ksu_register_feature_handler(&su_compat_handler))
         pr_err("Failed to register su_compat feature handler\n");
-    }
 }
 
 void __exit ksu_sucompat_exit()
