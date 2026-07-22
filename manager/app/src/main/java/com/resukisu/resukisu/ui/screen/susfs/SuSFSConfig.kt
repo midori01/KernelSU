@@ -306,7 +306,6 @@ fun SuSFSConfigScreen() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .blurSource()
             ) {
                 HorizontalPager(
                     state = pagerState,

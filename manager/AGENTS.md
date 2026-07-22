@@ -174,3 +174,4 @@ Before completing a UI or settings task, verify:
 * Verify the project with `./gradlew assembleRelease` before reporting completion.
 * Any build or test result is reported honestly; never claim verification passed when it was not
   run.
+* Ensure any custom lint checks passed.
