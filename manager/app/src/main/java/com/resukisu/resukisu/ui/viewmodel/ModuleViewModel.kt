@@ -13,6 +13,7 @@ import com.resukisu.resukisu.ui.util.getRootShell
 import com.resukisu.resukisu.ui.util.listModules
 import com.topjohnwu.superuser.io.SuFile
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,6 +46,7 @@ class ModuleViewModel : ViewModel() {
     }
 
     private var modules: List<ModuleInfo> = emptyList()
+    private var updateCheckJob: Job? = null
     private val _uiState = MutableStateFlow(ModuleUiState())
     val uiState: StateFlow<ModuleUiState> = _uiState.asStateFlow()
 
@@ -243,24 +245,6 @@ class ModuleViewModel : ViewModel() {
                     }
                 }.awaitAll().any { it }
 
-                modules = modules.map { module ->
-                    async(Dispatchers.IO) {
-                        module.copy(
-                            moduleUpdate = if (
-                                !moduleVersionKeys.contains(module.id + module.versionCode) ||
-                                module.updateJson.isEmpty() ||
-                                module.remove ||
-                                module.update ||
-                                !module.enabled
-                            ) {
-                                checkUpdate(module.updateJson, module.versionCode)
-                            } else {
-                                null
-                            }
-                        )
-                    }
-                }.awaitAll()
-
                 _uiState.update { state ->
                     state.copy(
                         moduleList = buildModuleList(
@@ -273,6 +257,8 @@ class ModuleViewModel : ViewModel() {
                         isRefreshing = false,
                     )
                 }
+
+                checkModuleUpdatesInBackground(modules, moduleVersionKeys)
             }.onFailure { e ->
                 Log.e(TAG, "fetchModuleList: ", e)
                 _uiState.update { it.copy(isRefreshing = false) }
@@ -284,6 +270,46 @@ class ModuleViewModel : ViewModel() {
 
             Log.i(TAG, "load cost: ${SystemClock.elapsedRealtime() - start}, modules: $modules")
             callBack()
+        }
+    }
+
+    private fun checkModuleUpdatesInBackground(
+        moduleSnapshot: List<ModuleInfo>,
+        moduleVersionKeys: List<String>,
+    ) {
+        updateCheckJob?.cancel()
+        updateCheckJob = viewModelScope.launch(Dispatchers.IO) {
+            val updatedModules = moduleSnapshot.map { module ->
+                async {
+                    module.copy(
+                        moduleUpdate = if (
+                            !moduleVersionKeys.contains(module.id + module.versionCode) ||
+                            module.updateJson.isEmpty() ||
+                            module.remove ||
+                            module.update ||
+                            !module.enabled
+                        ) {
+                            checkUpdate(module.updateJson, module.versionCode)
+                        } else {
+                            null
+                        }
+                    )
+                }
+            }.awaitAll()
+
+            // Ignore results from an obsolete module list when another refresh finished first.
+            if (modules !== moduleSnapshot) return@launch
+
+            modules = updatedModules
+            _uiState.update { state ->
+                state.copy(
+                    moduleList = buildModuleList(
+                        search = state.search,
+                        sortEnabledFirst = state.sortEnabledFirst,
+                        sortActionFirst = state.sortActionFirst,
+                    )
+                )
+            }
         }
     }
 
