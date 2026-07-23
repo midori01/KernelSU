@@ -1186,6 +1186,7 @@ private fun ModuleList(
                             state = textFieldState,
                             title = stringResource(id = R.string.module_shortcut_name_label),
                             error = error,
+                            renderBackgroundBlur = false,
                         )
 
                         LaunchedEffect(textFieldState.text) {

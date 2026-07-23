@@ -193,6 +193,7 @@ fun OpenRedirectTab(
                     choice = uidSchemeOptions.indexOfFirst { it.first == manualUidScheme }
                         .coerceAtLeast(0),
                     data = uidSchemeOptions.map { it.second },
+                    renderBackgroundBlur = false,
                     onChoiceChange = { index -> manualUidScheme = uidSchemeOptions[index].first },
                 )
             }

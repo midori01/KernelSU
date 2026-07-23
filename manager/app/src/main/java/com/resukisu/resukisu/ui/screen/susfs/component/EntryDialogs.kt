@@ -183,6 +183,7 @@ fun ManualAddDialog(
                                     iconPlaceholder = false,
                                     choice = subtypes.indexOf(selectedSubtype).coerceAtLeast(0),
                                     data = subtypes,
+                                    renderBackgroundBlur = false,
                                     onChoiceChange = { index -> onSubtypeChange(subtypes[index]) }
                                 )
                             }
@@ -194,6 +195,7 @@ fun ManualAddDialog(
                                     icon = Icons.Default.UploadFile,
                                     title = importFromFileLabel,
                                     description = stringResource(R.string.susfs_entry_import_hint),
+                                    renderBackgroundBlur = false,
                                     onClick = { pickFileLauncher.launch(arrayOf("*/*")) },
                                 )
                             }

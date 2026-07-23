@@ -321,8 +321,10 @@ fun SettingsTextFieldWidget(
                 )
             }
         },
-        trailingContent = {
-            trailingContent?.invoke()
-        }
+        trailingContent = if (trailingContent != null) {
+            {
+                trailingContent()
+            }
+        } else null
     )
 }

@@ -493,6 +493,10 @@
     <string name="susfs_standard_uname">Uname</string>
     <string name="susfs_standard_uname_version">Version</string>
     <string name="susfs_standard_uname_release">Release</string>
+    <string name="susfs_standard_uname_tab_manual">Manual</string>
+    <string name="susfs_standard_uname_tab_slot_info">Slot information</string>
+    <string name="susfs_standard_uname_slot_info_load_failed">Failed to load boot slot information</string>
+    <string name="susfs_standard_uname_slot_info_empty">No boot slot information found</string>
     <string name="susfs_standard_cmdline_or_bootconfig">Cmdline / Bootconfig</string>
     <string name="susfs_standard_cmdline_path">Path to fake cmdline/bootconfig file</string>
     <string name="susfs_standard_current_value">Current: %1$s</string>

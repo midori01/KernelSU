@@ -487,6 +487,10 @@
     <string name="susfs_standard_hide_sus_mnts_desc">对非 su 进程隐藏 sus 挂载信息。启用后将忽视管理器的卸载设置；默认只为管理器中设置了卸载模块的应用隐藏。</string>
     <string name="susfs_standard_uname_version">发布日期</string>
     <string name="susfs_standard_uname_release">版本号</string>
+    <string name="susfs_standard_uname_tab_manual">手动提供</string>
+    <string name="susfs_standard_uname_tab_slot_info">槽位信息</string>
+    <string name="susfs_standard_uname_slot_info_load_failed">加载启动槽位信息失败</string>
+    <string name="susfs_standard_uname_slot_info_empty">未找到启动槽位信息</string>
     <string name="susfs_standard_cmdline_path">要伪装成的 cmdline/bootconfig 文件路径</string>
     <string name="susfs_standard_current_value">当前值: %1$s</string>
     <string name="susfs_standard_not_set">未设置</string>
