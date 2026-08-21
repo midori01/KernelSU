@@ -1,33 +1,7 @@
 name: Build KernelSU Kernel Module
 
 on:
-  workflow_call:
-    inputs:
-      kmi:
-        description: 'KMI version'
-        required: true
-        type: string
-      arch:
-        description: "target's architecture (arm64/x86_64)"
-        required: true
-        type: string
-        default: 'arm64'
-      ddk_release:
-        description: 'DDK release version'
-        required: false
-        default: '20260828'
-        type: string
-      expected_pr_build_size:
-        description: 'Second expected signature size (for PR builds)'
-        required: false
-        default: ''
-        type: string
-      expected_pr_build_hash:
-        description: 'Second expected signature hash (for PR builds)'
-        required: false
-        default: ''
-        type: string
-
+  workflow_dispatch:
 
 jobs:
   build-kernelsu-ko:
