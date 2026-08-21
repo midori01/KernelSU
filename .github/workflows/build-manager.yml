@@ -2,18 +2,6 @@ name: Build Manager
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/build-manager.yml'
-      - '.github/workflows/build-lkm.yml'
-      - '.github/workflows/ddk-lkm.yml'
-      - '.github/workflows/ksud.yml'
-      - 'manager/**'
-      - 'kernel/**'
-      - 'userspace/**'
-      - 'scripts/ksubot.py'
-  pull_request:
-  workflow_call:
 
 jobs:
   generate-key:

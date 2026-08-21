@@ -1,8 +1,7 @@
 name: Check Line Endings
 
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   check-crlf:
