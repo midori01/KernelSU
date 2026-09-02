@@ -1,0 +1,120 @@
+#include <linux/kprobes.h>
+#include <linux/utsname.h>
+#include <linux/uaccess.h>
+#include <linux/slab.h>
+#include <linux/sched.h>
+#include "uapi/supercall.h"
+#include "supercall/supercall.h"
+#include "arch.h"
+#include "manager/manager_identity.h"
+#include "klog.h"
+
+#define CHANGE_MANAGER_UID 10006
+#define CHANGE_KSUVER 10011
+#define CHANGE_SPOOF_UNAME 10012
+#define CHANGE_KSUFLAGS 10013
+
+uint32_t ksuver_override = 0;
+uint32_t ksuflags_override = 0;
+
+extern int ksu_unregister_feature_handler(uint32_t feature_id);
+
+static int toolkit_reboot_pre(struct kprobe *p, struct pt_regs *regs)
+{
+    struct pt_regs *real_regs = PT_REAL_REGS(regs);
+    int magic1 = (int)PT_REGS_PARM1(real_regs);
+    int magic2 = (int)PT_REGS_PARM2(real_regs);
+    unsigned int cmd = (unsigned int)PT_REGS_PARM3(real_regs);
+    unsigned long arg4 = (unsigned long)PT_REGS_SYSCALL_PARM4(real_regs);
+    unsigned long reply = arg4;
+
+    if (magic1 != KSU_INSTALL_MAGIC1)
+        return 0;
+
+    if (magic2 == CHANGE_MANAGER_UID) {
+        if (current_uid().val != 0)
+            return 0;
+        pr_info("sys_reboot: ksu_set_manager_appid to: %d\n", cmd);
+        ksu_set_manager_appid(cmd);
+        if (cmd == ksu_get_manager_appid()) {
+            if (copy_to_user((void __user *)arg4, &reply, sizeof(reply)))
+                pr_info("sys_reboot: reply fail\n");
+        }
+        return 0;
+    }
+
+    if (magic2 == CHANGE_KSUVER) {
+        if (current_uid().val != 0)
+            return 0;
+        pr_info("sys_reboot: ksu_change_ksuver to: %d\n", cmd);
+        ksuver_override = cmd;
+        if (copy_to_user((void __user *)arg4, &reply, sizeof(reply)))
+            return 0;
+        return 0;
+    }
+
+    if (magic2 == CHANGE_SPOOF_UNAME) {
+        if (current_uid().val != 0)
+            return 0;
+        char release_buf[65];
+        char version_buf[65];
+        static char original_release_buf[65] = {0};
+        static char original_version_buf[65] = {0};
+        void ***ppptr = (void ***)&arg4;
+        uint64_t u_pptr = 0;
+        uint64_t u_ptr = 0;
+        if (copy_from_user(&u_pptr, (void __user *)*ppptr, sizeof(u_pptr)))
+            return 0;
+        if (copy_from_user(&u_ptr, (void __user *)u_pptr, sizeof(u_ptr)))
+            return 0;
+        if (strncpy_from_user(release_buf, (char __user *)u_ptr, sizeof(release_buf)) < 0)
+            return 0;
+        release_buf[sizeof(release_buf) - 1] = '\0';
+        if (strncpy_from_user(version_buf, (char __user *)(u_ptr + strlen(release_buf) + 1), sizeof(version_buf)) < 0)
+            return 0;
+        version_buf[sizeof(version_buf) - 1] = '\0';
+        if (original_release_buf[0] == '\0') {
+            struct new_utsname *u_curr = utsname();
+            strncpy(original_release_buf, u_curr->release, sizeof(original_release_buf));
+            strncpy(original_version_buf, u_curr->version, sizeof(original_version_buf));
+        }
+        if (!strcmp(release_buf, "default"))
+            memcpy(release_buf, original_release_buf, sizeof(release_buf));
+        if (!strcmp(version_buf, "default"))
+            memcpy(version_buf, original_version_buf, sizeof(version_buf));
+        struct new_utsname *u = utsname();
+        down_write(&uts_sem);
+        strncpy(u->release, release_buf, sizeof(u->release));
+        strncpy(u->version, version_buf, sizeof(u->version));
+        up_write(&uts_sem);
+        if (copy_to_user((void __user *)arg4, &reply, sizeof(reply)))
+            return 0;
+        return 0;
+    }
+
+    if (magic2 == CHANGE_KSUFLAGS) {
+        if (current_uid().val != 0)
+            return 0;
+        pr_info("sys_reboot: ksu_change_ksuflags to: %d\n", cmd);
+        ksuflags_override = cmd;
+        if (copy_to_user((void __user *)arg4, &reply, sizeof(reply)))
+            return 0;
+        return 0;
+    }
+
+    return 0;
+}
+
+static struct kprobe toolkit_kp = {
+    .symbol_name = REBOOT_SYMBOL,
+    .pre_handler = toolkit_reboot_pre,
+};
+
+void ksu_toolkit_init(void) {
+    ksu_unregister_feature_handler(2);
+    if (register_kprobe(&toolkit_kp)) {
+        pr_err("toolkit kprobe failed\n");
+    } else {
+        pr_info("toolkit kprobe registered successfully\n");
+    }
+}
