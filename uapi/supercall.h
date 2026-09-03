@@ -133,8 +133,16 @@ struct ksu_manage_mark_cmd {
     __u32 result; /* Output: for get operation - mark status or reg_count */
 };
 
-struct ksu_get_hook_mode_cmd {
-    char mode[16];
+struct ksu_hook_type_cmd {
+    char hook_type[32];
+};
+
+struct ksu_susfs_version_cmd {
+    char version[32];
+};
+
+struct ksu_driver_name_cmd {
+    char name[32];
 };
 
 struct ksu_get_version_tag_cmd {
@@ -192,7 +200,9 @@ static const __u32 KSU_IOCTL_ADD_TRY_UMOUNT = _IOC(_IOC_WRITE, 'K', 18, 0);
 static const __u32 KSU_IOCTL_SET_INIT_PGRP = _IO('K', 19);
 static const __u32 KSU_IOCTL_GET_SULOG_FD = _IOW('K', 20, struct ksu_get_sulog_fd_cmd);
 static const __u32 KSU_IOCTL_DISABLE_ESCAPE_TO_ROOT = _IO('K', 21);
-static const __u32 KSU_IOCTL_GET_HOOK_MODE = _IOC(_IOC_READ, 'K', 98, 0);
+static const __u32 KSU_IOCTL_HOOK_TYPE = _IOC(_IOC_READ, 'K', 101, 0);
+static const __u32 KSU_IOCTL_SUSFS_VERSION = _IOC(_IOC_READ, 'K', 102, 0);
+static const __u32 KSU_IOCTL_DRIVER_NAME = _IOC(_IOC_READ, 'K', 104, 0);
 static const __u32 KSU_IOCTL_GET_VERSION_TAG = _IOC(_IOC_READ, 'K', 99, 0);
 
 #endif
