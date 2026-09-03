@@ -7,6 +7,10 @@
 #include <linux/workqueue.h>
 #include <linux/moduleparam.h>
 
+#ifdef CONFIG_KSU_SUSFS
+#include <linux/susfs.h>
+#endif // #ifdef CONFIG_KSU_SUSFS
+
 #include "policy/allowlist.h"
 #include "policy/app_profile.h"
 #include "policy/feature.h"
@@ -137,6 +141,10 @@ int __init kernelsu_init(void)
 
     ksu_supercalls_init();
     ksu_app_profile_init();
+
+#ifdef CONFIG_KSU_SUSFS
+    susfs_init();
+#endif // #ifdef CONFIG_KSU_SUSFS
 
     if (ksu_late_loaded) {
         pr_info("late load mode, skipping kprobe hooks\n");

@@ -51,7 +51,11 @@ static void ksu_umount_mnt(const char *mnt, struct path *path, int flags)
     }
 }
 
+#if defined(CONFIG_KSU_SUSFS) && defined(CONFIG_KSU_SUSFS_TRY_UMOUNT)
+void try_umount(const char *mnt, int flags)
+#else
 static void try_umount(const char *mnt, int flags)
+#endif // #if defined(CONFIG_KSU_SUSFS) && defined(CONFIG_KSU_SUSFS_TRY_UMOUNT)
 {
     struct path path;
     int err = kern_path(mnt, 0, &path);
@@ -83,6 +87,7 @@ int ksu_handle_umount(uid_t old_uid, uid_t new_uid)
         return 0;
     }
 
+#ifndef CONFIG_KSU_SUSFS
     // There are 6 scenarios:
     // 1. Normal app: zygote -> appuid
     // 2. Isolated process forked from zygote: zygote -> isolated_process
@@ -107,6 +112,7 @@ int ksu_handle_umount(uid_t old_uid, uid_t new_uid)
         pr_info("handle umount ignore non zygote child: %d\n", current->pid);
         return 0;
     }
+#endif // #ifndef CONFIG_KSU_SUSFS
     // umount the target mnt
     pr_info("handle umount for uid: %d, pid: %d\n", new_uid, current->pid);
 

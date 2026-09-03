@@ -163,9 +163,9 @@ long ksu_handle_faccessat_sucompat(int orig_nr, struct pt_regs *regs)
     filename_user = (const char __user **)&PT_REGS_PARM2(regs);
 
     if (ksu_is_user_string_su(filename_user)) {
+        write_sulog('a');
         old_cred = override_creds(ksu_cred);
         if (is_ksud_exists()) {
-            write_sulog('a');
             pr_info("faccessat su->ksud!\n");
             orig_filename = *filename_user;
             *filename_user = ksud_user_path();
@@ -195,10 +195,10 @@ long ksu_handle_stat_sucompat(int orig_nr, struct pt_regs *regs)
     filename_user = (const char __user **)&PT_REGS_PARM2(regs);
 
     if (ksu_is_user_string_su(filename_user)) {
+        write_sulog('s');
         old_cred = override_creds(ksu_cred);
         if (is_ksud_exists()) {
             pr_info("newfstatat su->ksud!\n");
-            write_sulog('s');
             orig_filename = *filename_user;
             *filename_user = ksud_user_path();
             ret = ksu_syscall_table[orig_nr](regs);
