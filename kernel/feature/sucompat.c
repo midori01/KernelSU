@@ -104,9 +104,9 @@ long ksu_handle_faccessat_sucompat(int orig_nr, struct pt_regs *regs)
 	strncpy_from_user_nofault(path, *filename_user, sizeof(path));
 
 	if (unlikely(!memcmp(path, su_path, sizeof(su_path)))) {
+		ksu_compat_sulog('a');
 		old_cred = override_creds(ksu_cred);
 		if (is_ksud_exists()) {
-			ksu_compat_sulog('a');
 			pr_info("faccessat su->ksud!\n");
 			orig_filename = *filename_user;
 			*filename_user = ksud_user_path();
@@ -140,9 +140,9 @@ long ksu_handle_stat_sucompat(int orig_nr, struct pt_regs *regs)
 	strncpy_from_user_nofault(path, *filename_user, sizeof(path));
 
 	if (unlikely(!memcmp(path, su_path, sizeof(su_path)))) {
+		ksu_compat_sulog('s');
 		old_cred = override_creds(ksu_cred);
 		if (is_ksud_exists()) {
-			ksu_compat_sulog('s');
 			pr_info("newfstatat su->ksud!\n");
 			orig_filename = *filename_user;
 			*filename_user = ksud_user_path();
