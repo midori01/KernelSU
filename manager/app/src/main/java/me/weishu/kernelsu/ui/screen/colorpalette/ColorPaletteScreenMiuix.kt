@@ -293,30 +293,40 @@ fun ColorPaletteScreenMiuix(
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
                     ) {
-                        SwitchPreference(
-                            title = stringResource(id = R.string.settings_official_icon),
+                        val iconModes = listOf(
+                            stringResource(R.string.app_name_midorisu),
+                            stringResource(R.string.app_name_kowsu),
+                            stringResource(R.string.app_name_official),
+                        )
+                        OverlayDropdownPreference(
+                            title = stringResource(id = R.string.settings_app_icon),
+                            items = iconModes,
                             startAction = {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_launcher_monochrome),
+                                    modifier = Modifier.padding(end = 6.dp),
                                     contentDescription = stringResource(id = R.string.settings_official_icon),
-                                    modifier = Modifier
-                                        .padding(end = 6.dp)
-                                        .size(24.dp)
-                                        .wrapContentSize(unbounded = true)
-                                        .requiredSize(48.dp),
                                     tint = colorScheme.onBackground
                                 )
                             },
-                            checked = uiState.enableOfficialLauncher,
-                            onCheckedChange = { enabled ->
-                                actions.onSetEnableOfficialLauncher(enabled)
+                            selectedIndex = uiState.appIconMode,
+                            onSelectedIndexChange = { mode ->
+                                actions.onSetAppIconMode(mode)
                                 val pm = context.packageManager
                                 val mainComponent = ComponentName(context, MainActivity::class.java)
                                 val aliasComponent = ComponentName(context, "me.weishu.kernelsu.MainActivityOfficial")
-                                val (enableComp, disableComp) = if (enabled) aliasComponent to mainComponent else mainComponent to aliasComponent
-
-                                pm.setComponentEnabledSetting(enableComp, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-                                pm.setComponentEnabledSetting(disableComp, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+                                val kowsuComponent = ComponentName(context, "me.weishu.kernelsu.MainActivityKowsu")
+                                val target = when (mode) {
+                                    1 -> kowsuComponent
+                                    2 -> aliasComponent
+                                    else -> mainComponent
+                                }
+                                listOf(mainComponent, aliasComponent, kowsuComponent).forEach { comp ->
+                                    pm.setComponentEnabledSetting(comp,
+                                        if (comp == target) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                                        else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                                        PackageManager.DONT_KILL_APP)
+                                }
                             }
                         )
 

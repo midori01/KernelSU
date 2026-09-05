@@ -36,6 +36,7 @@ fun SettingPager(
     }
 
     val actions = SettingsScreenActions(
+        onSetAppIconMode = viewModel::setAppIconMode,
         onSetCheckUpdate = viewModel::setCheckUpdate,
         onSetCheckModuleUpdate = viewModel::setCheckModuleUpdate,
         onSetCheckKsuDriverUpdate = viewModel::setCheckKsuDriverUpdate,

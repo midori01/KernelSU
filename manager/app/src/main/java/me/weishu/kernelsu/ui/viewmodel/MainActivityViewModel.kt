@@ -60,7 +60,7 @@ class MainActivityViewModel(
             "key_color",
             "color_style",
             "color_spec",
-            "enable_official_launcher",
+            "app_icon_mode",
             "classic_ui",
             "show_switch_icon",
             "scroll_animation",

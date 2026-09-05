@@ -10,7 +10,7 @@ interface SettingsRepository {
     var keyColor: Int
     var colorStyle: String
     var colorSpec: String
-    var enableOfficialLauncher: Boolean
+    var appIconMode: Int
     var classicUi: Boolean
     var showSwitchIcon: Boolean
     var scrollAnimation: Boolean
