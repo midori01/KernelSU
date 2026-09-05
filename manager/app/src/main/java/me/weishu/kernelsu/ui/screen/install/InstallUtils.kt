@@ -34,6 +34,7 @@ internal sealed class InstallMethod : Parcelable {
             get() = R.string.install_inactive_slot
     }
 
+    @Parcelize
     data class AnyKernel(
         val uri: Uri? = null,
         override val label: Int = R.string.anykernel_install,

@@ -558,6 +558,7 @@ fun reboot(reason: String = "") {
 
 fun flashAnyKernelZip(
     uri: Uri,
+    slot: String = "",
     onStdout: (String) -> Unit,
     onStderr: (String) -> Unit
 ): FlashResult {
@@ -565,10 +566,32 @@ fun flashAnyKernelZip(
 
     val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
     val tmpFile = File(ksuApp.cacheDir, "anykernel_${timestamp}.zip")
-    resolver.openInputStream(uri).use { input ->
-        tmpFile.outputStream().use { out ->
-            input?.copyTo(out)
+    try {
+        resolver.openInputStream(uri)?.use { input ->
+            tmpFile.outputStream().use { out ->
+                input.copyTo(out)
+            }
         }
+    } catch (e: Exception) {
+        onStderr("Failed to read zip file: ${e.message}")
+        return FlashResult(-1, e.message ?: "Failed to read zip file", false)
+    }
+
+    if (!tmpFile.exists() || tmpFile.length() == 0L) {
+        onStderr("Error: AnyKernel3 zip file is empty or unreadable!")
+        return FlashResult(-1, "Zip file is empty or unreadable", false)
+    }
+    tmpFile.setReadable(true, false)
+
+    // Verify zip archive magic (PK\x03\x04)
+    val zipMagic = ByteArray(4)
+    val magicRead = try {
+        tmpFile.inputStream().use { it.read(zipMagic) }
+    } catch (_: Exception) { -1 }
+    if (magicRead < 4 || zipMagic[0] != 0x50.toByte() || zipMagic[1] != 0x4B.toByte()) {
+        tmpFile.delete()
+        onStderr("Error: The selected file is not a valid zip archive!")
+        return FlashResult(-1, "Not a valid zip archive", false)
     }
 
     val destZip = tmpFile.absolutePath
@@ -576,18 +599,32 @@ fun flashAnyKernelZip(
     val destDirFile = File(ksuApp.cacheDir, "anykernel3_${timestamp}")
     val destDir = destDirFile.absolutePath
 
+    val slotEnv = if (slot.isNotEmpty()) {
+        val slotName = slot.removePrefix("_")
+        """
+        mkdir -p '$destDir/bin' && \
+        printf '#!/bin/sh\ncase "${'$'}1" in\n  ro.boot.slot_suffix|androidboot.slot_suffix) echo "$slot" ;;\n  ro.boot.slot|androidboot.slot) echo "$slotName" ;;\n  *) if [ -x /system/bin/getprop ]; then exec /system/bin/getprop "${'$'}@"; else exec getprop "${'$'}@"; fi ;;\nesac\n' > '$destDir/bin/getprop' && \
+        $BUSYBOX chmod 755 '$destDir/bin/getprop' && \
+        export PATH='$destDir/bin:'${'$'}PATH && \
+        export slot='$slot' && export SLOT='$slot' &&
+        """.trimIndent()
+    } else ""
+
+    val akSlotArg = if (slot.isNotEmpty()) "slot='$slot' SLOT='$slot'" else ""
+
     val cmd = """
         mkdir -p '$destDir' && \
+        $slotEnv \
         $BUSYBOX unzip -p -o '$destZip' "META-INF/com/google/android/update-binary" > '$destDir/update-binary' 2>/dev/null && \
         cp '$destZip' '$destDir/$destZipName' 2>/dev/null || true && \
         $BUSYBOX chmod 755 '$destDir/update-binary' && \
         $BUSYBOX chown root:root '$destDir/update-binary' && \
         (cd '$destDir' && \
             if [ -f './update-binary' ] && grep -q "AnyKernel3" './update-binary'; then \
-                AKHOME='$destDir/tmp' $BUSYBOX ash '$destDir/update-binary' 3 1 '$destDir/$destZipName'; \
+                AKHOME='$destDir/tmp' $akSlotArg $BUSYBOX ash '$destDir/update-binary' 3 1 '$destDir/$destZipName'; \
             else \
                 echo 'No installer script found' >&2; exit 1; \
-            fi)
+            fi) && sync
     """.trimIndent().replace(Regex("\\s+\\\\\\s*"), " ")
 
     val result = flashWithIoAk3(cmd, onStdout, onStderr)
