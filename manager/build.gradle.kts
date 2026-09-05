@@ -27,9 +27,16 @@ fun getGitDescribe(): String {
 
 fun getVersionCode(): Int {
     val commitCount = getGitCommitCount()
-    return 30000 + commitCount
+    return 30999 + commitCount
 }
 
 fun getVersionName(): String {
+    val envVersion = System.getenv("KSU_VERSION_NAME")
+    if (envVersion != null) return envVersion
+
+    if (project.hasProperty("VERSION_NAME")) {
+        return project.property("VERSION_NAME").toString()
+    }
+
     return getGitDescribe()
 }
