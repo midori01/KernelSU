@@ -86,6 +86,7 @@ import me.weishu.kernelsu.ui.screen.settings.SettingPager
 import me.weishu.kernelsu.ui.screen.sulog.SulogScreen
 import me.weishu.kernelsu.ui.screen.dmesg.DmesgScreen
 import me.weishu.kernelsu.ui.screen.kallsyms.KallsymsScreen
+import me.weishu.kernelsu.ui.screen.kernelmodule.KernelModuleScreen
 import me.weishu.kernelsu.ui.screen.superuser.SuperUserPager
 import me.weishu.kernelsu.ui.screen.template.AppProfileTemplateScreen
 import me.weishu.kernelsu.ui.screen.templateeditor.TemplateEditorScreen
@@ -229,6 +230,7 @@ class MainActivity : ComponentActivity() {
                                 entry<Route.Kallsyms> { KallsymsScreen() }
                                 entry<Route.Sulog> { SulogScreen() }
                                 entry<Route.Dmesg> { DmesgScreen() }
+                                entry<Route.KernelModule> { KernelModuleScreen() }
                                 entry<Route.ColorPalette> { ColorPaletteScreen() }
                                 entry<Route.AppProfileTemplate> { AppProfileTemplateScreen() }
                                 entry<Route.TemplateEditor> { key -> TemplateEditorScreen(key.template, key.readOnly) }
