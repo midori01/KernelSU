@@ -19,6 +19,7 @@ import me.weishu.kernelsu.ksuApp
 import me.weishu.kernelsu.ui.screen.settings.SettingsUiState
 import me.weishu.kernelsu.ui.theme.ColorMode
 import me.weishu.kernelsu.ui.util.isWebuiModuleInstalled
+import me.weishu.kernelsu.ui.util.getRootShell
 
 class SettingsViewModel(
     private val repo: SettingsRepository = SettingsRepositoryImpl()
@@ -70,6 +71,9 @@ class SettingsViewModel(
             val isKernelUmountEnabled = repo.isKernelUmountEnabled()
             val selinuxHideStatus = repo.getSelinuxHideStatus()
             val isSelinuxHideEnabled = repo.isSelinuxHideEnabled()
+            val isSelinuxEnforcing = runCatching {
+                com.topjohnwu.superuser.ShellUtils.fastCmd(getRootShell(true), "getenforce").trim() != "Permissive"
+            }.getOrDefault(true)
             val sulogStatus = repo.getSulogStatus()
             val isSulogEnabled = repo.getSulogPersistValue() == 1L
             val adbRootStatus = repo.getAdbRootStatus()
@@ -116,6 +120,7 @@ class SettingsViewModel(
                     isKernelUmountEnabled = isKernelUmountEnabled,
                     selinuxHideStatus = selinuxHideStatus,
                     isSelinuxHideEnabled = isSelinuxHideEnabled,
+                    isSelinuxEnforcing = isSelinuxEnforcing,
                     sulogStatus = sulogStatus,
                     isSulogEnabled = isSulogEnabled,
                     avcSpoofStatus = avcSpoofStatus,
@@ -331,6 +336,14 @@ class SettingsViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun setSelinuxEnforcing(enforcing: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val cmd = if (enforcing) "setenforce 1" else "setenforce 0"
+            com.topjohnwu.superuser.ShellUtils.fastCmd(getRootShell(true), cmd)
+            _uiState.update { it.copy(isSelinuxEnforcing = enforcing) }
         }
     }
 
