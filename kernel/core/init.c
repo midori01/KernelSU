@@ -118,9 +118,12 @@ static inline void __init ksu_hook_init(void)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 8, 0)
     ksu_lsm_hook_built_in_init();
 #endif
-    susfs_init();
 #else
 #error "Unsupported hook type"
+#endif
+
+#ifdef CONFIG_KSU_SUSFS
+    susfs_init();
 #endif
 }
 

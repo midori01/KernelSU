@@ -3,6 +3,9 @@
 #include <asm/ptrace.h>
 #include <linux/types.h>
 #include "compat/kernel_compat.h"
+#ifdef CONFIG_KSU_SUSFS
+#include <linux/susfs_def.h>
+#endif
 
 #ifdef KSU_COMPAT_USE_STATIC_KEY
 extern struct static_key_true ksu_su_compat_enabled;
@@ -14,13 +17,13 @@ void ksu_sucompat_init(void);
 void ksu_sucompat_exit(void);
 
 // Handler functions exported for hook_manager
-#ifdef CONFIG_KSU_SUSFS
+#if !defined(CONFIG_KSU_TRACEPOINT_HOOK) && !defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_SUSFS)
 int ksu_handle_faccessat(int *dfd, struct filename **filename, int *mode, int *__unused_flags);
 int ksu_handle_stat(int *dfd, struct filename **filename, int *flags);
 #else
 int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode, int *__unused_flags);
 int ksu_handle_stat(int *dfd, const char __user **filename_user, int *flags);
-#endif // #ifdef CONFIG_KSU_SUSFS
+#endif // #if !defined(CONFIG_KSU_TRACEPOINT_HOOK) && !defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_SUSFS)
 
 #ifdef CONFIG_KSU_TRACEPOINT_HOOK
 #include <asm/current.h>
@@ -36,16 +39,15 @@ long ksu_handle_execveat_sucompat_internal(const char __user **filename_user, in
 // false for ksu_is_current_proc_unprivillege
 // when the check of this flag executed in tracepoint, then mean we MUST be marked, or the code won't be executed
 #define ksu_is_current_proc_unprivillege() false
+#ifdef CONFIG_KSU_SUSFS
+#define ksu_set_current_proc_unprivillege() do { ksu_clear_task_tracepoint_flag_if_needed(current); susfs_set_current_proc_no_su(); } while (0)
+#define ksu_clear_current_proc_unprivillege() do { ksu_set_task_tracepoint_flag(current); susfs_clear_current_proc_no_su(); } while (0)
+#else
 #define ksu_set_current_proc_unprivillege() ksu_clear_task_tracepoint_flag_if_needed(current)
 #define ksu_clear_current_proc_unprivillege() ksu_set_task_tracepoint_flag(current)
+#endif
 
-#elif defined(CONFIG_KSU_SUSFS) // susfs
-#include <linux/susfs_def.h>
-
-#define ksu_is_current_proc_unprivillege susfs_is_current_proc_no_su
-#define ksu_set_current_proc_unprivillege susfs_set_current_proc_no_su
-#define ksu_clear_current_proc_unprivillege susfs_clear_current_proc_no_su
-#else // manual hook
+#elif defined(CONFIG_KSU_MANUAL_HOOK) // manual hook
 
 // 63 already used as TIF_KSU_DISABLE_ESCAPE_WITH_ROOT (64bit)
 // 31 already used as TIF_KSU_DISABLE_ESCAPE_WITH_ROOT (32bit)
@@ -63,12 +65,26 @@ static inline bool ksu_is_current_proc_unprivillege(void)
 static inline void ksu_set_current_proc_unprivillege(void)
 {
     set_thread_flag(TIF_PROC_NON_PRIVILEGE);
+#ifdef CONFIG_KSU_SUSFS
+    susfs_set_current_proc_no_su();
+#endif
 }
 
 static inline void ksu_clear_current_proc_unprivillege(void)
 {
     clear_thread_flag(TIF_PROC_NON_PRIVILEGE);
+#ifdef CONFIG_KSU_SUSFS
+    susfs_clear_current_proc_no_su();
+#endif
 }
+
+#elif defined(CONFIG_KSU_SUSFS) // susfs
+
+#define ksu_is_current_proc_unprivillege susfs_is_current_proc_no_su
+#define ksu_set_current_proc_unprivillege susfs_set_current_proc_no_su
+#define ksu_clear_current_proc_unprivillege susfs_clear_current_proc_no_su
+#else // unsupported
+#error "Unsupported hook type"
 #endif
 
 #endif

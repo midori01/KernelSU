@@ -95,27 +95,6 @@ static void stop_execve_hook(void);
         bool ret = schedule_work(&stop_input_hook_work);
         pr_info("unregister input kprobe: %d!\n", ret);
     }
-#elif defined(CONFIG_KSU_SUSFS)
-    DEFINE_STATIC_KEY_TRUE(ksu_is_init_rc_hook_enabled);
-    DEFINE_STATIC_KEY_TRUE(ksu_is_input_hook_enabled);
-
-    // use define to avoid ifdef
-    #define ksu_init_rc_hook_inactive() (!static_branch_likely(&ksu_is_init_rc_hook_enabled))
-    #define ksu_input_hook_inactive() (!static_branch_likely(&ksu_is_input_hook_enabled))
-
-    static void stop_init_rc_hook(void)
-    {
-        if (static_key_enabled(&ksu_is_init_rc_hook_enabled))
-            static_branch_disable(&ksu_is_init_rc_hook_enabled);
-        pr_info("stop init_rc_hook!\n");
-    }
-
-    static inline void stop_input_hook(void)
-    {
-        if (static_key_enabled(&ksu_is_input_hook_enabled))
-            static_branch_disable(&ksu_is_input_hook_enabled);
-    }
-
 #elif defined(CONFIG_KSU_MANUAL_HOOK)
     #if defined(CONFIG_KSU_MANUAL_HOOK_AUTO_INITRC_HOOK) && defined(KSU_COMPAT_USE_STATIC_KEY)
         DEFINE_STATIC_KEY_TRUE(ksu_init_rc_hook);
@@ -165,6 +144,27 @@ static void stop_execve_hook(void);
             }
         #endif
     #endif
+
+#elif defined(CONFIG_KSU_SUSFS)
+    DEFINE_STATIC_KEY_TRUE(ksu_is_init_rc_hook_enabled);
+    DEFINE_STATIC_KEY_TRUE(ksu_is_input_hook_enabled);
+
+    // use define to avoid ifdef
+    #define ksu_init_rc_hook_inactive() (!static_branch_likely(&ksu_is_init_rc_hook_enabled))
+    #define ksu_input_hook_inactive() (!static_branch_likely(&ksu_is_input_hook_enabled))
+
+    static void stop_init_rc_hook(void)
+    {
+        if (static_key_enabled(&ksu_is_init_rc_hook_enabled))
+            static_branch_disable(&ksu_is_init_rc_hook_enabled);
+        pr_info("stop init_rc_hook!\n");
+    }
+
+    static inline void stop_input_hook(void)
+    {
+        if (static_key_enabled(&ksu_is_input_hook_enabled))
+            static_branch_disable(&ksu_is_input_hook_enabled);
+    }
 
 #else
     #error "Unsupported hook type"

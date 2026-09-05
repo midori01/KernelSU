@@ -890,12 +890,12 @@ static int do_get_full_version(void __user *arg)
 static int do_get_hook_type(void __user *arg)
 {
     struct ksu_hook_type_cmd cmd = { 0 };
-#if defined(CONFIG_KSU_TRACEPOINT_HOOK)
+#if defined(CONFIG_KSU_SUSFS)
+    const char *type = "De-inlined SUSFS";
+#elif defined(CONFIG_KSU_TRACEPOINT_HOOK)
     const char *type = "Tracepoint Syscall Redirect";
 #elif defined(CONFIG_KSU_MANUAL_HOOK)
     const char *type = "Manual";
-#elif defined(CONFIG_KSU_SUSFS)
-    const char *type = "Inline";
 #else
 #error "Unsupported hook type"
 #endif

@@ -175,9 +175,14 @@ ifdef CONFIG_KSU_TRACEPOINT_HOOK
 else ifdef CONFIG_KSU_MANUAL_HOOK
   $(info -- $(REPO_NAME): using Manual Hook)
   include $(KSU_SRC)/tools/manual_hook_check.mk
-else ifdef CONFIG_KSU_SUSFS
-  $(info -- $(REPO_NAME): using SuSFS Inline hook)
-  include $(KSU_SRC)/tools/inline_hook_check.mk
+else
+  ifeq ($(CONFIG_KSU),y)
+    $(error Unsupported hook method)
+  endif
+endif
+
+ifdef CONFIG_KSU_SUSFS
+  $(info -- $(REPO_NAME): using SuSFS (De-inlined))
   include $(KSU_SRC)/tools/susfs_compat.mk
   ifeq ($(shell test -e $(srctree)/fs/susfs.c; echo $$?),0)
     $(eval SUSFS_VERSION=$(shell cat $(srctree)/include/linux/susfs.h | grep -E '^#define SUSFS_VERSION' | cut -d' ' -f3 | sed 's/"//g'))
@@ -187,10 +192,6 @@ else ifdef CONFIG_KSU_SUSFS
     $(info -- You have not integrated susfs in your kernel yet.)
     $(info -- Read: https://gitlab.com/simonpunk/susfs4ksu)
     $(error You should integrate susfs in your kernel.)
-  endif
-else
-  ifeq ($(CONFIG_KSU),y)
-    $(error Unsupported hook method)
   endif
 endif
 
