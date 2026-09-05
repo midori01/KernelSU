@@ -50,6 +50,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,6 +61,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.net.Uri
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import me.weishu.kernelsu.Natives
+import me.weishu.kernelsu.ui.component.dialog.ConfirmResult
+import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
+import me.weishu.kernelsu.ui.component.profilebackup.ProfileBackupDialogMaterial
+import me.weishu.kernelsu.ui.component.profilebackup.ProfileBackupHelper
+import me.weishu.kernelsu.ui.component.profilebackup.ProfileRestoreDialogMaterial
+import me.weishu.kernelsu.ui.viewmodel.SuperUserViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.data.model.AppInfo
 import me.weishu.kernelsu.ui.component.AppIconImage
@@ -92,6 +114,154 @@ fun SuperUserPagerMaterial(
 
     val haptic = LocalHapticFeedback.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val confirmDialog = rememberConfirmDialog()
+
+    var showBackupOptions by remember { mutableStateOf(false) }
+    var showRestoreOptions by remember { mutableStateOf(false) }
+    var pendingExportJson by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val showMessage: (String) -> Unit = { msg ->
+        scope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            snackbarHostState.showSnackbar(msg)
+        }
+    }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri: Uri? ->
+        val json = pendingExportJson
+        pendingExportJson = null
+        if (uri == null || json == null) return@rememberLauncherForActivityResult
+        scope.launch(Dispatchers.IO) {
+            val success = runCatching {
+                val stream = context.contentResolver.openOutputStream(uri)
+                    ?: throw java.io.IOException("Unable to open output stream")
+                stream.use { output ->
+                    output.write(json.toByteArray(Charsets.UTF_8))
+                }
+                true
+            }.getOrDefault(false)
+
+            withContext(Dispatchers.Main) {
+                if (success) {
+                    showMessage(context.getString(R.string.backup_profiles_file_saved))
+                } else {
+                    showMessage(context.getString(R.string.backup_profiles_failed, "Failed to write file"))
+                }
+            }
+        }
+    }
+
+    fun handleRestore(jsonString: String) {
+        scope.launch {
+            val payload = ProfileBackupHelper.parseBackup(jsonString)
+            if (payload == null || payload.profiles.isEmpty()) {
+                showMessage(context.getString(R.string.restore_data_invalid))
+                return@launch
+            }
+
+            val currentApps = SuperUserViewModel.apps.ifEmpty { uiState.groupedApps.flatMap { it.apps } }
+            val analysis = ProfileBackupHelper.analyzeRestore(payload.profiles, currentApps)
+
+            val confirmTitle = context.getString(R.string.restore_confirm_title)
+            val confirmMessage = context.getString(
+                R.string.restore_confirm_message,
+                analysis.totalCount,
+                analysis.matchedCount,
+                analysis.unmatchedCount
+            )
+
+            val confirmResult = confirmDialog.awaitConfirm(
+                title = confirmTitle,
+                content = confirmMessage,
+                confirm = context.getString(android.R.string.ok),
+                dismiss = context.getString(android.R.string.cancel)
+            )
+
+            if (confirmResult == ConfirmResult.Confirmed) {
+                val result = withContext(Dispatchers.IO) {
+                    ProfileBackupHelper.restoreProfiles(payload, currentApps)
+                }
+                actions.onRefresh()
+                val successMsg = context.getString(
+                    R.string.restore_profiles_success,
+                    result.restoredCount,
+                    result.skippedCount
+                )
+                showMessage(successMsg)
+            }
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val jsonString = withContext(Dispatchers.IO) {
+                runCatching {
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        input.reader(Charsets.UTF_8).readText()
+                    }
+                }.getOrNull()
+            }
+
+            if (jsonString.isNullOrBlank()) {
+                showMessage(context.getString(R.string.restore_data_invalid))
+                return@launch
+            }
+
+            handleRestore(jsonString)
+        }
+    }
+
+    val onExportFile = {
+        scope.launch {
+            val apps = SuperUserViewModel.apps.ifEmpty { uiState.groupedApps.flatMap { it.apps } }
+            val json = ProfileBackupHelper.exportProfiles(apps, Natives.isDefaultUmountModules())
+            if (json == null) {
+                showMessage(context.getString(R.string.backup_profiles_empty))
+                return@launch
+            }
+            pendingExportJson = json
+            val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+            val fileName = "MidoriSU_profiles_${timestamp}.json"
+            exportLauncher.launch(fileName)
+        }
+    }
+
+    val onCopyClipboard = {
+        scope.launch {
+            val apps = SuperUserViewModel.apps.ifEmpty { uiState.groupedApps.flatMap { it.apps } }
+            val json = ProfileBackupHelper.exportProfiles(apps, Natives.isDefaultUmountModules())
+            if (json == null) {
+                showMessage(context.getString(R.string.backup_profiles_empty))
+                return@launch
+            }
+            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+            clipboard?.setPrimaryClip(ClipData.newPlainText("MidoriSU Profiles", json))
+            showMessage(context.getString(R.string.backup_profiles_success))
+        }
+    }
+
+    val onImportFile = {
+        importLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+    }
+
+    val onReadClipboard = {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        val clipText = clipboard?.primaryClip?.let { clip ->
+            if (clip.itemCount > 0) clip.getItemAt(0).text?.toString() else null
+        }
+        if (clipText.isNullOrBlank()) {
+            showMessage(context.getString(R.string.restore_clipboard_invalid))
+        } else {
+            handleRestore(clipText)
+        }
+    }
 
     ExpressiveScaffold(
         topBar = {
@@ -201,7 +371,7 @@ fun SuperUserPagerMaterial(
                             onDismissRequest = { showDropdown = false }
                         ) {
                             val filterCount = if (uiState.userIds.size > 1) 2 else 1
-                            DropdownMenuGroup(shapes = MenuDefaults.groupShapes()) {
+                            DropdownMenuGroup(shapes = MenuDefaults.groupShape(index = 0, count = 2)) {
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.show_system_apps)) },
                                     checked = uiState.showSystemApps,
@@ -238,6 +408,31 @@ fun SuperUserPagerMaterial(
                                         shapes = MenuDefaults.itemShape(index = 1, count = filterCount),
                                     )
                                 }
+                            }
+
+                            Spacer(Modifier.height(MenuDefaults.GroupSpacing))
+
+                            DropdownMenuGroup(shapes = MenuDefaults.groupShape(index = 1, count = 2)) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.backup_profiles)) },
+                                    selected = false,
+                                    onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
+                                        showDropdown = false
+                                        showBackupOptions = true
+                                    },
+                                    shapes = MenuDefaults.itemShape(index = 0, count = 2),
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.restore_profiles)) },
+                                    selected = false,
+                                    onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
+                                        showDropdown = false
+                                        showRestoreOptions = true
+                                    },
+                                    shapes = MenuDefaults.itemShape(index = 1, count = 2),
+                                )
                             }
                         }
                     }
@@ -393,6 +588,20 @@ fun SuperUserPagerMaterial(
             }
         }
     }
+
+    ProfileBackupDialogMaterial(
+        show = showBackupOptions,
+        onDismissRequest = { showBackupOptions = false },
+        onExportFile = { onExportFile() },
+        onCopyClipboard = { onCopyClipboard() },
+    )
+
+    ProfileRestoreDialogMaterial(
+        show = showRestoreOptions,
+        onDismissRequest = { showRestoreOptions = false },
+        onImportFile = { onImportFile() },
+        onReadClipboard = { onReadClipboard() },
+    )
 }
 
 @Composable
