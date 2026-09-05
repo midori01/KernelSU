@@ -778,3 +778,13 @@ fun restartApp(packageName: String, userId: Int? = null) {
 fun isWebuiModuleInstalled(modId: String): Boolean {
     return SuFile("/data/adb/modules/$modId/webroot/index.html").exists()
 }
+
+fun flashBootBackup(cmd: String, onStdout: (String) -> Unit, onStderr: (String) -> Unit): FlashResult {
+    val res = flashWithIO(cmd, onStdout, onStderr)
+    return FlashResult(res.code, res.err.joinToString("\n"), false)
+}
+
+fun flashBootImgCmd(cmd: String, onStdout: (String) -> Unit, onStderr: (String) -> Unit): FlashResult {
+    val res = flashWithIO(cmd, onStdout, onStderr)
+    return FlashResult(res.code, res.err.joinToString("\n"), res.isSuccess)
+}
