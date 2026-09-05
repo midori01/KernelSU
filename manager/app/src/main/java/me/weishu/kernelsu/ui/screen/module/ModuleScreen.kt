@@ -154,6 +154,9 @@ fun ModulePager(
             navigator.push(Route.ExecuteModuleAction(module.id))
             viewModel.markNeedRefresh()
         },
+        onExportModule = { module, uri ->
+            viewModel.exportModule(context, module, uri)
+        },
     )
 
     when (uiMode) {

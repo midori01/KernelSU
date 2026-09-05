@@ -57,6 +57,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Delete
@@ -246,6 +247,29 @@ fun ModulePagerMaterial(
     }
 
     val scope = rememberCoroutineScope()
+    val loadingDialog = rememberLoadingDialog()
+    var exportTargetModule by remember { mutableStateOf<Module?>(null) }
+    val exportZipLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
+        val target = exportTargetModule
+        if (uri != null && target != null) {
+            scope.launch {
+                loadingDialog.withLoading {
+                    actions.onExportModule(target, uri)
+                }
+            }
+        }
+        exportTargetModule = null
+    }
+
+    val onExportModuleClicked: (Module) -> Unit = { module ->
+        exportTargetModule = module
+        val cleanVersion = module.version.replace(Regex("[^a-zA-Z0-9._-]"), "_").trim('_')
+        val defaultFileName = "MidoriSU_${module.id}_${cleanVersion}.zip"
+        exportZipLauncher.launch(defaultFileName)
+    }
+
     val snackbarJob = remember { mutableStateOf<Job?>(null) }
     ObserveAsEvents(moduleEvent) { event ->
         when (event) {
@@ -364,6 +388,7 @@ fun ModulePagerMaterial(
                             }
                         },
                         onModuleAddShortcut = { module, type -> onModuleAddShortcut(module, type) },
+                        onExportModule = onExportModuleClicked,
                         closeSearch = closeSearch,
                     )
                 }
@@ -474,6 +499,7 @@ fun ModulePagerMaterial(
                     }
                 },
                 onModuleAddShortcut = { module, type -> onModuleAddShortcut(module, type) },
+                onExportModule = onExportModuleClicked,
             )
         }
     }
@@ -504,6 +530,7 @@ private fun ModuleList(
     actions: ModuleActions,
     onClickModule: (Module) -> Unit,
     onModuleAddShortcut: (Module, ShortcutType) -> Unit,
+    onExportModule: (Module) -> Unit,
     closeSearch: () -> Unit? = {},
 ) {
     val loadingDialog = rememberLoadingDialog()
@@ -524,6 +551,7 @@ private fun ModuleList(
             ModuleItem(
                 module = module,
                 updateUrl = moduleUpdateInfo.downloadUrl,
+                onExport = { onExportModule(module) },
                 onUninstallClicked = {
                     if (module.remove) {
                         actions.onUndoUninstallModule(module)
@@ -709,6 +737,7 @@ private fun ModuleShortcutSheet(
 private fun ModuleItem(
     module: Module,
     updateUrl: String,
+    onExport: () -> Unit,
     onUninstallClicked: () -> Unit,
     onCheckChanged: (Boolean) -> Unit,
     onUpdate: () -> Unit,
@@ -956,6 +985,20 @@ private fun ModuleItem(
                         Spacer(Modifier.width(12.dp))
                     }
                 }
+
+                FilledTonalButton(
+                    modifier = Modifier.defaultMinSize(52.dp, 32.dp),
+                    onClick = onExport,
+                    contentPadding = ButtonDefaults.TextButtonContentPadding
+                ) {
+                    Icon(
+                        modifier = Modifier.size(20.dp),
+                        imageVector = Icons.Outlined.Archive,
+                        contentDescription = stringResource(R.string.export_module_as_zip)
+                    )
+                }
+
+                Spacer(Modifier.width(12.dp))
 
                 FilledTonalButton(
                     modifier = Modifier.defaultMinSize(52.dp, 32.dp),
