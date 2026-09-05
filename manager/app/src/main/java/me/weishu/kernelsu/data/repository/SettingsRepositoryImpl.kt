@@ -13,6 +13,7 @@ import me.weishu.kernelsu.ksuApp
 import me.weishu.kernelsu.magica.BootCompletedReceiver
 import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.screen.modulerepo.RepoSort
+import me.weishu.kernelsu.ui.viewmodel.DmesgOrder
 import me.weishu.kernelsu.ui.util.execKsud
 import me.weishu.kernelsu.ui.util.getFeaturePersistValue
 import me.weishu.kernelsu.ui.util.getFeatureStatus
@@ -124,6 +125,10 @@ class SettingsRepositoryImpl : SettingsRepository {
     override var moduleRepoSortOrder: Int
         get() = prefs.getInt("module_repo_sort_order", RepoSort.UPDATED.ordinal)
         set(value) = prefs.edit { putInt("module_repo_sort_order", value) }
+
+    override var dmesgSortOrder: Int
+        get() = prefs.getInt("dmesg_sort_order", DmesgOrder.ASCENDING.ordinal)
+        set(value) = prefs.edit { putInt("dmesg_sort_order", value) }
 
     override var superuserShowSystemApps: Boolean
         get() = prefs.getBoolean("show_system_apps", false)

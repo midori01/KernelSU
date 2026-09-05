@@ -23,6 +23,7 @@ interface SettingsRepository {
     var moduleSortEnabledFirst: Boolean
     var moduleSortActionFirst: Boolean
     var moduleRepoSortOrder: Int
+    var dmesgSortOrder: Int
     var superuserShowSystemApps: Boolean
     var superuserShowOnlyPrimaryUserApps: Boolean
     var superuserSortOption: Int
