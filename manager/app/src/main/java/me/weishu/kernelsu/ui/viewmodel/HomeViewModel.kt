@@ -250,12 +250,43 @@ class HomeViewModel(
                     "${Build.VERSION.RELEASE} (API level ${Build.VERSION.SDK_INT})"
                 },
                 securityPatch = Build.VERSION.SECURITY_PATCH,
-                hookType = "N/A",
+                hookType = if (isManager && ksuVersion != null) {
+                    val nativeHookType = Natives.getHookType()
+                    if (nativeHookType.isNotEmpty() && nativeHookType != "Unknown" && nativeHookType != "N/A") {
+                        nativeHookType
+                    } else {
+                        fun checkKconfig(option: String): Boolean {
+                            val result = runCatching {
+                                com.topjohnwu.superuser.ShellUtils.fastCmd(
+                                    getRootShell(true),
+                                    "zcat /proc/config.gz 2>/dev/null | grep -c '$option=y'"
+                                )
+                            }.getOrDefault("0")
+                            return result.trim() != "0"
+                        }
+                        
+                        val hasSusfs = checkKconfig("CONFIG_KSU_SUSFS")
+                        val hasKprobesKsud = checkKconfig("CONFIG_KSU_KPROBES_KSUD")
+                        val hasLsmSecurityHooks = checkKconfig("CONFIG_KSU_LSM_SECURITY_HOOKS")
+                        
+                        when {
+                            checkKconfig("CONFIG_KSU_HACK_ARM64_BRANCH_LINK") -> "Branch with Link Hijack"
+                            checkKconfig("CONFIG_KSU_TAMPER_SYSCALL_TABLE") -> "Syscall Table Tamper"
+                            checkKconfig("CONFIG_KSU_MANUAL_HOOK") -> "Manual"
+                            checkKconfig("CONFIG_KSU_TRACEPOINT_HOOK") -> "Tracepoint"
+                            hasSusfs && hasKprobesKsud -> "De-inlined SUSFS / Hybrid"
+                            hasSusfs && hasLsmSecurityHooks && !hasKprobesKsud -> "De-inlined SUSFS / Manual"
+                            hasSusfs && !hasKprobesKsud && !hasLsmSecurityHooks -> "Inline"
+                            checkKconfig("CONFIG_KPROBES") || checkKconfig("CONFIG_HAVE_SYSCALL_TRACEPOINTS") -> "Hybrid"
+                            else -> "Manual"
+                        }
+                    }
+                } else "N/A",
                 selinuxStatus = getSELinuxStatusRaw(),
                 seccompStatus = runCatching {
                     Os.prctl(21 /* PR_GET_SECCOMP */, 0, 0, 0, 0)
                 }.getOrDefault(-1),
-                susfsVersion = "",
+                susfsVersion = if (isManager && ksuVersion != null) Natives.getSusFSVersion() else "",
                 droidspacesVersion = if (isManager && ksuVersion != null) {
                     runCatching {
                         val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
@@ -267,7 +298,7 @@ class HomeViewModel(
                 } else "",
                 rekernelVersion = rekernelVersion,
                 rekernelLabel = rekernelLabel,
-                driverName = "",
+                driverName = if (isManager && ksuVersion != null) Natives.getDriverName() else "",
                 oemUnlock = runCatching {
                     val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
                         getRootShell(true),

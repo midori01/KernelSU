@@ -253,3 +253,54 @@ bool is_selinux_hide_enabled() {
     }
     return value != 0;
 }
+
+#include <cstring>
+
+#define KSU_HOOK_TYPE_CMD _IOC(_IOC_READ, 'K', 101, 0)
+
+bool get_hook_type(char *buf, size_t size) {
+    if (!buf || size == 0) return false;
+
+    struct ksu_hook_type_cmd cmd = {0};
+
+    if (ksuctl(KSU_HOOK_TYPE_CMD, &cmd) == 0) {
+        strncpy(buf, cmd.hook_type, size - 1);
+        buf[size - 1] = '\0';
+        return true;
+    }
+
+    strncpy(buf, "Unknown", size - 1);
+    buf[size - 1] = '\0';
+    return false;
+}
+
+#define KSU_SUSFS_VERSION_CMD _IOC(_IOC_READ, 'K', 102, 0)
+
+bool get_susfs_version(char *buf, size_t size) {
+    if (!buf || size == 0) return false;
+
+    struct ksu_hook_type_cmd cmd = {0};
+
+    if (ksuctl(KSU_SUSFS_VERSION_CMD, &cmd) == 0) {
+        strncpy(buf, cmd.hook_type, size - 1);
+        buf[size - 1] = '\0';
+        return true;
+    }
+
+    buf[0] = '\0';
+    return false;
+}
+
+#define KSU_DRIVER_NAME_CMD _IOC(_IOC_READ, 'K', 104, 0)
+
+bool get_driver_name(char *buf, size_t size) {
+    if (!buf || size == 0) return false;
+    struct ksu_hook_type_cmd cmd = {0};
+    if (ksuctl(KSU_DRIVER_NAME_CMD, &cmd) == 0) {
+        strncpy(buf, cmd.hook_type, size - 1);
+        buf[size - 1] = '\0';
+        return true;
+    }
+    buf[0] = '\0';
+    return false;
+}
