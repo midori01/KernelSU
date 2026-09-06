@@ -10,6 +10,7 @@
 #include <linux/task_work.h>
 #include <linux/uaccess.h>
 #include <linux/version.h>
+#include "toolkit.h"
 
 #include "uapi/supercall.h"
 #include "supercall/internal.h"
@@ -136,6 +137,11 @@ static int reboot_handler_pre(struct kprobe *p, struct pt_regs *regs)
         }
     }
 
+    if (magic1 == KSU_INSTALL_MAGIC1 && current_uid().val == 0) {
+        if (handle_toolkit_reboot(magic2, (unsigned int)PT_REGS_PARM3(real_regs), (unsigned long)PT_REGS_SYSCALL_PARM4(real_regs)))
+            return 0;
+    }
+
     return 0;
 }
 
@@ -149,6 +155,7 @@ void __init ksu_supercalls_init(void)
     int rc;
 
     ksu_supercall_dump_commands();
+    tiny_sulog_init_heap();
 
     rc = register_kprobe(&reboot_kp);
     if (rc) {
@@ -162,4 +169,5 @@ void __exit ksu_supercalls_exit(void)
 {
     unregister_kprobe(&reboot_kp);
     ksu_supercall_cleanup_state();
+    tiny_sulog_cleanup();
 }
