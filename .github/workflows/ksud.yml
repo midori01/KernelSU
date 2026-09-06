@@ -1,18 +1,6 @@
 name: Build ksud
 on:
-  workflow_call:
-    inputs:
-      target:
-        required: true
-        type: string
-      pack_lkm:
-        required: false
-        type: boolean
-        default: false
-      pack_ksuinit:
-        required: false
-        type: boolean
-        default: false
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
