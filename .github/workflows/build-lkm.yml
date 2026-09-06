@@ -1,22 +1,5 @@
 name: Build LKM for KernelSU
 on:
-  workflow_call:
-    inputs:
-      package_name:
-        description: 'package name of manager'
-        required: false
-        default: ''
-        type: string
-      expected_size:
-        description: 'expected signature size'
-        required: false
-        default: ''
-        type: string
-      expected_hash:
-        description: 'expected signature hash'
-        required: false
-        default: ''
-        type: string
   workflow_dispatch:
 jobs:
   build-lkm:
