@@ -27,6 +27,7 @@
 #include "sulog/event.h"
 #include "ksu.h"
 #include "util.h"
+#include "supercall/supercall.h"
 
 #define SU_PATH "/system/bin/su"
 #define SH_PATH "/system/bin/sh"
@@ -105,6 +106,7 @@ long ksu_handle_faccessat_sucompat(int orig_nr, struct pt_regs *regs)
     strncpy_from_user_nofault(path, *filename_user, sizeof(path));
 
     if (unlikely(!memcmp(path, su_path, sizeof(su_path)))) {
+        write_sulog('a');
         old_cred = override_creds(ksu_cred);
         if (is_ksud_exists()) {
             pr_info("faccessat su->ksud!\n");
@@ -140,6 +142,7 @@ long ksu_handle_stat_sucompat(int orig_nr, struct pt_regs *regs)
     strncpy_from_user_nofault(path, *filename_user, sizeof(path));
 
     if (unlikely(!memcmp(path, su_path, sizeof(su_path)))) {
+        write_sulog('s');
         old_cred = override_creds(ksu_cred);
         if (is_ksud_exists()) {
             pr_info("newfstatat su->ksud!\n");
@@ -194,6 +197,8 @@ static long ksu_handle_execve_sucompat_common(const char __user **filename_user,
 
     if (likely(memcmp(path, su_path, sizeof(su_path))))
         goto do_orig_execve;
+
+    write_sulog('x');
 
     pr_info("sys_execve su found\n");
 
