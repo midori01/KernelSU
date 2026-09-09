@@ -13,6 +13,7 @@
 #ifdef CONFIG_KSU_SUSFS
 #include <linux/namei.h>
 #include <linux/susfs.h>
+#include <linux/preempt.h>
 #endif // #ifdef CONFIG_KSU_SUSFS
 
 #include "compat/kernel_compat.h"
@@ -153,7 +154,18 @@ int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user 
 #ifdef CONFIG_KSU_SUSFS
     // If magic2 is susfs and current process is root
     if (magic2 == SUSFS_MAGIC) {
+#ifdef CONFIG_KSU_TRACEPOINT_HOOK
+        bool flipped = !preemptible();
+        int ret;
+        if (flipped)
+            preempt_enable();
+        ret = ksu_handle_susfs_cmd(cmd, arg);
+        if (flipped)
+            preempt_disable();
+        return ret;
+#else
         return ksu_handle_susfs_cmd(cmd, arg);
+#endif
     }
 #endif
     return 0;
