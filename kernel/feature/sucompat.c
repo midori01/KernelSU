@@ -340,7 +340,7 @@ long ksu_handle_execveat_sucompat_internal(const char __user **filename_user, in
 }
 #endif
 
-#if defined(CONFIG_KSU_SUSFS) || defined(CONFIG_KSU_MANUAL_HOOK)
+#if !defined(CONFIG_KSU_TRACEPOINT_HOOK)
 
 static inline int do_ksu_handle_execveat_sucompat(int *fd, const char *filename, struct user_arg_ptr *argv)
 {
@@ -503,7 +503,7 @@ int ksu_handle_post_execveat(int *fd, struct filename **filename_ptr, void *argv
 }
 
 // compat for check in hook
-#ifdef CONFIG_KSU_SUSFS
+#if !defined(CONFIG_KSU_TRACEPOINT_HOOK) && !defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_SUSFS)
 int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags)
 {
     // workaround susfs codes as below
@@ -523,7 +523,7 @@ int ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, v
 #endif
 #endif
 
-#ifdef CONFIG_KSU_SUSFS
+#if !defined(CONFIG_KSU_TRACEPOINT_HOOK) && !defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_SUSFS)
 int ksu_handle_faccessat(int *dfd, struct filename **filename, int *mode, int *__unused_flags)
 {
     const struct cred *old_cred;
@@ -597,7 +597,7 @@ int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,
 }
 #endif
 
-#ifdef CONFIG_KSU_SUSFS
+#if !defined(CONFIG_KSU_TRACEPOINT_HOOK) && !defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_SUSFS)
 int ksu_handle_stat(int *dfd, struct filename **filename, int *flags)
 {
     const struct cred *old_cred;
