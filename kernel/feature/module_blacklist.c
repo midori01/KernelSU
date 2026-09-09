@@ -9,6 +9,9 @@
 #include "infra/symbol_resolver.h"
 #include "klog.h" // IWYU pragma: keep
 
+// Avoid resolving to this static instead of the kernel's when built in.
+#define module_blacklist ksu_native_module_blacklist
+
 #if defined(KSU_COMPAT_HAS_INSMOD_HOOK) || defined(CONFIG_KSU_TRACEPOINT_HOOK)
 static char *blacklist = NULL;
 static char *orig_blacklist = NULL;
