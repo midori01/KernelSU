@@ -30,11 +30,11 @@ static int do_grant_root(void __user *arg)
     __u32 audit_euid = current_euid().val;
 
     // we already check uid above on allowed_for_su()
+    ksu_compat_sulog('i');
 
     pr_info("allow root for: %d\n", audit_uid);
     ret = escape_with_root_profile();
     ksu_sulog_emit_grant_root(ret, audit_uid, audit_euid, GFP_KERNEL);
-    ksu_compat_sulog('i');
 
     return ret;
 }
