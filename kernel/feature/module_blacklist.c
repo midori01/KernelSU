@@ -1,4 +1,7 @@
 #include <asm/barrier.h>
+#include <linux/capability.h>
+#include <linux/compiler.h>
+#include <linux/errno.h>
 #include <linux/init.h>
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
@@ -8,6 +11,16 @@
 #include "feature/module_blacklist.h"
 #include "infra/symbol_resolver.h"
 #include "klog.h" // IWYU pragma: keep
+#include "ksu.h"
+
+#if defined(CONFIG_MODULES) && (defined(CONFIG_ARM64) || defined(CONFIG_X86_64) || defined(CONFIG_RISCV))
+#define KSU_MODULE_BLACKLIST_GUARD
+
+#include <asm/unistd.h>
+
+#include "hook/syscall_hook.h"
+#include "runtime/ksud_boot.h"
+#endif
 
 // Block kernel modules from loading by reusing the kernel's native
 // `module_blacklist` (consulted by blacklisted() before a module is laid out),
@@ -22,8 +35,55 @@
 // Developer only: a blocked module fails to load with EPERM, which first stage
 // init treats as fatal for anything in modules.load / modules.load.recovery
 // that is not in modules.blocklist. Picking safe names is up to the user.
+//
+// With KSU_MODULE_BLACKLIST_GUARD, that EPERM is masked until boot completes,
+// so first stage init does not abort on the blocked module itself.
 
 static char block_modules[256];
+
+#ifdef KSU_MODULE_BLACKLIST_GUARD
+static syscall_fn_t orig_sys_init_module;
+static syscall_fn_t orig_sys_finit_module;
+static bool guard_armed;
+static bool init_module_hooked;
+static bool finit_module_hooked;
+
+static long ksu_sys_init_module(const struct pt_regs *regs)
+{
+    long ret = orig_sys_init_module(regs);
+
+    if (ret == -EPERM && !READ_ONCE(ksu_boot_completed) && capable(CAP_SYS_MODULE))
+        return 0;
+
+    return ret;
+}
+
+static long ksu_sys_finit_module(const struct pt_regs *regs)
+{
+    long ret = orig_sys_finit_module(regs);
+
+    if (ret == -EPERM && !READ_ONCE(ksu_boot_completed) && capable(CAP_SYS_MODULE))
+        return 0;
+
+    return ret;
+}
+
+static void arm_module_blacklist_guard(void)
+{
+    syscall_fn_t *table;
+
+    ksu_syscall_table_hook(__NR_init_module, ksu_sys_init_module, &orig_sys_init_module);
+    ksu_syscall_table_hook(__NR_finit_module, ksu_sys_finit_module, &orig_sys_finit_module);
+
+    table = READ_ONCE(ksu_syscall_table);
+    WRITE_ONCE(init_module_hooked, table && READ_ONCE(table[__NR_init_module]) == ksu_sys_init_module);
+    WRITE_ONCE(finit_module_hooked, table && READ_ONCE(table[__NR_finit_module]) == ksu_sys_finit_module);
+    WRITE_ONCE(guard_armed, READ_ONCE(init_module_hooked) && READ_ONCE(finit_module_hooked) &&
+                                orig_sys_init_module && orig_sys_finit_module);
+    if (READ_ONCE(guard_armed))
+        pr_info("module_blacklist: guard armed\n");
+}
+#endif
 
 // The param may be parsed before the slab allocator is up (built-in), so copy
 // into a static buffer instead of allocating. Truncate rather than fail: a
@@ -54,6 +114,10 @@ void __init ksu_module_blacklist_init(void)
     char *merged;
     size_t existing_len;
 
+#ifdef KSU_MODULE_BLACKLIST_GUARD
+    pr_info("module_blacklist: guard available\n");
+#endif
+
     if (!block_modules[0])
         return;
 
@@ -73,6 +137,11 @@ void __init ksu_module_blacklist_init(void)
         return;
     }
 
+#ifdef KSU_MODULE_BLACKLIST_GUARD
+    if (!ksu_late_loaded)
+        arm_module_blacklist_guard();
+#endif
+
     // Release-publish: pairs with the address dependency in the lockless
     // blacklisted() reader so it can never observe the new pointer before the
     // string contents are visible.
@@ -80,7 +149,23 @@ void __init ksu_module_blacklist_init(void)
     // Force every other CPU through a memory barrier so any module load already
     // in flight observes the new list right away (suggested by @backslashxx).
     kick_all_cpus_sync();
+
     pr_info("module_blacklist: blocking modules: %s\n", merged);
+}
+
+void ksu_module_blacklist_drop_guard(void)
+{
+#ifdef KSU_MODULE_BLACKLIST_GUARD
+    if (READ_ONCE(init_module_hooked)) {
+        ksu_syscall_table_unhook(__NR_init_module);
+        WRITE_ONCE(init_module_hooked, false);
+    }
+    if (READ_ONCE(finit_module_hooked)) {
+        ksu_syscall_table_unhook(__NR_finit_module);
+        WRITE_ONCE(finit_module_hooked, false);
+    }
+    WRITE_ONCE(guard_armed, false);
+#endif
 }
 
 void __exit ksu_module_blacklist_exit(void)
