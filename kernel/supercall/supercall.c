@@ -18,6 +18,9 @@
 #include "util.h"
 #include "klog.h" // IWYU pragma: keep
 #include "manager/manager_identity.h"
+#ifdef CONFIG_KSU_SUSFS
+#include <linux/susfs.h>
+#endif // #ifdef CONFIG_KSU_SUSFS
 
 #include "sulog/event.h"
 
@@ -119,6 +122,90 @@ static void ksu_install_fd_tw_func(struct callback_head *cb)
     kfree(tw);
 }
 
+#ifdef CONFIG_KSU_SUSFS
+struct ksu_susfs_tw {
+	struct callback_head cb;
+	unsigned int cmd;
+	void __user *arg;
+};
+
+static void ksu_susfs_tw_func(struct callback_head *cb)
+{
+	struct ksu_susfs_tw *tw = container_of(cb, struct ksu_susfs_tw, cb);
+	void __user **arg = &tw->arg;
+
+	switch (tw->cmd) {
+#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+	case CMD_SUSFS_ADD_SUS_PATH:
+		susfs_add_sus_path(arg);
+		break;
+	case CMD_SUSFS_ADD_SUS_PATH_LOOP:
+		susfs_add_sus_path_loop(arg);
+		break;
+#endif // #ifdef CONFIG_KSU_SUSFS_SUS_PATH
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	case CMD_SUSFS_HIDE_SUS_MNTS_FOR_NON_SU_PROCS:
+		susfs_set_hide_sus_mnts_for_non_su_procs(arg);
+		break;
+#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+	case CMD_SUSFS_ADD_SUS_KSTAT:
+		susfs_add_sus_kstat(arg);
+		break;
+	case CMD_SUSFS_UPDATE_SUS_KSTAT:
+		susfs_update_sus_kstat(arg);
+		break;
+	case CMD_SUSFS_ADD_SUS_KSTAT_STATICALLY:
+		susfs_add_sus_kstat(arg);
+		break;
+#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+#ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
+	case CMD_SUSFS_SET_UNAME:
+		susfs_set_uname(arg);
+		break;
+#endif // #ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
+#ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
+	case CMD_SUSFS_ENABLE_LOG:
+		susfs_enable_log(arg);
+		break;
+#endif // #ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
+#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+	case CMD_SUSFS_SET_CMDLINE_OR_BOOTCONFIG:
+		susfs_set_cmdline_or_bootconfig(arg);
+		break;
+#endif // #ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+	case CMD_SUSFS_ADD_OPEN_REDIRECT:
+		susfs_add_open_redirect(arg);
+		break;
+#endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+	case CMD_SUSFS_ADD_SUS_MAP:
+		susfs_add_sus_map(arg);
+		break;
+#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
+#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
+	case CMD_SUSFS_SET_PRIORITY_UID_FILTER:
+		susfs_set_priority_uid_filter(arg);
+		break;
+#endif // #ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
+	case CMD_SUSFS_ENABLE_AVC_LOG_SPOOFING:
+		susfs_set_avc_log_spoofing(arg);
+		break;
+	case CMD_SUSFS_SHOW_ENABLED_FEATURES:
+		susfs_get_enabled_features(arg);
+		break;
+	case CMD_SUSFS_SHOW_VARIANT:
+		susfs_show_variant(arg);
+		break;
+	case CMD_SUSFS_SHOW_VERSION:
+		susfs_show_version(arg);
+		break;
+	}
+	kfree(tw);
+}
+#endif // #ifdef CONFIG_KSU_SUSFS
+
 static int reboot_handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
     struct pt_regs *real_regs = PT_REAL_REGS(regs);
@@ -128,6 +215,22 @@ static int reboot_handler_pre(struct kprobe *p, struct pt_regs *regs)
     unsigned long arg4 = (unsigned long)PT_REGS_SYSCALL_PARM4(real_regs);
     unsigned long reply = (unsigned long)arg4;
 
+#ifdef CONFIG_KSU_SUSFS
+    void __user **arg = (void __user **)&PT_REGS_SYSCALL_PARM4(real_regs);
+
+	if (magic1 == KSU_INSTALL_MAGIC1 && magic2 == SUSFS_MAGIC && current_uid().val == 0) {
+		struct ksu_susfs_tw *tw = kzalloc(sizeof(*tw), GFP_ATOMIC);
+
+		if (tw) {
+			tw->cmd = cmd;
+			tw->arg = *arg;
+			tw->cb.func = ksu_susfs_tw_func;
+			if (task_work_add(current, &tw->cb, TWA_RESUME))
+				kfree(tw);
+		}
+		return 0;
+	}
+#endif // #ifdef CONFIG_KSU_SUSFS
     /* Check if this is a request to install KSU fd */
     if (magic1 == KSU_INSTALL_MAGIC1 && magic2 == KSU_INSTALL_MAGIC2) {
         struct ksu_install_fd_tw *tw;
