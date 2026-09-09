@@ -6,6 +6,9 @@
 // the symbol resolver is up and before vendor modules are loaded.
 void ksu_module_blacklist_init(void);
 
+// Drop the early-boot EPERM suppression. Safe to call more than once.
+void ksu_module_blacklist_drop_guard(void);
+
 // Teardown hook. Intentionally keeps the merged list installed; see the
 // implementation for why the pointer is not restored.
 void ksu_module_blacklist_exit(void);
