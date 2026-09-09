@@ -23,6 +23,9 @@ static void reset_avc_cache()
 	selinux_status_update_policyload(&selinux_state, 0);
 #endif
 	selinux_xfrm_notify_policyload();
+#ifdef CONFIG_KSU_SUSFS
+	susfs_set_batch_sid();
+#endif // #ifdef CONFIG_KSU_SUSFS
 }
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
