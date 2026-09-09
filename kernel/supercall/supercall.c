@@ -22,6 +22,7 @@
 #include "sulog/event.h"
 
 uint32_t ksuver_override = 0;
+uint32_t ksuflags_override = 0;
 
 #define KSU_DRIVER_PERMISSION_SU_SESSION (1UL << 0)
 
@@ -255,6 +256,17 @@ static int reboot_handler_pre(struct kprobe *p, struct pt_regs *regs)
 
         // we write our confirmation on **
         if (copy_to_user((void __user *)arg4, &reply, sizeof(reply)))
+            return 0;
+    }
+
+    if (magic2 == CHANGE_KSUFLAGS) {
+        if (current_uid().val != 0)
+            return 0;
+
+        pr_info("sys_reboot: ksu_change_ksuflags to: %d\n", cmd);
+        ksuflags_override = cmd;
+
+        if (copy_to_user((void __user *)arg4, &reply, sizeof(reply) ))
             return 0;
     }
 

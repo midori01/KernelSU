@@ -256,6 +256,17 @@ static bool is_uid_exist(uid_t uid, char *package, void *data)
 	return exist;
 }
 
+static bool is_appid_installed(uid_t appid, struct list_head *list)
+{
+	struct uid_data *np;
+
+	list_for_each_entry (np, list, list) {
+		if (np->uid % PER_USER_RANGE == appid)
+			return true;
+	}
+	return false;
+}
+
 void track_throne(bool prune_only)
 {
 	mutex_lock(&throne_tracker_mutex);
@@ -343,6 +354,8 @@ void track_throne(bool prune_only)
 
 	if (manager_package_uid == KSU_INVALID_APPID) {
 		cached_manager_apk_path[0] = 0;
+		if (ksu_is_manager_appid_valid() && is_appid_installed(ksu_get_manager_appid(), &uid_list))
+			goto prune;
 		if (ksu_is_manager_appid_valid()) {
 			pr_info("manager is uninstalled, invalidate it!\n");
 			ksu_invalidate_manager_uid();
@@ -359,6 +372,9 @@ void track_throne(bool prune_only)
 	} else {
 		if (!ksu_is_manager_appid_valid()) {
 			need_rescan = true;
+		} else if (np->uid != ksu_get_manager_appid() && is_appid_installed(ksu_get_manager_appid(), &uid_list)) {
+			// switched on purpose (ksu toolkit), keep it while the app stays installed
+			pr_info("manager overridden, skip!\n");
 		} else if (unlikely(np->uid != ksu_get_manager_appid())) {
 			// this should not happen in normal android system
 			pr_info("manager uid changed, invalidate it!\n");
