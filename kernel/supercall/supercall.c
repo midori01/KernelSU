@@ -13,6 +13,7 @@
 #ifdef CONFIG_KSU_SUSFS
 #include <linux/namei.h>
 #include <linux/susfs.h>
+#include <linux/task_work.h>
 #endif // #ifdef CONFIG_KSU_SUSFS
 
 #include "compat/kernel_compat.h"
@@ -112,6 +113,22 @@ extern int ksu_try_handle_toolkit_cmd(int magic2, unsigned int cmd, void __user 
 extern int ksu_handle_susfs_cmd(unsigned int cmd, void __user **arg);
 #endif
 
+#if defined(CONFIG_KSU_SUSFS) && defined(CONFIG_KSU_TRACEPOINT_HOOK)
+struct ksu_susfs_tw {
+    struct callback_head cb;
+    unsigned int cmd;
+    void __user *arg;
+};
+
+static void ksu_susfs_tw_func(struct callback_head *cb)
+{
+    struct ksu_susfs_tw *tw = container_of(cb, struct ksu_susfs_tw, cb);
+
+    ksu_handle_susfs_cmd(tw->cmd, &tw->arg);
+    kfree(tw);
+}
+#endif // #if defined(CONFIG_KSU_SUSFS) && defined(CONFIG_KSU_TRACEPOINT_HOOK)
+
 // downstream: make sure to pass arg as reference, this can allow us to extend things.
 int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user **arg)
 {
@@ -153,7 +170,20 @@ int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user 
 #ifdef CONFIG_KSU_SUSFS
     // If magic2 is susfs and current process is root
     if (magic2 == SUSFS_MAGIC) {
+#ifdef CONFIG_KSU_TRACEPOINT_HOOK
+        struct ksu_susfs_tw *tw = kzalloc(sizeof(*tw), GFP_ATOMIC);
+
+        if (tw) {
+            tw->cmd = cmd;
+            tw->arg = *arg;
+            tw->cb.func = ksu_susfs_tw_func;
+            if (task_work_add(current, &tw->cb, TWA_RESUME))
+                kfree(tw);
+        }
+        return 0;
+#else
         return ksu_handle_susfs_cmd(cmd, arg);
+#endif // #ifdef CONFIG_KSU_TRACEPOINT_HOOK
     }
 #endif
     return 0;
