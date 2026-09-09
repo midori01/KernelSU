@@ -1,11 +1,6 @@
 name: Build ksuinit
 on:
-  workflow_call:
-    inputs:
-      os:
-        required: false
-        type: string
-        default: ubuntu-latest
+  workflow_dispatch:
 jobs:
   build-aarch64:
     runs-on: ${{ inputs.os }}
