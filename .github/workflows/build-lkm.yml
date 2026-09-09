@@ -1,6 +1,5 @@
 name: Build LKM for KernelSU
 on:
-  workflow_call:
   workflow_dispatch:
 jobs:
   build-lkm:
