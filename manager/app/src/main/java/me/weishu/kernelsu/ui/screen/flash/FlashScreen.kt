@@ -16,10 +16,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
+import me.weishu.kernelsu.data.repository.isModulePreflashEnabled
 import me.weishu.kernelsu.data.repository.isSoftRebootPreferred
 import me.weishu.kernelsu.ui.LocalUiMode
 import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.navigation3.LocalNavigator
+import me.weishu.kernelsu.ui.util.ModulePreflash
+import me.weishu.kernelsu.ui.util.ModulePreflashResult
 import me.weishu.kernelsu.ui.util.reboot
 
 @Composable
@@ -34,7 +37,11 @@ fun FlashScreen(flashIt: FlashIt) {
     val needJailbreakWarning = flashIt is FlashIt.FlashBoot && Natives.isLateLoadMode
     // Soft reboot keeps the jailbreak and still applies modules
     val softReboot = flashIt is FlashIt.FlashModules && isSoftRebootPreferred()
-    var flashingEnabled by rememberSaveable { mutableStateOf(!needJailbreakWarning) }
+    val needModulePreflash = flashIt is FlashIt.FlashModules && isModulePreflashEnabled()
+    var preflashConfirmed by rememberSaveable { mutableStateOf(!needModulePreflash) }
+    var preflashResults by rememberSaveable { mutableStateOf<List<ModulePreflashResult>>(emptyList()) }
+    var isPreflashInspecting by rememberSaveable { mutableStateOf(needModulePreflash && !preflashConfirmed) }
+    var flashingEnabled by rememberSaveable { mutableStateOf(!needJailbreakWarning && preflashConfirmed) }
     val uiMode = LocalUiMode.current
     val snackbarHost = remember { SnackbarHostState() }
 
@@ -44,6 +51,24 @@ fun FlashScreen(flashIt: FlashIt) {
                 snackbarHost.showSnackbar(message)
             } else {
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    androidx.compose.runtime.LaunchedEffect(flashIt) {
+        if (flashIt is FlashIt.FlashModules && needModulePreflash && !preflashConfirmed && preflashResults.isEmpty()) {
+            isPreflashInspecting = true
+            withContext(Dispatchers.IO) {
+                try {
+                    val list = flashIt.uris.map { uri ->
+                        ModulePreflash.inspectModuleZip(context, uri)
+                    }
+                    preflashResults = list
+                } catch (e: Throwable) {
+                    android.util.Log.e("FlashScreen", "Module preflash failed", e)
+                } finally {
+                    isPreflashInspecting = false
+                }
             }
         }
     }
@@ -64,6 +89,9 @@ fun FlashScreen(flashIt: FlashIt) {
         flashingStatus = flashingStatus,
         showJailbreakWarning = needJailbreakWarning && !flashingEnabled,
         rebootLabelRes = if (softReboot) R.string.reboot_soft else R.string.reboot,
+        showPreflashDialog = needModulePreflash && !preflashConfirmed,
+        preflashResults = preflashResults,
+        isPreflashInspecting = isPreflashInspecting,
     )
     val actions = FlashScreenActions(
         onBack = dropUnlessResumed { navigator.pop() },
@@ -77,6 +105,11 @@ fun FlashScreen(flashIt: FlashIt) {
         },
         onConfirmJailbreakWarning = { flashingEnabled = true },
         onDismissJailbreakWarning = dropUnlessResumed { navigator.pop() },
+        onConfirmPreflash = {
+            preflashConfirmed = true
+            flashingEnabled = true
+        },
+        onDismissPreflash = dropUnlessResumed { navigator.pop() },
     )
 
     when (LocalUiMode.current) {

@@ -21,11 +21,17 @@ import java.security.SecureRandom
 
 private const val SETTINGS_PREFS = "settings"
 private const val KEY_USE_SOFT_REBOOT = "soft_reboot"
+private const val KEY_MODULE_PREFLASH = "module_preflash"
 
 /** Prefer soft reboot: always in jailbreak mode, or when the setting is enabled. */
 fun isSoftRebootPreferred(): Boolean =
     Natives.isLateLoadMode || ksuApp.getSharedPreferences(SETTINGS_PREFS, Context.MODE_PRIVATE)
         .getBoolean(KEY_USE_SOFT_REBOOT, false)
+
+/** Check whether module pre-flash inspection is enabled. Default true. */
+fun isModulePreflashEnabled(): Boolean =
+    ksuApp.getSharedPreferences(SETTINGS_PREFS, Context.MODE_PRIVATE)
+        .getBoolean(KEY_MODULE_PREFLASH, true)
 
 class SettingsRepositoryImpl : SettingsRepository {
 
@@ -174,6 +180,10 @@ class SettingsRepositoryImpl : SettingsRepository {
     override var useSoftReboot: Boolean
         get() = prefs.getBoolean(KEY_USE_SOFT_REBOOT, false)
         set(value) = prefs.edit { putBoolean(KEY_USE_SOFT_REBOOT, value) }
+
+    override var modulePreflashInspection: Boolean
+        get() = prefs.getBoolean(KEY_MODULE_PREFLASH, true)
+        set(value) = prefs.edit { putBoolean(KEY_MODULE_PREFLASH, value) }
 
     override val intentToken: String
         get() {
