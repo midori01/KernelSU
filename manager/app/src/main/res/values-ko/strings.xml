@@ -488,4 +488,6 @@
     <string name="bento_smart_pill_driver_update">KSU 드라이버 %1$s 업데이트 사용 가능</string>
     <string name="settings_modern_bento">모던 Bento 대시보드</string>
     <string name="settings_modern_bento_summary">홈 화면에 모듈식 Bento 타일 및 카드 대시보드 사용</string>
+    <string name="settings_module_update_badge">모듈 업데이트 배지</string>
+    <string name="settings_module_update_badge_summary">모듈 업데이트가 있을 때 탐색 바에 배지 표시</string>
 </resources>

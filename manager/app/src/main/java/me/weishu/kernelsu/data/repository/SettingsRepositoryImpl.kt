@@ -122,9 +122,9 @@ class SettingsRepositoryImpl : SettingsRepository {
         get() = prefs.getBoolean("enable_floating_bottom_bar_blur", false)
         set(value) = prefs.edit { putBoolean("enable_floating_bottom_bar_blur", value) }
 
-    override var enableNavigationBadge: Boolean
-        get() = prefs.getBoolean("enable_navigation_badge", true)
-        set(value) = prefs.edit { putBoolean("enable_navigation_badge", value) }
+    override var enableModuleUpdateBadge: Boolean
+        get() = prefs.getBoolean("enable_module_update_badge", true)
+        set(value) = prefs.edit { putBoolean("enable_module_update_badge", value) }
 
     override var navigationRailExpanded: Boolean
         get() = prefs.getBoolean("nav_rail_expanded", false)

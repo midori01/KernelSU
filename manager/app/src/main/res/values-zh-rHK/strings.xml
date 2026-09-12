@@ -291,8 +291,8 @@
     <string name="profile_flags_desc_no_new_privs">防止在此 Root Profile 的上下文中透過 KernelSU 進一步提升權限</string>
     <string name="module_shortcut_copy_scheme">複製 URL scheme</string>
     <string name="module_shortcut_scheme_copied">已複製 URL scheme</string>
-    <string name="settings_navigation_badge">底部欄標記</string>
-    <string name="settings_navigation_badge_summary">在底部欄顯示已授權 App 及已啟用模組數量</string>
+    <string name="settings_module_update_badge">模組更新標記</string>
+    <string name="settings_module_update_badge_summary">當模組有更新時在底部欄顯示可更新數量標記</string>
     <string name="home_driver">驅動</string>
     <string name="home_android_version">Android 版本</string>
     <string name="home_security_patch">安全補丁級別</string>

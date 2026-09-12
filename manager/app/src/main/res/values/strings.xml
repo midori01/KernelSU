@@ -351,8 +351,8 @@
     <string name="module_shortcut_scheme_copied">URL scheme copied</string>
     <string name="nav_rail_expand">Expand navigation rail</string>
     <string name="nav_rail_collapse">Collapse navigation rail</string>
-    <string name="settings_navigation_badge">Navigation badge</string>
-    <string name="settings_navigation_badge_summary">Show granted app and enabled module counts on the navigation bar</string>
+    <string name="settings_module_update_badge">Module update badge</string>
+    <string name="settings_module_update_badge_summary">Show badge on module tab when updates are available</string>
     <string name="kallsyms_title">Kallsyms</string>
     <string name="kallsyms_search">Search kallsyms…</string>
     <string name="dmesg_title">Dmesg</string>

@@ -488,4 +488,6 @@
     <string name="bento_smart_pill_panic">偵測到核心當機記錄，輕觸以分析</string>
     <string name="bento_smart_pill_update">發現新版本 MidoriSU %1$s</string>
     <string name="bento_smart_pill_driver_update">發現新版 KSU 驅動程式 %1$s 可用</string>
+    <string name="settings_module_update_badge">模組更新角標</string>
+    <string name="settings_module_update_badge_summary">當模組有更新時在導覽列顯示可更新數量角標</string>
 </resources>

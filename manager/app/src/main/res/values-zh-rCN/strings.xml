@@ -332,8 +332,8 @@
     <string name="sulog_clean_title">清空日志</string>
     <string name="nav_rail_expand">展开导航栏</string>
     <string name="nav_rail_collapse">收起导航栏</string>
-    <string name="settings_navigation_badge">导航栏角标</string>
-    <string name="settings_navigation_badge_summary">在导航栏显示已授权应用和已启用模块数量</string>
+    <string name="settings_module_update_badge">模块更新角标</string>
+    <string name="settings_module_update_badge_summary">当模块有更新时在导航栏显示可更新数量角标</string>
     <string name="kallsyms_title">内核符号表</string>
     <string name="kallsyms_search">搜索内核符号…</string>
     <string name="dmesg_title">内核日志</string>
