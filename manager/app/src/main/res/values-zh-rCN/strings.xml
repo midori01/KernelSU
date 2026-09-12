@@ -350,4 +350,24 @@
     <string name="install_select_slot">选择刷入槽位</string>
     <string name="slot_active_tag">当前活动</string>
     <string name="settings_app_icon">应用图标</string>
+    <string name="backup_profiles">备份应用配置</string>
+    <string name="restore_profiles">恢复应用配置</string>
+    <string name="backup_export_file">导出为文件</string>
+    <string name="backup_export_file_summary">将应用配置保存为 JSON 文件</string>
+    <string name="backup_copy_clipboard">复制到剪贴板</string>
+    <string name="backup_copy_clipboard_summary">将配置数据复制到系统剪贴板</string>
+    <string name="restore_import_file">从文件导入</string>
+    <string name="restore_import_file_summary">选择要恢复的 JSON 备份文件</string>
+    <string name="restore_paste_clipboard">从剪贴板读取</string>
+    <string name="restore_paste_clipboard_summary">从剪贴板中的文本恢复配置</string>
+    <string name="backup_profiles_empty">没有已配置的应用设置可备份</string>
+    <string name="backup_profiles_success">应用配置已复制到剪贴板</string>
+    <string name="backup_profiles_file_saved">应用配置保存成功</string>
+    <string name="backup_profiles_failed">导出应用配置失败：%s</string>
+    <string name="restore_confirm_title">恢复应用配置</string>
+    <string name="restore_confirm_message">在备份中发现 %1$d 个应用配置：%2$d 个已在当前设备安装，%3$d 个未安装。\n\n是否确认恢复这些配置？</string>
+    <string name="restore_profiles_success">成功恢复 %1$d 个应用配置（%2$d 个未安装已跳过）</string>
+    <string name="restore_profiles_failed">恢复应用配置失败：%s</string>
+    <string name="restore_data_invalid">未包含有效的应用配置备份数据</string>
+    <string name="restore_clipboard_invalid">剪贴板中未包含有效的应用配置备份数据</string>
 </resources>

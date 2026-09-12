@@ -361,4 +361,24 @@
     <string name="kconfig_title">Kconfig</string>
     <string name="kconfig_search">Search kernel config…</string>
     <string name="share">Share</string>
+    <string name="backup_profiles">Backup app profiles</string>
+    <string name="restore_profiles">Restore app profiles</string>
+    <string name="backup_export_file">Export to file</string>
+    <string name="backup_export_file_summary">Save app profiles as a JSON file</string>
+    <string name="backup_copy_clipboard">Copy to clipboard</string>
+    <string name="backup_copy_clipboard_summary">Copy profile data to clipboard</string>
+    <string name="restore_import_file">Import from file</string>
+    <string name="restore_import_file_summary">Select a JSON backup file to restore</string>
+    <string name="restore_paste_clipboard">Read from clipboard</string>
+    <string name="restore_paste_clipboard_summary">Restore profile data from clipboard text</string>
+    <string name="backup_profiles_empty">No configured app profiles to backup</string>
+    <string name="backup_profiles_success">App profiles copied to clipboard</string>
+    <string name="backup_profiles_file_saved">App profiles saved successfully</string>
+    <string name="backup_profiles_failed">Failed to export profiles: %s</string>
+    <string name="restore_confirm_title">Restore app profiles</string>
+    <string name="restore_confirm_message">Found %1$d profile(s) in backup: %2$d installed on this device, %3$d not installed.\n\nDo you want to restore these profiles?</string>
+    <string name="restore_profiles_success">Successfully restored %1$d app profile(s) (%2$d not installed, skipped)</string>
+    <string name="restore_profiles_failed">Failed to restore profiles: %s</string>
+    <string name="restore_data_invalid">No valid profile backup data found</string>
+    <string name="restore_clipboard_invalid">Clipboard does not contain valid profile backup data</string>
 </resources>
