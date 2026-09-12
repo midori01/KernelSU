@@ -3,6 +3,7 @@ package me.weishu.kernelsu.ui.screen.home
 import android.content.Context
 import android.os.Build
 import android.os.SystemClock
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -13,10 +14,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -585,6 +593,16 @@ private fun BentoTilesGrid(
 ) {
     val currentTool = LocalKernelTool.current
     val haptic = LocalHapticFeedback.current
+    val settingsRepo = remember { SettingsRepositoryImpl() }
+    val onCycleKernelTool: (Boolean) -> Unit = remember(currentTool) {
+        { forward ->
+            haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
+            val entries = KernelTool.entries
+            val idx = entries.indexOf(currentTool)
+            val nextIdx = if (forward) (idx + 1) % entries.size else (idx - 1 + entries.size) % entries.size
+            settingsRepo.bottomBarKernelTool = entries[nextIdx].id
+        }
+    }
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -768,41 +786,107 @@ private fun BentoTilesGrid(
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = currentTool.roundedIcon,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+                            AnimatedContent(
+                                targetState = currentTool,
+                                transitionSpec = {
+                                    (fadeIn(animationSpec = tween(220, delayMillis = 50)) +
+                                        scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 50)))
+                                        .togetherWith(fadeOut(animationSpec = tween(120)))
+                                },
+                                label = "BentoKernelToolIcon"
+                            ) { tool ->
+                                Icon(
+                                    imageVector = tool.roundedIcon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
 
                         Box(
                             modifier = Modifier
-                                .size(28.dp)
+                                .width(22.dp)
+                                .height(30.dp)
+                                .clip(RoundedCornerShape(11.dp))
                                 .background(
                                     color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                    shape = CircleShape
-                                ),
+                                    shape = RoundedCornerShape(11.dp)
+                                )
+                                .pointerInput(currentTool) {
+                                    var totalDragY = 0f
+                                    detectVerticalDragGestures(
+                                        onDragStart = { totalDragY = 0f },
+                                        onVerticalDrag = { change, dragAmount ->
+                                            change.consume()
+                                            totalDragY += dragAmount
+                                        },
+                                        onDragEnd = {
+                                            val threshold = 12.dp.toPx()
+                                            if (totalDragY < -threshold) {
+                                                onCycleKernelTool(true)
+                                            } else if (totalDragY > threshold) {
+                                                onCycleKernelTool(false)
+                                            }
+                                        }
+                                    )
+                                },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.SpaceEvenly,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                        .clickable { onCycleKernelTool(false) },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.KeyboardArrowUp,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(12.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                        .clickable { onCycleKernelTool(true) },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.KeyboardArrowDown,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(12.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                         }
                     }
 
                     Column {
-                        Text(
-                            text = stringResource(currentTool.label),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        AnimatedContent(
+                            targetState = currentTool,
+                            transitionSpec = {
+                                fadeIn(tween(200)) togetherWith fadeOut(tween(150))
+                            },
+                            label = "BentoKernelToolTitle"
+                        ) { tool ->
+                            Text(
+                                text = stringResource(tool.label),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                         Spacer(Modifier.height(1.dp))
                         Text(
                             text = stringResource(R.string.bento_kernel_tool),

@@ -3,21 +3,21 @@ package me.weishu.kernelsu.ui.component.bottombar
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.filled.ViewModule
 import androidx.compose.material.icons.outlined.BugReport
-import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.outlined.Terminal
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material.icons.outlined.ViewModule
 import androidx.compose.material.icons.rounded.BugReport
-import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.DataObject
 import androidx.compose.material.icons.rounded.Terminal
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Unarchive
 import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -43,9 +43,9 @@ enum class KernelTool(
     Kconfig(
         id = "kconfig",
         label = R.string.kconfig_title,
-        outlinedIcon = Icons.Outlined.Build,
-        filledIcon = Icons.Filled.Build,
-        roundedIcon = Icons.Rounded.Build,
+        outlinedIcon = Icons.Outlined.Tune,
+        filledIcon = Icons.Filled.Tune,
+        roundedIcon = Icons.Rounded.Tune,
         route = Route.Kconfig,
     ),
     Dmesg(
