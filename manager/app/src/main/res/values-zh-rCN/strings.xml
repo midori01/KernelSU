@@ -133,12 +133,12 @@
     <string name="settings_kpatch_next_summary">KPM 支持的独立实现。</string>
     <string name="settings_susfs4ksu">SUSFS for KernelSU</string>
     <string name="settings_susfs4ksu_summary">管理 SUSFS 配置。</string>
-    <string name="settings_profile_template">App Profile 模板</string>
-    <string name="settings_profile_template_summary">管理本地和在线的 App Profile 模板</string>
-    <string name="app_profile_template_create">创建模板</string>
-    <string name="app_profile_template_edit">编辑模板</string>
-    <string name="app_profile_template_id">模板 ID</string>
-    <string name="app_profile_template_id_invalid">模板 ID 不合法</string>
+    <string name="settings_profile_template">App Profile 模版</string>
+    <string name="settings_profile_template_summary">管理本地和在线的 App Profile 模版</string>
+    <string name="app_profile_template_create">创建模版</string>
+    <string name="app_profile_template_edit">编辑模版</string>
+    <string name="app_profile_template_id">模版 ID</string>
+    <string name="app_profile_template_id_invalid">模版 ID 不合法</string>
     <string name="app_profile_template_name">名字</string>
     <string name="app_profile_template_description">描述</string>
     <string name="app_profile_template_save">保存</string>
@@ -160,7 +160,7 @@
     <string name="settings_module_check_update">检查模块更新</string>
     <string name="settings_check_ksu_driver_update">检查 KSU 驱动更新</string>
     <string name="settings_check_ksu_driver_update_summary">启动时自动检查 KSU 驱动更新</string>
-    <string name="grant_root_failed">获取 Root 失败！</string>
+    <string name="grant_root_failed">获取 root 失败！</string>
     <string name="home_pr_build_warning">当前为 PR 调试构建，请勿在生产环境中使用！</string>
     <string name="home_pr_kernel_warning">当前内核包含 PR 签名支持，这不是一个生产内核！</string>
     <string name="action">执行</string>
@@ -208,7 +208,7 @@
     <string name="settings_sucompat_summary">允许通过 /system/bin/su 获取 Root 权限</string>
     <string name="settings_kernel_umount">卸载模块（内核级）</string>
     <string name="settings_kernel_umount_summary">在内核给需要的应用卸载模块</string>
-    <string name="settings_avc_spoof">avc 日志伪装</string>
+    <string name="settings_avc_spoof">AVC 日志伪装</string>
     <string name="settings_avc_spoof_summary">修复日志中 avc denial 导致的 selinux 上下文泄漏</string>
     <string name="module_install_prompt_with_name">将安装以下模块：%1$s</string>
     <string name="confirm">确认</string>
@@ -342,6 +342,10 @@
     <string name="kconfig_title">内核配置</string>
     <string name="kconfig_search">搜索内核配置…</string>
     <string name="share">分享</string>
+    <string name="sulog_filter_root_execve">Root execve</string>
+    <string name="sulog_filter_sucompat">传统 SU</string>
+    <string name="sulog_filter_ioctl_grant_root">授予 Root</string>
+    <string name="sulog_filter_daemon_restart">守护进程重启</string>
     <string name="backup_boot">备份 boot.img</string>
     <string name="backup_boot_summary">从当前活动槽位提取并备份 boot.img 到 /sdcard/Download</string>
     <string name="flash_boot_img">刷入 boot.img</string>

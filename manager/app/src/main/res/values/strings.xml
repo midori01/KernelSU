@@ -22,7 +22,7 @@
     <string name="home_fingerprint">Fingerprint</string>
     <string name="home_android_version">Android version</string>
     <string name="home_security_patch">Security patch level</string>
-    <string name="home_hook_type">Hook type</string>
+    <string name="home_hook_type">Hook type</string> 
     <string name="hook_manual">Manual</string>
     <string name="hook_hybrid">Hybrid</string>
     <string name="hook_kprobes">Kprobes</string>
@@ -179,7 +179,7 @@
     <string name="settings_module_check_update">Check for module updates</string>
     <string name="settings_check_ksu_driver_update">Check KSU driver updates</string>
     <string name="settings_check_ksu_driver_update_summary">Automatically check for KSU driver updates on startup.</string>
-    <string name="grant_root_failed">Failed to grant Root!</string>
+    <string name="grant_root_failed">Failed to grant root!</string>
     <string name="home_pr_build_warning">This is a PR debug build. Do NOT use it in production!</string>
     <string name="home_pr_kernel_warning">The kernel was built with PR signature support. This is not a production kernel!</string>
     <string name="action">Action</string>
@@ -234,15 +234,15 @@
     <string name="settings_sucompat">Classic SU command</string>
     <string name="settings_sucompat_summary">Allow Root access via /system/bin/su, in new processes</string>
     <string name="settings_kernel_umount">Kernel umount</string>
-    <string name="settings_kernel_umount_summary">Unmount modules from kernel in App Profile</string>
+    <string name="settings_kernel_umount_summary">Umount modules from kernel in App Profile</string>
     <string name="settings_selinux_hide">Hide SELinux modification</string>
     <string name="settings_selinux_hide_summary">Prevent applications from detecting SELinux modifications</string>
     <string name="settings_selinux_hide_reboot_required">Reboot to take effect</string>
     <string name="settings_selinux_hide_failed">Error: %d</string>
     <string name="settings_selinux_enforcing">SELinux mode switch</string>
     <string name="settings_sulog">SU Log</string>
-    <string name="settings_sulog_summary">Record Root-related events into KernelSU sulog files</string>
-    <string name="settings_avc_spoof">Avc log spoofing</string>
+    <string name="settings_sulog_summary">Record root-related events into KernelSU sulog files.</string>
+    <string name="settings_avc_spoof">AVC Log spoofing</string>
     <string name="settings_avc_spoof_summary">Fix selinux context leak caused by avc denial in audit log.</string>
     <string name="feature_status_unsupported_summary">Kernel does not support this feature</string>
     <string name="feature_status_managed_summary">This feature is managed by a module</string>
