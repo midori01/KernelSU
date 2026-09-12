@@ -345,5 +345,7 @@
     <string name="dmesg_search">Search dmesg…</string>
     <string name="dmesg_sort_asc">Ascending</string>
     <string name="dmesg_sort_desc">Descending</string>
+    <string name="kconfig_title">Kconfig</string>
+    <string name="kconfig_search">Search kernel config…</string>
     <string name="share">Share</string>
 </resources>
