@@ -319,8 +319,8 @@
     <string name="module_shortcut_scheme_copied">已複製 URL Scheme</string>
     <string name="kallsyms_title">核心符號表</string>
     <string name="kallsyms_search">搜尋核心符號…</string>
-    <string name="dmesg_title">dmesg</string>
-    <string name="dmesg_search">搜尋 dmesg…</string>
+    <string name="dmesg_title">核心日誌</string>
+    <string name="dmesg_search">搜尋核心日誌…</string>
     <string name="dmesg_sort_asc">正序</string>
     <string name="dmesg_sort_desc">倒序</string>
     <string name="kconfig_title">核心配置</string>
@@ -394,7 +394,7 @@
     <string name="module_preflash_risk_binary">包含原生 ELF 可執行二進位制檔案</string>
     <string name="module_preflash_risk_webui">包含 WebUI 控制檯介面</string>
     <string name="module_preflash_risk_unreadable">安裝包無法正常讀取或為空檔案</string>
-    <string name="crash_analyzer_title">核心崩潰分析</string>
+    <string name="crash_analyzer_title">崩潰日誌</string>
     <string name="crash_source_pstore">PStore (記憶體轉儲)</string>
     <string name="crash_source_last_kmsg">舊版 last_kmsg</string>
     <string name="crash_source_dropbox">系統 DropBox 轉儲</string>
@@ -424,4 +424,5 @@
     <string name="crash_search">搜尋崩潰日誌…</string>
     <string name="crash_select_source">日誌來源</string>
     <string name="crash_error_title">載入崩潰日誌失敗</string>
+    <string name="select_bottom_bar_tool">選擇核心工具</string>
 </resources>

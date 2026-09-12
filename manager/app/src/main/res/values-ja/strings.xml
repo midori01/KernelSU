@@ -45,7 +45,7 @@
     <string name="module_failed_to_enable">モジュールの有効化に失敗しました: %s</string>
     <string name="module_failed_to_disable">モジュールの無効化に失敗しました: %s</string>
     <string name="module_empty">モジュールがインストールされていません</string>
-    <string name="kernel_modules">カーネルモジュール</string>
+    <string name="kernel_modules">カーネルモジュ</string>
     <string name="kernel_modules_search">カーネルモジュールを検索…</string>
     <string name="module">モジュール</string>
     <string name="module_sort_action_first">並べ替え（アクション優先）</string>
@@ -312,10 +312,10 @@
     <string name="install_force_backup_summary">選択した boot イメージが純正イメージであることを確認してください</string>
     <string name="module_shortcut_copy_scheme">URL スキームをコピー</string>
     <string name="module_shortcut_scheme_copied">URL スキームをコピーしました</string>
-    <string name="kallsyms_title">カーネルシンボル</string>
-    <string name="kallsyms_search">シンボルを検索…</string>
-    <string name="dmesg_title">dmesg</string>
-    <string name="dmesg_search">dmesg を検索…</string>
+    <string name="kallsyms_title">ルシンボル</string>
+    <string name="kallsyms_search">カーネルシンボルを検索…</string>
+    <string name="dmesg_title">カーネルログ</string>
+    <string name="dmesg_search">カーネルログを検索…</string>
     <string name="dmesg_sort_asc">昇順</string>
     <string name="dmesg_sort_desc">降順</string>
     <string name="kconfig_title">カーネル設定</string>
@@ -389,7 +389,7 @@
     <string name="module_preflash_risk_binary">ネイティブ ELF バイナリ実行ファイルを含みます</string>
     <string name="module_preflash_risk_webui">WebUI ダッシュボードを含みます</string>
     <string name="module_preflash_risk_unreadable">パッケージが破損しているか、空または読み取り不能です</string>
-    <string name="crash_analyzer_title">カーネルクラッシュ解析</string>
+    <string name="crash_analyzer_title">クラッシュログ</string>
     <string name="crash_source_pstore">PStore (RAM Ramoops)</string>
     <string name="crash_source_last_kmsg">レガシー last_kmsg</string>
     <string name="crash_source_dropbox">システム DropBox</string>
@@ -419,4 +419,5 @@
     <string name="crash_search">クラッシュログを検索…</string>
     <string name="crash_select_source">ログソース</string>
     <string name="crash_error_title">クラッシュログの読み込みに失敗しました</string>
+    <string name="select_bottom_bar_tool">カーネルツールを選択</string>
 </resources>

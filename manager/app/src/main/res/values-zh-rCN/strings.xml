@@ -335,8 +335,8 @@
     <string name="settings_navigation_badge_summary">在导航栏显示已授权应用和已启用模块数量</string>
     <string name="kallsyms_title">内核符号表</string>
     <string name="kallsyms_search">搜索内核符号…</string>
-    <string name="dmesg_title">dmesg</string>
-    <string name="dmesg_search">搜索 dmesg…</string>
+    <string name="dmesg_title">内核日志</string>
+    <string name="dmesg_search">搜索内核日志…</string>
     <string name="dmesg_sort_asc">正序</string>
     <string name="dmesg_sort_desc">倒序</string>
     <string name="kconfig_title">内核配置</string>
@@ -402,7 +402,7 @@
     <string name="module_preflash_risk_binary">包含原生 ELF 可执行二进制文件</string>
     <string name="module_preflash_risk_webui">包含 WebUI 控制台界面</string>
     <string name="module_preflash_risk_unreadable">安装包无法正常读取或为空文件</string>
-    <string name="crash_analyzer_title">内核崩溃分析</string>
+    <string name="crash_analyzer_title">崩溃日志</string>
     <string name="crash_source_pstore">PStore (内存转储)</string>
     <string name="crash_source_last_kmsg">旧版 last_kmsg</string>
     <string name="crash_source_dropbox">系统 DropBox 转储</string>
@@ -432,4 +432,5 @@
     <string name="crash_search">搜索崩溃日志…</string>
     <string name="crash_select_source">日志来源</string>
     <string name="crash_error_title">加载崩溃日志失败</string>
+    <string name="select_bottom_bar_tool">选择内核工具</string>
 </resources>

@@ -12,6 +12,7 @@ import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.ksuApp
 import me.weishu.kernelsu.magica.BootCompletedReceiver
 import me.weishu.kernelsu.ui.UiMode
+import me.weishu.kernelsu.ui.component.bottombar.KernelTool
 import me.weishu.kernelsu.ui.screen.modulerepo.RepoSort
 import me.weishu.kernelsu.ui.viewmodel.DmesgOrder
 import me.weishu.kernelsu.ui.util.execKsud
@@ -184,6 +185,10 @@ class SettingsRepositoryImpl : SettingsRepository {
     override var modulePreflashInspection: Boolean
         get() = prefs.getBoolean(KEY_MODULE_PREFLASH, true)
         set(value) = prefs.edit { putBoolean(KEY_MODULE_PREFLASH, value) }
+
+    override var bottomBarKernelTool: String
+        get() = prefs.getString(KernelTool.PREF_KEY, KernelTool.Kconfig.id) ?: KernelTool.Kconfig.id
+        set(value) = prefs.edit { putString(KernelTool.PREF_KEY, value) }
 
     override val intentToken: String
         get() {

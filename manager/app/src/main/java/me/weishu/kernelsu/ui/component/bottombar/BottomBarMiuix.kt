@@ -14,16 +14,24 @@ import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
+import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
+import me.weishu.kernelsu.ui.LocalKernelTool
 import me.weishu.kernelsu.ui.LocalMainPagerState
 import me.weishu.kernelsu.ui.component.FloatingBottomBar
 import me.weishu.kernelsu.ui.component.FloatingBottomBarItem
@@ -54,12 +62,22 @@ fun BottomBarMiuix(
     val mainState = LocalMainPagerState.current
     val enableFloatingBottomBar = LocalEnableFloatingBottomBar.current
     val enableFloatingBottomBarBlur = LocalEnableFloatingBottomBarBlur.current
+    val currentKernelTool = LocalKernelTool.current
+    val haptic = LocalHapticFeedback.current
+    var showToolSelectDialog by remember { mutableStateOf(false) }
 
-    val items = BottomBarDestination.entries.map { destination ->
-        NavigationItem(
-            label = stringResource(destination.label),
-            icon = destination.icon,
-        )
+    val items = BottomBarDestination.entries.mapIndexed { index, destination ->
+        if (index == 2) {
+            NavigationItem(
+                label = stringResource(currentKernelTool.label),
+                icon = currentKernelTool.roundedIcon,
+            )
+        } else {
+            NavigationItem(
+                label = stringResource(destination.label),
+                icon = destination.icon,
+            )
+        }
     }
     if (!enableFloatingBottomBar) {
         BlurredBar(blurBackdrop) {
@@ -69,7 +87,23 @@ fun BottomBarMiuix(
                 content = {
                     items.forEachIndexed { index, item ->
                         NavigationBarItem(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .then(
+                                    if (index == 2) {
+                                        Modifier.pointerInput(Unit) {
+                                            detectTapGestures(
+                                                onLongPress = {
+                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    showToolSelectDialog = true
+                                                },
+                                                onTap = {
+                                                    mainState.animateToPage(index)
+                                                }
+                                            )
+                                        }
+                                    } else Modifier
+                                ),
                             icon = item.icon,
                             label = item.label,
                             selected = mainState.selectedPage == index,
@@ -103,7 +137,23 @@ fun BottomBarMiuix(
                     onClick = {
                         activateTab(index)
                     },
-                    modifier = Modifier.defaultMinSize(minWidth = 76.dp)
+                    modifier = Modifier
+                        .defaultMinSize(minWidth = 76.dp)
+                        .then(
+                            if (index == 2) {
+                                Modifier.pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onLongPress = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            showToolSelectDialog = true
+                                        },
+                                        onTap = {
+                                            activateTab(index)
+                                        }
+                                    )
+                                }
+                            } else Modifier
+                        )
                 ) {
                     // Icon and label take LocalContentColor so the FloatingBottomBar backdrop copy
                     // can recolor them to the accent tone inside the indicator pill.
@@ -131,6 +181,17 @@ fun BottomBarMiuix(
             }
         }
     }
+
+    KernelToolSelectDialog(
+        show = showToolSelectDialog,
+        currentTool = currentKernelTool,
+        onSelected = { tool ->
+            SettingsRepositoryImpl().bottomBarKernelTool = tool.id
+        },
+        onDismissRequest = {
+            showToolSelectDialog = false
+        }
+    )
 }
 
 enum class BottomBarDestination(

@@ -62,6 +62,9 @@ import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.ListPopupDefaults
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.SearchStatus
+import me.weishu.kernelsu.ui.component.bottombar.KernelTool
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMiuix
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
@@ -102,7 +105,7 @@ import top.yukonga.miuix.kmp.utils.overScrollVertical
 import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 
 @Composable
-fun CrashLogScreen() {
+fun CrashLogScreen(isRootTab: Boolean = false) {
     val viewModel = viewModel<CrashLogViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -117,6 +120,7 @@ fun CrashLogScreen() {
             onClearAll = viewModel::clearAll,
             context = context,
             navigator = navigator,
+            isRootTab = isRootTab,
         )
 
         UiMode.Material -> CrashLogScreenMaterial(
@@ -127,6 +131,7 @@ fun CrashLogScreen() {
             onClearAll = viewModel::clearAll,
             context = context,
             navigator = navigator,
+            isRootTab = isRootTab,
         )
     }
 }
@@ -140,6 +145,7 @@ fun CrashLogScreenMiuix(
     onClearAll: (() -> Unit) -> Unit,
     context: Context,
     navigator: Navigator,
+    isRootTab: Boolean = false,
 ) {
     val enableBlur = LocalEnableBlur.current
     val density = LocalDensity.current
@@ -190,16 +196,20 @@ fun CrashLogScreenMiuix(
                         title = stringResource(R.string.crash_analyzer_title),
                         scrollBehavior = scrollBehavior,
                         navigationIcon = {
-                            MiuixIconButton(onClick = { navigator.pop() }) {
-                                val layoutDirection = LocalLayoutDirection.current
-                                MiuixIcon(
-                                    modifier = Modifier.graphicsLayer {
-                                        if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
-                                    },
-                                    imageVector = MiuixIcons.Back,
-                                    contentDescription = null,
-                                    tint = colorScheme.onSurface,
-                                )
+                            if (isRootTab) {
+                                KernelToolNavigationIconsMiuix(KernelTool.CrashLog, navigator)
+                            } else {
+                                MiuixIconButton(onClick = { navigator.pop() }) {
+                                    val layoutDirection = LocalLayoutDirection.current
+                                    MiuixIcon(
+                                        modifier = Modifier.graphicsLayer {
+                                            if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
+                                        },
+                                        imageVector = MiuixIcons.Back,
+                                        contentDescription = null,
+                                        tint = colorScheme.onSurface,
+                                    )
+                                }
                             }
                         },
                         actions = {
@@ -781,6 +791,7 @@ fun CrashLogScreenMaterial(
     onClearAll: (() -> Unit) -> Unit,
     context: Context,
     navigator: Navigator,
+    isRootTab: Boolean = false,
 ) {
     val haptic = LocalHapticFeedback.current
     val listState = rememberLazyListState()
@@ -821,7 +832,11 @@ fun CrashLogScreenMaterial(
                     onSearch("")
                 },
                 navigationIcon = {
-                    TopBarBackButton(onClick = { navigator.pop() })
+                    if (isRootTab) {
+                        KernelToolNavigationIconsMaterial(KernelTool.CrashLog, navigator)
+                    } else {
+                        TopBarBackButton(onClick = { navigator.pop() })
+                    }
                 },
                 actions = {
                     if (uiState.availableSources.isNotEmpty()) {

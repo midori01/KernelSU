@@ -330,8 +330,8 @@
     <string name="module_shortcut_scheme_copied">URL 스킴이 복사됨</string>
     <string name="kallsyms_title">커널 심볼</string>
     <string name="kallsyms_search">심볼 검색…</string>
-    <string name="dmesg_title">dmesg</string>
-    <string name="dmesg_search">dmesg 검색…</string>
+    <string name="dmesg_title">커널 메시지</string>
+    <string name="dmesg_search">커널 메시지 검색…</string>
     <string name="dmesg_sort_asc">오름차순</string>
     <string name="dmesg_sort_desc">내림차순</string>
     <string name="kconfig_title">커널 설정</string>
@@ -394,7 +394,7 @@
     <string name="module_preflash_risk_binary">네이티브 ELF 바이너리 실행 파일 포함됨</string>
     <string name="module_preflash_risk_webui">WebUI 대시보드 포함됨</string>
     <string name="module_preflash_risk_unreadable">모듈 압축 파일이 손상되었거나 비어 있어 읽을 수 없음</string>
-    <string name="crash_analyzer_title">커널 크래시 분석</string>
+    <string name="crash_analyzer_title">크래시 로그</string>
     <string name="crash_source_pstore">PStore (RAM Ramoops)</string>
     <string name="crash_source_last_kmsg">레거시 last_kmsg</string>
     <string name="crash_source_dropbox">시스템 DropBox</string>
@@ -424,4 +424,5 @@
     <string name="crash_search">크래시 로그 검색…</string>
     <string name="crash_select_source">로그 소스</string>
     <string name="crash_error_title">크래시 로그 불러오기 실패</string>
+    <string name="select_bottom_bar_tool">커널 도구 선택</string>
 </resources>

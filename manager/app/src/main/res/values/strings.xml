@@ -354,7 +354,7 @@
     <string name="settings_navigation_badge_summary">Show granted app and enabled module counts on the navigation bar</string>
     <string name="kallsyms_title">Kallsyms</string>
     <string name="kallsyms_search">Search kallsyms…</string>
-    <string name="dmesg_title">dmesg</string>
+    <string name="dmesg_title">Dmesg</string>
     <string name="dmesg_search">Search dmesg…</string>
     <string name="dmesg_sort_asc">Ascending</string>
     <string name="dmesg_sort_desc">Descending</string>
@@ -409,7 +409,7 @@
     <string name="module_preflash_risk_binary">Includes native ELF binary executable</string>
     <string name="module_preflash_risk_webui">Includes WebUI dashboard</string>
     <string name="module_preflash_risk_unreadable">Package archive is unreadable or empty</string>
-    <string name="crash_analyzer_title">Kernel Crash Analyzer</string>
+    <string name="crash_analyzer_title">Analyzer</string>
     <string name="crash_source_pstore">PStore (RAM Ramoops)</string>
     <string name="crash_source_last_kmsg">Legacy last_kmsg</string>
     <string name="crash_source_dropbox">System DropBox</string>
@@ -439,4 +439,5 @@
     <string name="crash_search">Search crash log…</string>
     <string name="crash_select_source">Crash log sources</string>
     <string name="crash_error_title">Failed to load crash log</string>
+    <string name="select_bottom_bar_tool">Select Kernel Tool</string>
 </resources>
