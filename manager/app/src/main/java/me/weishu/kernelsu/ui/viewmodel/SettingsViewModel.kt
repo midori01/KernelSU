@@ -47,7 +47,7 @@ class SettingsViewModel(
             val enableNavigationBadge = repo.enableNavigationBadge
             val pageScale = repo.pageScale
             val enableWebDebugging = repo.enableWebDebugging
-            val enableOfficialLauncher = repo.enableOfficialLauncher
+            val appIconMode = repo.appIconMode
             val classicUi = repo.classicUi
             val showSwitchIcon = repo.showSwitchIcon
             val scrollAnimation = repo.scrollAnimation
@@ -95,7 +95,7 @@ class SettingsViewModel(
                     themeMode = themeMode,
                     miuixMonet = miuixMonet,
                     keyColor = keyColor,
-                    enableOfficialLauncher = enableOfficialLauncher,
+                    appIconMode = appIconMode,
                     classicUi = classicUi,
                     showSwitchIcon = showSwitchIcon,
                     scrollAnimation = scrollAnimation,
@@ -224,9 +224,9 @@ class SettingsViewModel(
         _uiState.update { it.copy(colorSpec = spec) }
     }
 
-    fun setEnableOfficialLauncher(enabled: Boolean) {
-        repo.enableOfficialLauncher = enabled
-        _uiState.update { it.copy(enableOfficialLauncher = enabled) }
+    fun setAppIconMode(mode: Int) {
+        repo.appIconMode = mode
+        _uiState.update { it.copy(appIconMode = mode) }
     }
 
     fun setClassicUi(enabled: Boolean) {
