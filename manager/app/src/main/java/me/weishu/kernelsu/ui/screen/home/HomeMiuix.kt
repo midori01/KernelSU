@@ -2,7 +2,14 @@ package me.weishu.kernelsu.ui.screen.home
 
 import android.content.Context
 import android.os.Build
+import android.os.SystemClock
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -28,9 +35,11 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -42,7 +51,6 @@ import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material.icons.outlined.Android
-import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.outlined.Hub
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Link
@@ -52,13 +60,22 @@ import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.painterResource
@@ -68,16 +85,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.weishu.kernelsu.KernelVersion
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
+import me.weishu.kernelsu.ui.MainActivity
 import me.weishu.kernelsu.ui.component.WarningLevel
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.miuix.WarningCard
 import me.weishu.kernelsu.ui.component.rebootlistpopup.RebootListPopupMiuix
 import me.weishu.kernelsu.ui.component.statustag.StatusTag
 import me.weishu.kernelsu.ui.navigation3.Navigator
-import me.weishu.kernelsu.ui.navigation3.Route
+import me.weishu.kernelsu.ui.theme.LocalAppIconMode
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.theme.isInDarkTheme
 import me.weishu.kernelsu.ui.util.BlurredBar
@@ -110,7 +130,8 @@ fun HomePagerMiuix(
     state: HomeUiState,
     actions: HomeActions,
     bottomInnerPadding: Dp,
-    navigator: Navigator
+    navigator: Navigator,
+    isCurrentPage: Boolean = true,
 ) {
     val scrollBehavior = MiuixScrollBehavior()
     val enableBlur = LocalEnableBlur.current
@@ -121,7 +142,7 @@ fun HomePagerMiuix(
                 appName = state.appName,
                 scrollBehavior = scrollBehavior,
                 backdrop = backdrop,
-                navigator = navigator,
+                isCurrentPage = isCurrentPage,
             )
         },
         popupHost = { },
@@ -226,16 +247,100 @@ private fun TopBar(
     appName: String,
     scrollBehavior: ScrollBehavior,
     backdrop: LayerBackdrop?,
-    navigator: Navigator,
+    isCurrentPage: Boolean = true,
 ) {
+    val scale = remember { Animatable(1f) }
+    val rotation = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
+    val appIconMode = LocalAppIconMode.current
+
+    LaunchedEffect(isCurrentPage) {
+        if (!isCurrentPage) return@LaunchedEffect
+        val elapsed = if (MainActivity.splashStartedAt > 0L) {
+            SystemClock.uptimeMillis() - MainActivity.splashStartedAt
+        } else 0L
+        val delayMs = (1000L - elapsed).coerceAtLeast(150L)
+        if (delayMs > 0L) {
+            delay(delayMs)
+        }
+        // Playful wobble tilt
+        launch {
+            rotation.animateTo(-16f, tween(70, easing = FastOutLinearInEasing))
+            rotation.animateTo(12f, tween(90, easing = LinearOutSlowInEasing))
+            rotation.animateTo(
+                0f,
+                spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        }
+        // Jelly squash & bouncy rebound
+        launch {
+            scale.animateTo(0.80f, tween(70, easing = FastOutLinearInEasing))
+            scale.animateTo(
+                1f,
+                spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+        }
+    }
+
     BlurredBar(backdrop = backdrop) {
         TopAppBar(
             title = appName,
             navigationIcon = {
-                IconButton(onClick = { navigator.push(Route.Kallsyms) }) {
+                IconButton(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
+                        coroutineScope.launch {
+                            // Playful wobble tilt
+                            launch {
+                                rotation.animateTo(-16f, tween(70, easing = FastOutLinearInEasing))
+                                rotation.animateTo(12f, tween(90, easing = LinearOutSlowInEasing))
+                                rotation.animateTo(
+                                    0f,
+                                    spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessMedium
+                                    )
+                                )
+                            }
+                            // Jelly squash & bouncy rebound
+                            launch {
+                                scale.animateTo(0.80f, tween(70, easing = FastOutLinearInEasing))
+                                scale.animateTo(
+                                    1f,
+                                    spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessLow
+                                    )
+                                )
+                            }
+                        }
+                    }
+                ) {
                     Icon(
-                        imageVector = Icons.Outlined.DataObject,
-                        contentDescription = "kallsyms",
+                        painter = painterResource(
+                            when (appIconMode) {
+                                1 -> R.drawable.ic_launcher_kowsu
+                                2 -> R.drawable.ic_launcher_monochrome
+                                else -> R.drawable.ic_launcher_midorisu
+                            }
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .wrapContentSize(unbounded = true)
+                            .requiredSize(48.dp)
+                            .graphicsLayer {
+                                scaleX = scale.value
+                                scaleY = scale.value
+                                rotationZ = rotation.value
+                            },
                         tint = colorScheme.onSurface,
                     )
                 }

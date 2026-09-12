@@ -66,6 +66,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import me.weishu.kernelsu.Natives
+import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.bottombar.BottomBar
 import me.weishu.kernelsu.ui.component.bottombar.MainPagerState
 import me.weishu.kernelsu.ui.component.bottombar.NavigationBadgeState
@@ -120,14 +121,25 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 open class MainActivity : ComponentActivity() {
 
+    companion object {
+        var splashStartedAt = 0L
+    }
+
     private val intentChannel = Channel<Intent>(capacity = Channel.BUFFERED)
     private var contentReady = false
-    private var splashStartedAt = 0L
     private val splashAnimationDurationMs = 500L
 
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
+        val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        val appIconMode = prefs.getInt("app_icon_mode", 0)
+        val startingTheme = when (appIconMode) {
+            1 -> R.style.Theme_KernelSU_Starting_Kowsu
+            2 -> R.style.Theme_KernelSU_Starting
+            else -> R.style.Theme_KernelSU_Starting_Midorisu
+        }
+        setTheme(startingTheme)
         val splashScreen = installSplashScreen()
         splashStartedAt = SystemClock.uptimeMillis()
         super.onCreate(savedInstanceState)
@@ -416,7 +428,7 @@ fun MainScreen(
                         },
                         label = "MainScreenTransition"
                     ) { page ->
-                            MainPage(page, navController, bottomInnerPadding)
+                        MainPage(page, navController, bottomInnerPadding, isCurrentPage = page == mainPagerState.selectedPage)
                     }
                 }
             }

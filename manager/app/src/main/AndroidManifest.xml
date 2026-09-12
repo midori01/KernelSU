@@ -41,7 +41,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher_midorisu"
             android:label="@string/app_name"
-            android:theme="@style/Theme.KernelSU.Starting.Kowsu"
+            android:theme="@style/Theme.KernelSU.Starting.Midorisu"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -77,31 +77,33 @@
             </intent-filter>
         </activity>
 
-        <activity-alias
+        <activity
             android:name=".MainActivityKowsu"
-            android:targetActivity=".ui.MainActivity"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_kowsu"
-            android:label="@string/app_name_kowsu">
+            android:label="@string/app_name_kowsu"
+            android:theme="@style/Theme.KernelSU.Starting.Kowsu"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity-alias>
+        </activity>
 
-        <activity-alias
+        <activity
             android:name=".MainActivityOfficial"
-            android:targetActivity=".ui.MainActivity"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_official"
-            android:label="@string/app_name_official">
+            android:label="@string/app_name_official"
+            android:theme="@style/Theme.KernelSU.Starting"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity-alias>
+        </activity>
 
         <activity-alias
             android:name=".FlashModule"
