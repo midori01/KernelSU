@@ -340,5 +340,9 @@
     <string name="settings_navigation_badge_summary">Show granted app and enabled module counts on the navigation bar</string>
     <string name="kallsyms_title">Kallsyms</string>
     <string name="kallsyms_search">Search kallsyms…</string>
+    <string name="dmesg_title">dmesg</string>
+    <string name="dmesg_search">Search dmesg…</string>
+    <string name="dmesg_sort_asc">Ascending</string>
+    <string name="dmesg_sort_desc">Descending</string>
     <string name="share">Share</string>
 </resources>
