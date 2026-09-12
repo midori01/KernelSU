@@ -484,6 +484,7 @@ fun SuperUserPagerMiuix(
         },
         popupHost = {
             val expandedSearchUids = remember { mutableStateOf(setOf<Int>()) }
+            val expandedDefaultUids = remember { mutableStateOf(setOf<Int>()) }
             LaunchedEffect(uiState.searchResults) {
                 expandedSearchUids.value = uiState.searchResults
                     .filter { it.apps.size > 1 }
@@ -494,14 +495,16 @@ fun SuperUserPagerMiuix(
                 onSearchStatusChange = actions.onSearchStatusChange,
                 defaultResult = {
                     val imeBottomPadding = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
-                    if (uiState.recentlyInstalledResults.isNotEmpty()) {
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .overScrollVertical(),
-                        ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .overScrollVertical(),
+                    ) {
+                        item {
+                            Spacer(Modifier.height(6.dp))
+                        }
+                        if (uiState.recentlyInstalledResults.isNotEmpty()) {
                             item {
-                                Spacer(Modifier.height(6.dp))
                                 Text(
                                     text = stringResource(R.string.recently_installed),
                                     fontSize = 13.sp,
@@ -510,7 +513,7 @@ fun SuperUserPagerMiuix(
                                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
                                 )
                             }
-                            items(uiState.recentlyInstalledResults, key = { it.uid }, contentType = { "recent-group" }) { group ->
+                            items(uiState.recentlyInstalledResults, key = { "recent_${it.uid}" }, contentType = { "recent-group" }) { group ->
                                 Column {
                                     GroupItem(
                                         group = group,
@@ -533,8 +536,39 @@ fun SuperUserPagerMiuix(
                                 }
                             }
                             item {
-                                Spacer(Modifier.height(maxOf(bottomInnerPadding, imeBottomPadding)))
+                                Spacer(Modifier.height(6.dp))
                             }
+                        }
+                        items(uiState.groupedApps, key = { it.uid }, contentType = { "group" }) { group ->
+                            val expanded = expandedDefaultUids.value.contains(group.uid)
+                            Column {
+                                GroupItem(
+                                    group = group,
+                                    onToggleExpand = {
+                                        if (group.apps.size > 1) {
+                                            expandedDefaultUids.value =
+                                                if (expanded) expandedDefaultUids.value - group.uid else expandedDefaultUids.value + group.uid
+                                        }
+                                    }
+                                ) {
+                                    actions.onOpenProfile(group)
+                                }
+                                AnimatedVisibility(
+                                    visible = expanded && group.apps.size > 1,
+                                    enter = expandVertically() + fadeIn(),
+                                    exit = shrinkVertically() + fadeOut()
+                                ) {
+                                    Column {
+                                        group.apps.forEach { app ->
+                                            SimpleAppItem(app = app)
+                                        }
+                                        Spacer(Modifier.height(6.dp))
+                                    }
+                                }
+                            }
+                        }
+                        item {
+                            Spacer(Modifier.height(maxOf(bottomInnerPadding, imeBottomPadding)))
                         }
                     }
                 },
