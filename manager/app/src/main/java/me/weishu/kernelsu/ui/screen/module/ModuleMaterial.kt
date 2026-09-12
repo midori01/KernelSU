@@ -365,6 +365,25 @@ fun ModulePagerMaterial(
                     }
                 },
                 scrollBehavior = scrollBehavior,
+                defaultContent = { bottomPadding, closeSearch ->
+                    ModuleList(
+                        bottomInnerPadding = bottomPadding,
+                        modifier = Modifier.fillMaxSize(),
+                        listState = searchListState,
+                        displayModules = uiState.moduleList,
+                        updateInfoMap = uiState.updateInfo,
+                        actions = actions,
+                        onClickModule = { module ->
+                            if (module.hasWebUi) {
+                                actions.onOpenWebUi(module)
+                                closeSearch()
+                            }
+                        },
+                        onModuleAddShortcut = { module, type -> onModuleAddShortcut(module, type) },
+                        onExportModule = onExportModuleClicked,
+                        closeSearch = closeSearch,
+                    )
+                },
                 searchContent = { bottomPadding, closeSearch ->
                     val latestSearchResults = rememberUpdatedState(uiState.searchResults)
                     ScrollToTopOnChange(
