@@ -34,6 +34,7 @@ import me.weishu.kernelsu.ui.util.getSuperuserCount
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 import me.weishu.kernelsu.ui.util.resolveDeviceName
 import me.weishu.kernelsu.ui.util.rootAvailable
+import me.weishu.kernelsu.ui.util.CrashLogHelper
 import me.weishu.kernelsu.ui.util.getRootShell
 
 class HomeViewModel(
@@ -45,6 +46,7 @@ class HomeViewModel(
         when (key) {
             "app_icon_mode" -> _uiState.update { it.copy(appName = buildState().appName) }
             "classic_ui" -> _uiState.update { it.copy(classicUi = buildState().classicUi) }
+            CrashLogHelper.PREF_LAST_READ_CRASH -> _uiState.update { it.copy(hasCrashLog = false) }
         }
     }
 
@@ -85,6 +87,13 @@ class HomeViewModel(
                 }
                 _uiState.update { it.copy(latestKsuDriverInfo = driverInfo) }
             }
+        }
+    }
+
+    fun markCrashLogAsRead() {
+        _uiState.update { it.copy(hasCrashLog = false) }
+        viewModelScope.launch(Dispatchers.IO) {
+            CrashLogHelper.markCrashAsRead(ksuApp)
         }
     }
 
@@ -221,6 +230,9 @@ class HomeViewModel(
                     ).trim().toIntOrNull()?.minus(1) ?: 0
                 }.getOrDefault(0)
             } else 0,
+            hasCrashLog = if (isManager && ksuVersion != null) {
+                CrashLogHelper.hasUnreadCrash(ksuApp)
+            } else false,
             systemInfo = SystemInfo(
                 kernelVersion = runCatching {
                     val result = com.topjohnwu.superuser.ShellUtils.fastCmd(

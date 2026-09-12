@@ -97,6 +97,7 @@ import me.weishu.kernelsu.ui.screen.templateeditor.TemplateEditorScreen
 import me.weishu.kernelsu.ui.screen.kconfig.KconfigScreen
 import me.weishu.kernelsu.ui.screen.kallsyms.KallsymsScreen
 import me.weishu.kernelsu.ui.screen.kernelmodule.KernelModuleScreen
+import me.weishu.kernelsu.ui.screen.crashlog.CrashLogScreen
 import me.weishu.kernelsu.ui.theme.KernelSUTheme
 import me.weishu.kernelsu.ui.theme.LocalClassicUi
 import me.weishu.kernelsu.ui.theme.LocalColorMode
@@ -249,6 +250,7 @@ open class MainActivity : ComponentActivity() {
                                 entry<Route.Dmesg> { DmesgScreen() }
                                 entry<Route.Kconfig> { KconfigScreen() }
                                 entry<Route.KernelModule> { KernelModuleScreen() }
+                                entry<Route.CrashLog> { CrashLogScreen() }
                                 entry<Route.ColorPalette> { ColorPaletteScreen() }
                                 entry<Route.AppProfileTemplate> { AppProfileTemplateScreen() }
                                 entry<Route.TemplateEditor> { key -> TemplateEditorScreen(key.template, key.readOnly) }
