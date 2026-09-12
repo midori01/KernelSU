@@ -26,13 +26,13 @@ chmod 755 "$KSUD"
 # use ksud to install or uninstall
 case "$3" in
   *uninstall*|*Uninstall*)
-    ui_print "- Uninstalling KernelSU..."
+    ui_print "- Uninstalling MidoriSU..."
     "$KSUD" uninstall 2>&1 | while read -r line; do
       ui_print "$line"
     done
     ;;
   *)
-    ui_print "- Installing KernelSU..."
+    ui_print "- Installing MidoriSU..."
     "$KSUD" boot-patch --flash 2>&1 | while read -r line; do
       ui_print "$line"
     done

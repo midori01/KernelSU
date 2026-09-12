@@ -1,1 +1,1 @@
-# KernelSU installer/uninstaller script
+# MidoriSU installer/uninstaller script
