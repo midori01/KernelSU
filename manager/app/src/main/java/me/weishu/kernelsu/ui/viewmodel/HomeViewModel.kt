@@ -45,7 +45,10 @@ class HomeViewModel(
     private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
             "app_icon_mode" -> _uiState.update { it.copy(appName = buildState().appName) }
-            "classic_ui" -> _uiState.update { it.copy(classicUi = buildState().classicUi) }
+            "modern_bento", "classic_ui" -> {
+                val state = buildState()
+                _uiState.update { it.copy(modernBento = state.modernBento, classicUi = state.classicUi) }
+            }
             CrashLogHelper.PREF_LAST_READ_CRASH -> _uiState.update { it.copy(hasCrashLog = false) }
         }
     }
@@ -138,7 +141,8 @@ class HomeViewModel(
 
     private fun buildState(): HomeUiState {
         val prefs = ksuApp.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val classicUi = prefs.getBoolean("classic_ui", false)
+        val modernBento = prefs.getBoolean("modern_bento", !prefs.getBoolean("classic_ui", false))
+        val classicUi = !modernBento
         val appIconMode = prefs.getInt("app_icon_mode", 0)
         val appName = when (appIconMode) {
             1 -> ksuApp.getString(R.string.app_name_kowsu)
@@ -201,6 +205,7 @@ class HomeViewModel(
 
         return HomeUiState(
             appName = appName,
+            modernBento = modernBento,
             classicUi = classicUi,
             kernelVersion = kernelVersion,
             ksuVersion = ksuVersion,

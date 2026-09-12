@@ -85,9 +85,18 @@ class SettingsRepositoryImpl : SettingsRepository {
         get() = prefs.getInt("app_icon_mode", 0)
         set(value) = prefs.edit { putInt("app_icon_mode", value) }
 
+    override var modernBento: Boolean
+        get() = prefs.getBoolean("modern_bento", !prefs.getBoolean("classic_ui", false))
+        set(value) = prefs.edit {
+            putBoolean("modern_bento", value)
+            putBoolean("classic_ui", !value)
+        }
+
     override var classicUi: Boolean
-        get() = prefs.getBoolean("classic_ui", false)
-        set(value) = prefs.edit { putBoolean("classic_ui", value) }
+        get() = !modernBento
+        set(value) {
+            modernBento = !value
+        }
 
     override var showSwitchIcon: Boolean
         get() = prefs.getBoolean("show_switch_icon", false)

@@ -302,6 +302,7 @@
     <string name="enable_adb_summary">USB 디버깅을 강제하고 adb 인증을 비활성화합니다. 반드시 필요한 경우가 아니라면 활성화하지 마세요.</string>
     <string name="advanced_options">고급 옵션</string>
     <string name="expand">펼치기</string>
+    <string name="collapse">접기</string>
     <string name="download_channel_name">모듈 다운로드</string>
     <string name="download_progress_title">%s 다운로드 중</string>
     <string name="download_complete_title">다운로드 완료</string>
@@ -468,4 +469,23 @@
     <string name="payload_incremental_partition_notice">차분 패치만 포함됨</string>
     <string name="payload_incremental_cannot_extract">증분 파티션은 원본 펌웨어 이미지 없이 단독으로 추출할 수 없습니다.</string>
     <string name="payload_tap_to_copy">탭하여 복사</string>
+
+    <!-- Home Bento Dashboard -->
+    <string name="bento_active_superusers">활성 슈퍼유저 앱</string>
+    <string name="bento_active_modules">활성화된 모듈</string>
+    <string name="bento_kernel_tool">빠른 커널 도구</string>
+    <string name="bento_system_health">시스템 상태</string>
+    <string name="bento_system_healthy">원활하게 실행 중</string>
+    <string name="bento_no_crashes">읽지 않은 패닉 없음</string>
+    <string name="bento_crash_detected">커널 패닉 감지됨</string>
+    <string name="bento_view_panic">탭하여 패닉 로그 확인</string>
+    <string name="bento_device_specs">하드웨어 및 시스템 사양</string>
+    <string name="bento_manage_install">설치 / 관리</string>
+    <string name="bento_copy_report">진단 보고서 복사</string>
+    <string name="bento_report_copied">진단 보고서가 클립보드에 복사되었습니다</string>
+    <string name="bento_smart_pill_panic">커널 패닉 로그가 감지되었습니다. 탭하여 분석</string>
+    <string name="bento_smart_pill_update">MidoriSU %1$s 업데이트 사용 가능</string>
+    <string name="bento_smart_pill_driver_update">KSU 드라이버 %1$s 업데이트 사용 가능</string>
+    <string name="settings_modern_bento">모던 Bento 대시보드</string>
+    <string name="settings_modern_bento_summary">홈 화면에 모듈식 Bento 타일 및 카드 대시보드 사용</string>
 </resources>

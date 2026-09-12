@@ -294,6 +294,7 @@
     <string name="enable_adb_summary">强制允许 USB 调试并取消 adb 认证，非必要请勿开启！</string>
     <string name="advanced_options">高级选项</string>
     <string name="expand">展开</string>
+    <string name="collapse">收起</string>
     <string name="download_channel_name">模块下载</string>
     <string name="download_progress_title">正在下载 %s</string>
     <string name="download_complete_title">下载完成</string>
@@ -476,4 +477,23 @@
     <string name="payload_incremental_partition_notice">仅包含差分补丁</string>
     <string name="payload_incremental_cannot_extract">增量差分分区无法脱离基底镜像独立提取。</string>
     <string name="payload_tap_to_copy">点击复制</string>
+
+    <!-- 首页 Bento 仪表盘 -->
+    <string name="bento_active_superusers">活跃授权应用</string>
+    <string name="bento_active_modules">已启用模块</string>
+    <string name="bento_kernel_tool">快捷内核工具</string>
+    <string name="bento_system_health">系统健康</string>
+    <string name="bento_system_healthy">运行平稳</string>
+    <string name="bento_no_crashes">无未读崩溃</string>
+    <string name="bento_crash_detected">检测到崩溃</string>
+    <string name="bento_view_panic">点击查看堆栈分析</string>
+    <string name="bento_device_specs">硬件与系统环境</string>
+    <string name="bento_manage_install">安装 / 管理</string>
+    <string name="bento_copy_report">复制诊断报告</string>
+    <string name="bento_report_copied">诊断报告已复制到剪贴板</string>
+    <string name="bento_smart_pill_panic">检测到内核崩溃记录，点击分析</string>
+    <string name="bento_smart_pill_update">发现新版本 MidoriSU %1$s</string>
+    <string name="bento_smart_pill_driver_update">发现新版 KSU 驱动 %1$s 可用</string>
+    <string name="settings_modern_bento">现代 Bento 仪表盘</string>
+    <string name="settings_modern_bento_summary">首页采用模块化 Bento 磁贴与卡片仪表盘</string>
 </resources>

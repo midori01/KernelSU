@@ -56,6 +56,7 @@ data class AppSettings(
     val classicUi: Boolean,
     val showSwitchIcon: Boolean,
     val scrollAnimation: Boolean,
+    val modernBento: Boolean = false,
 )
 
 val PaletteStyle.supportsSpec2025: Boolean
@@ -104,11 +105,12 @@ object ThemeController {
         }
 
         val appIconMode = repo.appIconMode
+        val modernBento = repo.modernBento
         val classicUi = repo.classicUi
         val showSwitchIcon = repo.showSwitchIcon
         val scrollAnimation = repo.scrollAnimation
 
-        return AppSettings(colorMode, keyColor, paletteStyle, colorSpec, appIconMode, classicUi, showSwitchIcon, scrollAnimation)
+        return AppSettings(colorMode, keyColor, paletteStyle, colorSpec, appIconMode, classicUi, showSwitchIcon, scrollAnimation, modernBento)
     }
 }
 
@@ -121,6 +123,7 @@ fun KernelSUTheme(
     CompositionLocalProvider(
         LocalColorMode provides appSettings.colorMode.value,
         LocalAppIconMode provides appSettings.appIconMode,
+        LocalModernBento provides appSettings.modernBento,
         LocalClassicUi provides appSettings.classicUi,
         LocalShowSwitchIcon provides appSettings.showSwitchIcon,
         LocalScrollAnimation provides appSettings.scrollAnimation,
@@ -152,6 +155,8 @@ fun isInDarkTheme(): Boolean {
 val LocalColorMode = staticCompositionLocalOf { 0 }
 
 val LocalAppIconMode = staticCompositionLocalOf { 0 }
+
+val LocalModernBento = staticCompositionLocalOf { false }
 
 val LocalClassicUi = staticCompositionLocalOf { false }
 

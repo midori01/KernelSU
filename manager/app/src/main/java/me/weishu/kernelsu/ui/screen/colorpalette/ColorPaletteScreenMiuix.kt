@@ -41,6 +41,7 @@ import androidx.compose.material.icons.rounded.AspectRatio
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.CallToAction
 import androidx.compose.material.icons.rounded.Colorize
+import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.DesignServices
 import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.Style
@@ -169,6 +170,7 @@ fun ColorPaletteScreenMiuix(
                         paletteStyle = state.currentPaletteStyle,
                         colorSpec = state.currentColorSpec,
                         appIconMode = uiState.appIconMode,
+                        modernBento = uiState.modernBento,
                     )
                     Spacer(modifier = Modifier.height(72.dp))
 
@@ -384,6 +386,20 @@ fun ColorPaletteScreenMiuix(
                             )
                         }
                         SwitchPreference(
+                            title = stringResource(id = R.string.settings_modern_bento),
+                            summary = stringResource(id = R.string.settings_modern_bento_summary),
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.Dashboard,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(id = R.string.settings_modern_bento),
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            checked = uiState.modernBento,
+                            onCheckedChange = actions.onSetModernBento
+                        )
+                        SwitchPreference(
                             title = stringResource(id = R.string.settings_floating_bottom_bar),
                             summary = stringResource(id = R.string.settings_floating_bottom_bar_summary),
                             startAction = {
@@ -531,6 +547,7 @@ private fun ThemePreviewCardMiuix(
     paletteStyle: PaletteStyle = PaletteStyle.TonalSpot,
     colorSpec: ColorSpec.SpecVersion = ColorSpec.SpecVersion.SPEC_2021,
     appIconMode: Int = 0,
+    modernBento: Boolean = true,
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.toFloat()
@@ -554,6 +571,11 @@ private fun ThemePreviewCardMiuix(
         miuixMonet -> dynamicCs.secondaryContainer
         isDark -> Color(0xFF1A3825)
         else -> Color(0xFFDFFAE4)
+    }
+    val accentTextColor = when {
+        miuixMonet -> dynamicCs.onSecondaryContainer
+        isDark -> Color(0xFFDFFAE4)
+        else -> Color(0xFF1A3825)
     }
     val cardColor = if (miuixMonet) dynamicCs.surfaceContainerHighest else colorScheme.surfaceVariant
     val navBarColor = if (miuixMonet) dynamicCs.surfaceContainer else colorScheme.surface
@@ -596,43 +618,166 @@ private fun ThemePreviewCardMiuix(
                         )
                     }
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(45.dp)
-                            .padding(horizontal = 8.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(accentCardColor)
-                    )
-
-                    BoxWithConstraints(modifier = Modifier.weight(1f)) {
-                        val smallCardHeight = 12.dp
-                        val smallCardCount = when {
-                            maxHeight >= 96.dp -> 2
-                            maxHeight >= 72.dp -> 1
-                            else -> 0
-                        }
-                        Column(
+                    if (modernBento) {
+                        Box(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 8.dp, vertical = 6.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                                .fillMaxWidth()
+                                .height(38.dp)
+                                .padding(horizontal = 8.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(accentCardColor)
+                                .padding(horizontal = 8.dp),
+                            contentAlignment = Alignment.CenterStart
                         ) {
-                            Box(
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(28.dp)
+                                        .height(6.dp)
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(accentTextColor.copy(alpha = 0.5f))
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .clip(RoundedCornerShape(2.dp))
+                                        .background(accentTextColor.copy(alpha = 0.35f))
+                                )
+                            }
+                        }
+
+                        BoxWithConstraints(modifier = Modifier.weight(1f)) {
+                            val showSpecs = maxHeight >= 80.dp
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(cardColor)
-                            )
-                            repeat(smallCardCount) {
+                                    .fillMaxSize()
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(26.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(cardColor)
+                                            .padding(3.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(8.dp)
+                                                .clip(RoundedCornerShape(2.dp))
+                                                .background(textColor.copy(alpha = 0.1f))
+                                        )
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(26.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(cardColor)
+                                            .padding(3.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(8.dp)
+                                                .clip(RoundedCornerShape(2.dp))
+                                                .background(textColor.copy(alpha = 0.1f))
+                                        )
+                                    }
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(26.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(cardColor)
+                                            .padding(3.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(8.dp)
+                                                .clip(RoundedCornerShape(2.dp))
+                                                .background(textColor.copy(alpha = 0.1f))
+                                        )
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(26.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(cardColor)
+                                            .padding(3.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(8.dp)
+                                                .clip(RoundedCornerShape(2.dp))
+                                                .background(textColor.copy(alpha = 0.1f))
+                                        )
+                                    }
+                                }
+                                if (showSpecs) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(cardColor)
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(45.dp)
+                                .padding(horizontal = 8.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(accentCardColor)
+                        )
+
+                        BoxWithConstraints(modifier = Modifier.weight(1f)) {
+                            val smallCardHeight = 12.dp
+                            val smallCardCount = when {
+                                maxHeight >= 96.dp -> 2
+                                maxHeight >= 72.dp -> 1
+                                else -> 0
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(smallCardHeight)
+                                        .weight(1f)
                                         .clip(RoundedCornerShape(6.dp))
                                         .background(cardColor)
                                 )
+                                repeat(smallCardCount) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(smallCardHeight)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(cardColor)
+                                    )
+                                }
                             }
                         }
                     }

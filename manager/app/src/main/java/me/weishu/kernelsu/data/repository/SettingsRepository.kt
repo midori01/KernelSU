@@ -11,6 +11,7 @@ interface SettingsRepository {
     var colorStyle: String
     var colorSpec: String
     var appIconMode: Int
+    var modernBento: Boolean
     var classicUi: Boolean
     var showSwitchIcon: Boolean
     var scrollAnimation: Boolean

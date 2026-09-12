@@ -286,6 +286,7 @@
     <string name="enable_adb_summary">USB デバッグを強制し、adb 認証を無効にします。必要でなければ有効にしないでください。</string>
     <string name="advanced_options">詳細オプション</string>
     <string name="expand">展開</string>
+    <string name="collapse">折りたたむ</string>
     <string name="download_channel_name">モジュールのダウンロード</string>
     <string name="download_progress_title">%s をダウンロード中</string>
     <string name="download_complete_title">ダウンロード完了</string>
@@ -463,4 +464,23 @@
     <string name="payload_incremental_partition_notice">差分パッチのみ</string>
     <string name="payload_incremental_cannot_extract">差分パーティションは元のファームウェアイメージなしでは展開できません。</string>
     <string name="payload_tap_to_copy">タップしてコピー</string>
+
+    <!-- Home Bento Dashboard -->
+    <string name="bento_active_superusers">有効なスーパーユーザー</string>
+    <string name="bento_active_modules">有効なモジュール</string>
+    <string name="bento_kernel_tool">クイックカーネルツール</string>
+    <string name="bento_system_health">システム状態</string>
+    <string name="bento_system_healthy">正常に稼働中</string>
+    <string name="bento_no_crashes">未読のパニックはありません</string>
+    <string name="bento_crash_detected">カーネルパニックを検出</string>
+    <string name="bento_view_panic">タップしてパニックログを確認</string>
+    <string name="bento_device_specs">ハードウェア・システム情報</string>
+    <string name="bento_manage_install">インストール / 管理</string>
+    <string name="bento_copy_report">診断レポートをコピー</string>
+    <string name="bento_report_copied">診断レポートをクリップボードにコピーしました</string>
+    <string name="bento_smart_pill_panic">カーネルパニックを検出しました。タップして分析</string>
+    <string name="bento_smart_pill_update">MidoriSU %1$s の更新が利用可能です</string>
+    <string name="bento_smart_pill_driver_update">KSU ドライバー %1$s の更新が利用可能です</string>
+    <string name="settings_modern_bento">モダン Bento ダッシュボード</string>
+    <string name="settings_modern_bento_summary">ホーム画面にモジュール式 Bento タイルとカードダッシュボードを使用</string>
 </resources>

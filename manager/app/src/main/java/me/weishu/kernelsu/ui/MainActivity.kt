@@ -102,6 +102,7 @@ import me.weishu.kernelsu.ui.screen.crashlog.CrashLogScreen
 import me.weishu.kernelsu.ui.screen.payload.PayloadScreen
 import me.weishu.kernelsu.ui.theme.KernelSUTheme
 import me.weishu.kernelsu.ui.theme.LocalClassicUi
+import me.weishu.kernelsu.ui.theme.LocalModernBento
 import me.weishu.kernelsu.ui.theme.LocalColorMode
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.theme.LocalEnableFloatingBottomBar
@@ -199,6 +200,7 @@ open class MainActivity : ComponentActivity() {
                 LocalShowSwitchIcon provides appSettings.showSwitchIcon,
                 LocalScrollAnimation provides appSettings.scrollAnimation,
                 LocalClassicUi provides appSettings.classicUi,
+                LocalModernBento provides appSettings.modernBento,
                 LocalKernelTool provides uiState.bottomBarKernelTool,
             ) {
                 KernelSUTheme(appSettings = appSettings, uiMode = uiMode) {

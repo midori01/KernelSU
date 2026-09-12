@@ -328,6 +328,7 @@
     <string name="enable_adb_summary">Force enable USB debugging and disable adb authentication. Do not enable this unless absolutely necessary.</string>
     <string name="advanced_options">Advanced Options</string>
     <string name="expand">Expand</string>
+    <string name="collapse">Collapse</string>
     <string name="download_channel_name">Module Downloads</string>
     <string name="download_progress_title">Downloading %s</string>
     <string name="download_complete_title">Download complete</string>
@@ -483,4 +484,23 @@
     <string name="payload_incremental_partition_notice">Differential patch only</string>
     <string name="payload_incremental_cannot_extract">Incremental partitions cannot be extracted without the base firmware image.</string>
     <string name="payload_tap_to_copy">Tap to copy</string>
+
+    <!-- Home Bento Dashboard -->
+    <string name="bento_active_superusers">Active Superusers</string>
+    <string name="bento_active_modules">Active Modules</string>
+    <string name="bento_kernel_tool">Quick Kernel Tool</string>
+    <string name="bento_system_health">System Health</string>
+    <string name="bento_system_healthy">Running Smoothly</string>
+    <string name="bento_no_crashes">No unread panic</string>
+    <string name="bento_crash_detected">Panic Detected</string>
+    <string name="bento_view_panic">Tap to inspect panic trace</string>
+    <string name="bento_device_specs">Hardware &amp; System Specs</string>
+    <string name="bento_manage_install">Install / Manage</string>
+    <string name="bento_copy_report">Copy Report</string>
+    <string name="bento_report_copied">Diagnostic summary copied to clipboard</string>
+    <string name="bento_smart_pill_panic">Kernel panic log detected, tap to analyze</string>
+    <string name="bento_smart_pill_update">MidoriSU %1$s update available</string>
+    <string name="bento_smart_pill_driver_update">KSU Driver %1$s update available</string>
+    <string name="settings_modern_bento">Modern Bento Dashboard</string>
+    <string name="settings_modern_bento_summary">Use modular Bento tiles and card dashboard for home screen</string>
 </resources>

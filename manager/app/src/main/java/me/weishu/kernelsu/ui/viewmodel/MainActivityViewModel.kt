@@ -63,6 +63,7 @@ class MainActivityViewModel(
             "color_style",
             "color_spec",
             "app_icon_mode",
+            "modern_bento",
             "classic_ui",
             "show_switch_icon",
             "scroll_animation",
