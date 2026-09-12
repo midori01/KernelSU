@@ -35,6 +35,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             val checkUpdate = repo.checkUpdate
             val checkModuleUpdate = repo.checkModuleUpdate
+            val checkKsuDriverUpdate = repo.checkKsuDriverUpdate
             val themeMode = repo.themeMode
             val miuixMonet = repo.miuixMonet
             val keyColor = repo.keyColor
@@ -85,6 +86,7 @@ class SettingsViewModel(
                     uiMode = uiMode,
                     checkUpdate = checkUpdate,
                     checkModuleUpdate = checkModuleUpdate,
+                    checkKsuDriverUpdate = checkKsuDriverUpdate,
                     themeMode = themeMode,
                     miuixMonet = miuixMonet,
                     keyColor = keyColor,
@@ -164,6 +166,11 @@ class SettingsViewModel(
     fun setCheckModuleUpdate(enabled: Boolean) {
         repo.checkModuleUpdate = enabled
         _uiState.update { it.copy(checkModuleUpdate = enabled) }
+    }
+
+    fun setCheckKsuDriverUpdate(enabled: Boolean) {
+        repo.checkKsuDriverUpdate = enabled
+        _uiState.update { it.copy(checkKsuDriverUpdate = enabled) }
     }
 
     fun setThemeMode(mode: Int) {

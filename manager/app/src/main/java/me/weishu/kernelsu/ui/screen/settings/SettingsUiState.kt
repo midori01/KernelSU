@@ -10,6 +10,7 @@ data class SettingsUiState(
     val uiMode: String = UiMode.DEFAULT_VALUE,
     val checkUpdate: Boolean = true,
     val checkModuleUpdate: Boolean = true,
+    val checkKsuDriverUpdate: Boolean = true,
     val themeMode: Int = 0,
     val miuixMonet: Boolean = false,
     val keyColor: Int = 0,
@@ -73,6 +74,7 @@ data class SettingsUiState(
 data class SettingsScreenActions(
     val onSetCheckUpdate: (Boolean) -> Unit,
     val onSetCheckModuleUpdate: (Boolean) -> Unit,
+    val onSetCheckKsuDriverUpdate: (Boolean) -> Unit,
     val onOpenTheme: () -> Unit,
     val onSetUiModeIndex: (Int) -> Unit,
     val onOpenProfileTemplate: () -> Unit,
