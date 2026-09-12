@@ -131,6 +131,8 @@
     <string name="settings_kernelsu_toolkit_summary">KernelSU 的附加功能。</string>
     <string name="settings_kpatch_next">KPatch Next</string>
     <string name="settings_kpatch_next_summary">KPM 支持的独立实现。</string>
+    <string name="settings_susfs4ksu">SUSFS for KernelSU</string>
+    <string name="settings_susfs4ksu_summary">管理 SUSFS 配置。</string>
     <string name="settings_profile_template">App Profile 模板</string>
     <string name="settings_profile_template_summary">管理本地和在线的 App Profile 模板</string>
     <string name="app_profile_template_create">创建模板</string>

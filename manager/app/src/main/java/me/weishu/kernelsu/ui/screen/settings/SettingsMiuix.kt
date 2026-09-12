@@ -45,6 +45,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -260,6 +261,22 @@ fun SettingPagerMiuix(
                                     },
                                     onClick = {
                                         actions.onOpenWebUi("KPatch-Next", "KPatch-Next")
+                                    }
+                                )
+                            if (uiState.isSusfsInstalled) {
+                                ArrowPreference(
+                                    title = stringResource(R.string.settings_susfs4ksu),
+                                    summary = stringResource(R.string.settings_susfs4ksu_summary),
+                                    startAction = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_sus),
+                                            modifier = Modifier.padding(end = 6.dp),
+                                            contentDescription = stringResource(id = R.string.settings_susfs4ksu),
+                                            tint = colorScheme.onBackground
+                                        )
+                                    },
+                                    onClick = {
+                                        actions.onOpenWebUi("susfs4ksu", "SUSFS for KernelSU")
                                     }
                                 )
                             }

@@ -54,6 +54,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -225,6 +226,27 @@ fun SettingPagerMaterial(
                                     Icon(
                                         Icons.Filled.Build,
                                         stringResource(R.string.settings_kpatch_next)
+                                    )
+                                },
+                                trailingContent = {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        null
+                                    )
+                                }
+                            )
+                        }
+                        if (uiState.isSusfsInstalled) add {
+                            SegmentedListItem(
+                                onClick = {
+                                    actions.onOpenWebUi("susfs4ksu", "SUSFS for KernelSU")
+                                },
+                                headlineContent = { Text(stringResource(R.string.settings_susfs4ksu)) },
+                                supportingContent = { Text(stringResource(R.string.settings_susfs4ksu_summary)) },
+                                leadingContent = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_sus),
+                                        contentDescription = stringResource(R.string.settings_susfs4ksu)
                                     )
                                 },
                                 trailingContent = {
