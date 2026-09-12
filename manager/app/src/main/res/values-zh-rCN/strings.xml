@@ -327,4 +327,7 @@
     <string name="nav_rail_collapse">收起导航栏</string>
     <string name="settings_navigation_badge">导航栏角标</string>
     <string name="settings_navigation_badge_summary">在导航栏显示已授权应用和已启用模块数量</string>
+    <string name="kallsyms_title">内核符号表</string>
+    <string name="kallsyms_search">搜索内核符号…</string>
+    <string name="share">分享</string>
 </resources>
