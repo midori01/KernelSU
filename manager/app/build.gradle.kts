@@ -78,7 +78,6 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             externalNativeBuild {
                 cmake {
-                    arguments += "-DDEBUG_SYMBOLS_PATH=${layout.buildDirectory.get().asFile.absolutePath}/symbols"
                     arguments += "-DCMAKE_BUILD_TYPE=Release"
 
                     val releaseFlags = listOf(
