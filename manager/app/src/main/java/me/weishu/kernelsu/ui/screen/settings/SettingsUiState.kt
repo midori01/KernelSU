@@ -46,6 +46,9 @@ data class SettingsUiState(
     val selinuxHideStatus: String = "",
     val isSelinuxHideEnabled: Boolean = false,
 
+    // SELinux Mode
+    val isSelinuxEnforcing: Boolean = true,
+
     // SU Log
     val sulogStatus: String = "",
     val isSulogEnabled: Boolean = false,
@@ -82,6 +85,7 @@ data class SettingsScreenActions(
     val onSetSuCompatMode: (Int) -> Unit,
     val onSetKernelUmountEnabled: (Boolean) -> Unit,
     val onSetSelinuxHideEnabled: (Boolean) -> Unit,
+    val onSetSelinuxEnforcing: (Boolean) -> Unit,
     val onSetSulogEnabled: (Boolean) -> Unit,
     val onSetAdbRootEnabled: (Boolean) -> Unit,
     val onSetAvcSpoofEnabled: (Boolean) -> Unit,

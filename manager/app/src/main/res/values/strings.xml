@@ -231,6 +231,7 @@
     <string name="settings_selinux_hide_summary">Prevent applications from detecting SELinux modifications</string>
     <string name="settings_selinux_hide_reboot_required">Reboot to take effect</string>
     <string name="settings_selinux_hide_failed">Error: %d</string>
+    <string name="settings_selinux_enforcing">SELinux mode switch</string>
     <string name="settings_sulog">SU Log</string>
     <string name="settings_sulog_summary">Record Root-related events into KernelSU sulog files</string>
     <string name="settings_avc_spoof">Avc log spoofing</string>
