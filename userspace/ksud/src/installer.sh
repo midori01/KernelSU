@@ -1,6 +1,6 @@
 #!/system/bin/sh
 ############################################
-# KernelSU installer script
+# MidoriSU installer script
 # mostly from module_installer.sh
 # and util_functions.sh in Magisk
 ############################################
@@ -403,7 +403,7 @@ install_module() {
     set_permissions
   else
     print_title "$MODNAME" "by $MODAUTH"
-    print_title "Powered by KernelSU"
+    print_title "Powered by MidoriSU"
 
     unzip -o "$ZIPFILE" customize.sh -d $MODPATH >&2
 
