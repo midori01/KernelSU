@@ -56,7 +56,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.rounded.AspectRatio
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DesignServices
-import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.Style
 import androidx.compose.material.icons.rounded.ToggleOn
@@ -158,7 +157,6 @@ fun ColorPaletteScreenMaterial(
                 paletteStyle = colorStyle,
                 colorSpec = colorSpec,
                 appIconMode = uiState.appIconMode,
-                classicUi = uiState.classicUi,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -353,16 +351,6 @@ fun ColorPaletteScreenMaterial(
                     content = listOf(
                         {
                             SegmentedSwitchItem(
-                                icon = Icons.Rounded.Home,
-                                title = stringResource(R.string.settings_classic_home_ui),
-                                checked = uiState.classicUi,
-                                onCheckedChange = {
-                                    actions.onSetClassicUi(it)
-                                }
-                            )
-                        },
-                        {
-                            SegmentedSwitchItem(
                                 icon = Icons.Rounded.ToggleOn,
                                 title = stringResource(R.string.settings_switch_icon),
                                 checked = uiState.showSwitchIcon,
@@ -479,7 +467,6 @@ private fun ThemePreviewCard(
     paletteStyle: PaletteStyle = PaletteStyle.TonalSpot,
     colorSpec: ColorSpec.SpecVersion = ColorSpec.SpecVersion.SPEC_2025,
     appIconMode: Int = 0,
-    classicUi: Boolean = false,
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.toFloat()
@@ -543,25 +530,23 @@ private fun ThemePreviewCard(
                             containerColor = colorScheme.secondaryContainer,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(if (classicUi) 64.dp else 24.dp),
-                            shape = RoundedCornerShape(if (classicUi) 8.dp else 6.dp),
+                                .height(24.dp),
+                            shape = RoundedCornerShape(6.dp),
                             content = { }
                         )
-                        if (!classicUi) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                repeat(3) {
-                                    TonalCard(
-                                        containerColor = colorScheme.surfaceBright,
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(24.dp),
-                                        shape = RoundedCornerShape(6.dp),
-                                        content = { }
-                                    )
-                                }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            repeat(3) {
+                                TonalCard(
+                                    containerColor = colorScheme.surfaceBright,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(24.dp),
+                                    shape = RoundedCornerShape(6.dp),
+                                    content = { }
+                                )
                             }
                         }
                         if (showInfoCard) {
