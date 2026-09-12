@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name_official" translatable="false">KernelSU</string>
+    <string name="app_name_midorisu" translatable="false">MidoriSU</string>
+    <string name="app_name_kowsu" translatable="false">KowSU</string>
     <string name="home">Home</string>
     <string name="home_not_installed">Not installed</string>
     <string name="home_click_to_install">Tap to install</string>
     <string name="home_working">Working</string>
+    <string name="home_driver">Driver</string>
     <string name="home_working_version">Version: %s</string>
     <string name="home_lkm_update_available">A newer bundled LKM is available. Tap to update.</string>
     <string name="home_lkm_custom">Custom</string>
@@ -16,6 +19,19 @@
     <string name="home_kernel">Kernel version</string>
     <string name="home_manager_version">Manager version</string>
     <string name="home_fingerprint">Fingerprint</string>
+    <string name="home_android_version">Android version</string>
+    <string name="home_security_patch">Security patch level</string>
+    <string name="home_hook_type">Hook type</string>
+    <string name="hook_manual">Manual</string>
+    <string name="hook_hybrid">Hybrid</string>
+    <string name="hook_kprobes">Kprobes</string>
+    <string name="hook_tracepoint">Tracepoint Syscall Redirect</string>
+    <string name="hook_inline">Inline</string>
+    <string name="hook_syscall_tamper">Syscall Table Tampering</string>
+    <string name="hook_bl_hijack">Inline Call Site Hijacking</string>
+    <string name="hook_manual_susfs">De-inlined SUSFS / Manual</string>
+    <string name="hook_hybrid_susfs">De-inlined SUSFS / Hybrid</string>
+    <string name="hook_deinlined_susfs">De-inlined SUSFS</string>
     <string name="home_selinux_status">SELinux status</string>
     <string name="selinux_status_disabled">Disabled</string>
     <string name="selinux_status_enforcing">Enforcing</string>
@@ -27,6 +43,10 @@
     <string name="seccomp_status_strict">Strict</string>
     <string name="seccomp_status_filter">Filter</string>
     <string name="seccomp_status_unknown">Unknown</string>
+    <string name="home_susfs_version">SUSFS version</string>
+    <string name="home_droidspaces_version">Droidspaces version</string>
+    <string name="home_rekernel_version">Re:Kernel version</string>
+    <string name="home_rekernel_x_version">Re:Kernel-X version</string>
     <string name="superuser">Superuser</string>
     <string name="sulog_log_files">Log files</string>
     <string name="sulog_failed_to_load">Failed to load SU log</string>
@@ -42,6 +62,7 @@
     <string name="module_failed_to_enable">Failed to enable module: %s</string>
     <string name="module_failed_to_disable">Failed to disable module: %s</string>
     <string name="module_empty">No module installed</string>
+    <string name="kernel_modules">Kmod</string>
     <string name="module">Module</string>
     <string name="module_install_prompt_with_name">The following modules will be installed: %1$s</string>
     <string name="module_sort_action_first">Action first</string>
