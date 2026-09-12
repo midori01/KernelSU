@@ -342,6 +342,10 @@
     <string name="kconfig_title">内核配置</string>
     <string name="kconfig_search">搜索内核配置…</string>
     <string name="share">分享</string>
+    <string name="backup_boot">备份 boot.img</string>
+    <string name="backup_boot_summary">从当前活动槽位提取并备份 boot.img 到 /sdcard/Download</string>
+    <string name="flash_boot_img">刷入 boot.img</string>
+    <string name="flash_boot_img_summary">选择一个 boot.img 映像文件刷入</string>
     <string name="anykernel_install_summary">选择一个 AnyKernel3 zip 刷机包刷入</string>
     <string name="install_select_slot">选择刷入槽位</string>
     <string name="slot_active_tag">当前活动</string>
