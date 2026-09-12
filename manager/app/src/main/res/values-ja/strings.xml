@@ -420,4 +420,47 @@
     <string name="crash_select_source">ログソース</string>
     <string name="crash_error_title">クラッシュログの読み込みに失敗しました</string>
     <string name="select_bottom_bar_tool">カーネルツールを選択</string>
+
+    <!-- Payload Extract -->
+    <string name="payload_extract_title">イメージ抽出</string>
+    <string name="bottom_bar_tool_tip">長押しでカーネルツールを切り替え</string>
+    <string name="payload_select_file">ローカル ZIP を選択</string>
+    <string name="payload_enter_url">OTA URL を入力</string>
+    <string name="payload_url_dialog_title">リモート OTA URL</string>
+    <string name="payload_url_dialog_hint">https://.../full_ota.zip または payload.bin</string>
+    <string name="payload_empty_title">パッケージが未読み込みです</string>
+    <string name="payload_empty_desc">ローカルの OTA パッケージ (zip / payload.bin) を選択するか、リモート URL を入力してパーティションイメージを抽出します</string>
+    <string name="payload_paste">貼り付け</string>
+    <string name="payload_search_partitions">パーティションを検索…</string>
+    <string name="payload_extract_all">すべて抽出</string>
+    <string name="payload_output_dir">保存先: %1$s</string>
+    <string name="payload_extract">抽出</string>
+    <string name="payload_extracting">抽出中…</string>
+    <string name="payload_extracted">抽出済み</string>
+    <string name="payload_kernel_build_info">カーネルビルド情報</string>
+    <string name="payload_arb_info">ロールバック防止 (ARB) 情報</string>
+    <string name="payload_partition_detail">パーティション詳細</string>
+    <string name="payload_size">サイズ: %1$s</string>
+    <string name="payload_hash">SHA-256 ハッシュ</string>
+    <string name="payload_operations">操作ブロック数: %1$d</string>
+    <string name="payload_copy">コピー</string>
+    <string name="payload_copy_success">クリップボードにコピーしました</string>
+    <string name="payload_parsing">Payload を解析中…</string>
+    <string name="payload_error_title">抽出エラー</string>
+    <string name="payload_output_toast">%1$s に保存しました</string>
+    <string name="payload_arb_not_found">このイメージにはロールバック防止 (ARB) メタデータが見つかりません</string>
+    <string name="payload_kernel_not_found">このイメージには Linux カーネルバージョン情報が見つかりません</string>
+    <string name="payload_clear_file">パッケージを削除</string>
+    <string name="payload_kernel_version">カーネルバージョン</string>
+    <string name="payload_kernel_toolchain">コンパイラ・ツールチェーン</string>
+    <string name="payload_kernel_build_time">ビルド時間</string>
+    <string name="payload_kernel_raw_banner">完全な Linux バージョン情報</string>
+    <string name="payload_arb_index">ロールバック防止 (ARB) インデックス</string>
+    <string name="payload_arb_desc">Qualcomm ロールバック防止インデックス</string>
+    <string name="payload_arb_oem_metadata">OEM メタデータ</string>
+    <string name="payload_incremental_badge">差分 OTA</string>
+    <string name="payload_incremental_warning">このファイルは差分（インクリメンタル）OTA パッケージです。元のファームウェアイメージがないため、パーティションの展開やカーネル/ARBの解析は行えません。</string>
+    <string name="payload_incremental_partition_notice">差分パッチのみ</string>
+    <string name="payload_incremental_cannot_extract">差分パーティションは元のファームウェアイメージなしでは展開できません。</string>
+    <string name="payload_tap_to_copy">タップしてコピー</string>
 </resources>

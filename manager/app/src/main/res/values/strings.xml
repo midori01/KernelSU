@@ -440,4 +440,47 @@
     <string name="crash_select_source">Crash log sources</string>
     <string name="crash_error_title">Failed to load crash log</string>
     <string name="select_bottom_bar_tool">Select Kernel Tool</string>
+
+    <!-- Payload Extract -->
+    <string name="payload_extract_title">Payload</string>
+    <string name="bottom_bar_tool_tip">Long press to switch kernel tools</string>
+    <string name="payload_select_file">Select Local ZIP</string>
+    <string name="payload_enter_url">Enter OTA URL</string>
+    <string name="payload_url_dialog_title">Remote OTA URL</string>
+    <string name="payload_url_dialog_hint">https://.../full_ota.zip or payload.bin</string>
+    <string name="payload_empty_title">No OTA package loaded</string>
+    <string name="payload_empty_desc">Select a local Full OTA zip / payload.bin or enter a remote URL to extract partition images</string>
+    <string name="payload_paste">Paste</string>
+    <string name="payload_search_partitions">Search partitions…</string>
+    <string name="payload_extract_all">Extract All</string>
+    <string name="payload_output_dir">Output: %1$s</string>
+    <string name="payload_extract">Extract</string>
+    <string name="payload_extracting">Extracting…</string>
+    <string name="payload_extracted">Extracted</string>
+    <string name="payload_kernel_build_info">Kernel Build Info</string>
+    <string name="payload_arb_info">Anti-Rollback (ARB) Info</string>
+    <string name="payload_partition_detail">Partition Details</string>
+    <string name="payload_size">Size: %1$s</string>
+    <string name="payload_hash">SHA-256 Hash</string>
+    <string name="payload_operations">Operations: %1$d</string>
+    <string name="payload_copy">Copy</string>
+    <string name="payload_copy_success">Copied to clipboard</string>
+    <string name="payload_parsing">Parsing payload…</string>
+    <string name="payload_error_title">Operation Error</string>
+    <string name="payload_output_toast">Saved to %1$s</string>
+    <string name="payload_arb_not_found">No Anti-Rollback (ARB) metadata found in this image</string>
+    <string name="payload_kernel_not_found">No Linux version string found in this image</string>
+    <string name="payload_clear_file">Clear selected package</string>
+    <string name="payload_kernel_version">Kernel Version</string>
+    <string name="payload_kernel_toolchain">Compiler / Toolchain</string>
+    <string name="payload_kernel_build_time">Build Time</string>
+    <string name="payload_kernel_raw_banner">Complete Linux Banner</string>
+    <string name="payload_arb_index">Anti-Rollback (ARB) Index</string>
+    <string name="payload_arb_desc">Qualcomm Rollback Prevention Index</string>
+    <string name="payload_arb_oem_metadata">OEM Metadata</string>
+    <string name="payload_incremental_badge">Incremental OTA</string>
+    <string name="payload_incremental_warning">This is an incremental OTA package. It contains only differential patches and cannot be extracted or inspected without the base device firmware.</string>
+    <string name="payload_incremental_partition_notice">Differential patch only</string>
+    <string name="payload_incremental_cannot_extract">Incremental partitions cannot be extracted without the base firmware image.</string>
+    <string name="payload_tap_to_copy">Tap to copy</string>
 </resources>

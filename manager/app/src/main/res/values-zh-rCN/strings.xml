@@ -433,4 +433,47 @@
     <string name="crash_select_source">日志来源</string>
     <string name="crash_error_title">加载崩溃日志失败</string>
     <string name="select_bottom_bar_tool">选择内核工具</string>
+
+    <!-- Payload Extract -->
+    <string name="payload_extract_title">镜像提取</string>
+    <string name="bottom_bar_tool_tip">长按可切换内核工具</string>
+    <string name="payload_select_file">选择本地 ZIP</string>
+    <string name="payload_enter_url">输入 OTA 链接</string>
+    <string name="payload_url_dialog_title">远程 OTA 链接</string>
+    <string name="payload_url_dialog_hint">https://.../full_ota.zip 或 payload.bin</string>
+    <string name="payload_empty_title">尚未加载 OTA 刷机包</string>
+    <string name="payload_empty_desc">选择本地全量 OTA 压缩包 / payload.bin 或输入远程链接以提取分区镜像</string>
+    <string name="payload_paste">粘贴</string>
+    <string name="payload_search_partitions">搜索分区…</string>
+    <string name="payload_extract_all">全部提取</string>
+    <string name="payload_output_dir">输出目录：%1$s</string>
+    <string name="payload_extract">提取</string>
+    <string name="payload_extracting">正在提取…</string>
+    <string name="payload_extracted">已提取</string>
+    <string name="payload_kernel_build_info">内核构建信息</string>
+    <string name="payload_arb_info">防回滚 (ARB) 信息</string>
+    <string name="payload_partition_detail">分区详情</string>
+    <string name="payload_size">大小：%1$s</string>
+    <string name="payload_hash">SHA-256 校验码</string>
+    <string name="payload_operations">操作块数：%1$d</string>
+    <string name="payload_copy">复制</string>
+    <string name="payload_copy_success">已复制到剪贴板</string>
+    <string name="payload_parsing">正在解析 payload…</string>
+    <string name="payload_error_title">操作失败</string>
+    <string name="payload_output_toast">已保存至 %1$s</string>
+    <string name="payload_arb_not_found">未在此镜像中找到防回滚 (ARB) 元数据</string>
+    <string name="payload_kernel_not_found">未在此镜像中找到 Linux 内核版本信息</string>
+    <string name="payload_clear_file">移除选择的包</string>
+    <string name="payload_kernel_version">内核版本</string>
+    <string name="payload_kernel_toolchain">编译器与工具链</string>
+    <string name="payload_kernel_build_time">构建时间</string>
+    <string name="payload_kernel_raw_banner">完整 Linux 版本信息</string>
+    <string name="payload_arb_index">防回滚 (ARB) 索引</string>
+    <string name="payload_arb_desc">高通防回滚机制索引</string>
+    <string name="payload_arb_oem_metadata">OEM 元数据</string>
+    <string name="payload_incremental_badge">增量 OTA 包</string>
+    <string name="payload_incremental_warning">检测到此文件为增量/差分 OTA 包。仅包含针对旧版本的补丁差分，缺少基底固件镜像，无法独立提取分区或分析内核/ARB。</string>
+    <string name="payload_incremental_partition_notice">仅包含差分补丁</string>
+    <string name="payload_incremental_cannot_extract">增量差分分区无法脱离基底镜像独立提取。</string>
+    <string name="payload_tap_to_copy">点击复制</string>
 </resources>

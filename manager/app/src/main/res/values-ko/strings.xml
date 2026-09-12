@@ -425,4 +425,47 @@
     <string name="crash_select_source">로그 소스</string>
     <string name="crash_error_title">크래시 로그 불러오기 실패</string>
     <string name="select_bottom_bar_tool">커널 도구 선택</string>
+
+    <!-- Payload Extract -->
+    <string name="payload_extract_title">이미지 추출</string>
+    <string name="bottom_bar_tool_tip">길게 눌러 커널 도구 전환</string>
+    <string name="payload_select_file">로컬 ZIP 선택</string>
+    <string name="payload_enter_url">OTA URL 입력</string>
+    <string name="payload_url_dialog_title">원격 OTA URL</string>
+    <string name="payload_url_dialog_hint">https://.../full_ota.zip 또는 payload.bin</string>
+    <string name="payload_empty_title">불러온 패키지가 없습니다</string>
+    <string name="payload_empty_desc">로컬 OTA 패키지(zip / payload.bin)를 선택하거나 원격 URL을 입력하여 파티션 이미지를 추출합니다</string>
+    <string name="payload_paste">붙여넣기</string>
+    <string name="payload_search_partitions">파티션 검색…</string>
+    <string name="payload_extract_all">모두 추출</string>
+    <string name="payload_output_dir">저장 위치: %1$s</string>
+    <string name="payload_extract">추출</string>
+    <string name="payload_extracting">추출 중…</string>
+    <string name="payload_extracted">추출 완료</string>
+    <string name="payload_kernel_build_info">커널 빌드 정보</string>
+    <string name="payload_arb_info">롤백 방지 (ARB) 정보</string>
+    <string name="payload_partition_detail">파티션 세부정보</string>
+    <string name="payload_size">크기: %1$s</string>
+    <string name="payload_hash">SHA-256 해시</string>
+    <string name="payload_operations">작업 블록 수: %1$d</string>
+    <string name="payload_copy">복사</string>
+    <string name="payload_copy_success">클립보드에 복사되었습니다</string>
+    <string name="payload_parsing">Payload 분석 중…</string>
+    <string name="payload_error_title">추출 실패</string>
+    <string name="payload_output_toast">%1$s에 저장되었습니다</string>
+    <string name="payload_arb_not_found">이 이미지에서 롤백 방지 (ARB) 메타데이터를 찾을 수 없습니다</string>
+    <string name="payload_kernel_not_found">이 이미지에서 Linux 커널 버전 정보를 찾을 수 없습니다</string>
+    <string name="payload_clear_file">패키지 제거</string>
+    <string name="payload_kernel_version">커널 버전</string>
+    <string name="payload_kernel_toolchain">컴파일러 및 툴체인</string>
+    <string name="payload_kernel_build_time">빌드 시간</string>
+    <string name="payload_kernel_raw_banner">전체 Linux 버전 정보</string>
+    <string name="payload_arb_index">롤백 방지 (ARB) 색인</string>
+    <string name="payload_arb_desc">Qualcomm 롤백 방지 색인</string>
+    <string name="payload_arb_oem_metadata">OEM 메타데이터</string>
+    <string name="payload_incremental_badge">증분 OTA</string>
+    <string name="payload_incremental_warning">이 파일은 증분(차분) OTA 패키지입니다. 원본 펌웨어 이미지가 없으면 파티션 추출 및 커널/ARB 분석을 수행할 수 없습니다.</string>
+    <string name="payload_incremental_partition_notice">차분 패치만 포함됨</string>
+    <string name="payload_incremental_cannot_extract">증분 파티션은 원본 펌웨어 이미지 없이 단독으로 추출할 수 없습니다.</string>
+    <string name="payload_tap_to_copy">탭하여 복사</string>
 </resources>

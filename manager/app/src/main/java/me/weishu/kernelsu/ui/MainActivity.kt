@@ -99,6 +99,7 @@ import me.weishu.kernelsu.ui.screen.kconfig.KconfigScreen
 import me.weishu.kernelsu.ui.screen.kallsyms.KallsymsScreen
 import me.weishu.kernelsu.ui.screen.kernelmodule.KernelModuleScreen
 import me.weishu.kernelsu.ui.screen.crashlog.CrashLogScreen
+import me.weishu.kernelsu.ui.screen.payload.PayloadScreen
 import me.weishu.kernelsu.ui.theme.KernelSUTheme
 import me.weishu.kernelsu.ui.theme.LocalClassicUi
 import me.weishu.kernelsu.ui.theme.LocalColorMode
@@ -253,6 +254,7 @@ open class MainActivity : ComponentActivity() {
                                 entry<Route.Kconfig> { KconfigScreen() }
                                 entry<Route.KernelModule> { KernelModuleScreen() }
                                 entry<Route.CrashLog> { CrashLogScreen() }
+                                entry<Route.PayloadExtract> { PayloadScreen() }
                                 entry<Route.ColorPalette> { ColorPaletteScreen() }
                                 entry<Route.AppProfileTemplate> { AppProfileTemplateScreen() }
                                 entry<Route.TemplateEditor> { key -> TemplateEditorScreen(key.template, key.readOnly) }
@@ -290,7 +292,7 @@ open class MainActivity : ComponentActivity() {
     }
 }
 
-val LocalKernelTool = staticCompositionLocalOf { KernelTool.Kconfig }
+val LocalKernelTool = staticCompositionLocalOf { KernelTool.Payload }
 val LocalMainPagerState = staticCompositionLocalOf<MainPagerState> { error("LocalMainPagerState not provided") }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -517,6 +519,7 @@ fun MainPage(
         0 -> HomePager(navigator, bottomInnerPadding, isCurrentPage)
         1 -> SuperUserPager(navigator, bottomInnerPadding, isCurrentPage)
         2 -> when (LocalKernelTool.current) {
+            KernelTool.Payload -> PayloadScreen(isRootTab = true, bottomInnerPadding = bottomInnerPadding)
             KernelTool.Kconfig -> KconfigScreen(isRootTab = true)
             KernelTool.Dmesg -> DmesgScreen(isRootTab = true)
             KernelTool.CrashLog -> CrashLogScreen(isRootTab = true)

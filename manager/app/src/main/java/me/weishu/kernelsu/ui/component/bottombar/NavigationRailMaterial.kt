@@ -168,7 +168,9 @@ fun NavigationRailMaterial(
         show = showToolSelectDialog,
         currentTool = currentKernelTool,
         onSelected = { tool ->
-            SettingsRepositoryImpl().bottomBarKernelTool = tool.id
+            val repo = SettingsRepositoryImpl()
+            repo.bottomBarKernelTool = tool.id
+            repo.bottomBarToolTipsShown = true
         },
         onDismissRequest = {
             showToolSelectDialog = false
