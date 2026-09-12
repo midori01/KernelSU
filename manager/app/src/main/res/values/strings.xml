@@ -381,4 +381,8 @@
     <string name="restore_profiles_failed">Failed to restore profiles: %s</string>
     <string name="restore_data_invalid">No valid profile backup data found</string>
     <string name="restore_clipboard_invalid">Clipboard does not contain valid profile backup data</string>
+    <string name="export_module_as_zip">Export as ZIP</string>
+    <string name="export_module_success">Module %s exported successfully</string>
+    <string name="export_module_failed">Failed to export module: %s</string>
+    <string name="exporting_module">Exporting module %s…</string>
 </resources>

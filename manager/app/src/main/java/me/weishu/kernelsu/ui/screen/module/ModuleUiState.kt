@@ -78,4 +78,5 @@ data class ModuleActions(
     val onUndoUninstallModule: (Module) -> Unit,
     val onOpenFlash: (List<Uri>) -> Unit,
     val onExecuteModuleAction: (Module) -> Unit,
+    val onExportModule: suspend (Module, Uri) -> Unit,
 )

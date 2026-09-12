@@ -370,4 +370,8 @@
     <string name="restore_profiles_failed">恢复应用配置失败：%s</string>
     <string name="restore_data_invalid">未包含有效的应用配置备份数据</string>
     <string name="restore_clipboard_invalid">剪贴板中未包含有效的应用配置备份数据</string>
+    <string name="export_module_as_zip">导出为 ZIP</string>
+    <string name="export_module_success">模块 %s 导出成功</string>
+    <string name="export_module_failed">导出模块失败：%s</string>
+    <string name="exporting_module">正在导出模块 %s…</string>
 </resources>
