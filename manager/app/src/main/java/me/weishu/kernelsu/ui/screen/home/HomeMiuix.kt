@@ -132,36 +132,6 @@ fun HomePagerMiuix(
                         if (state.checkUpdateEnabled) {
                             UpdateCard(state = state, actions = actions)
                         }
-                        if (state.showManagerPrBuildWarning) {
-                            WarningCard(stringResource(id = R.string.home_pr_build_warning), level = WarningLevel.Notice)
-                        } else if (state.showKernelPrBuildWarning) {
-                            WarningCard(stringResource(id = R.string.home_pr_kernel_warning), level = WarningLevel.Notice)
-                        }
-                        if (state.showGkiWarning) {
-                            WarningCard(stringResource(id = R.string.home_gki_warning), level = WarningLevel.Notice)
-                        }
-                        if (state.requiresNewKernel) {
-                            WarningCard(
-                                stringResource(
-                                    id = if (state.lkmMode == true) R.string.require_kernel_version else R.string.require_kernel_version_gki
-                                ),
-                                onClick = if (state.lkmMode == true) actions.onInstallClick else null
-                            )
-                        }
-                        if (state.requiresNewManager) {
-                            WarningCard(
-                                stringResource(
-                                    id = R.string.require_manager_version
-                                )
-                            )
-                        }
-                        if (state.showLkmUpdate) {
-                            WarningCard(
-                                message = stringResource(R.string.home_lkm_update_available),
-                                level = WarningLevel.Notice,
-                                onClick = actions.onInstallClick,
-                            )
-                        }
                         if (state.showRootWarning) {
                             WarningCard(stringResource(id = R.string.grant_root_failed))
                         }
@@ -341,26 +311,6 @@ private fun StatusCard(
                                             modifier = Modifier.weight(1f, fill = false),
                                             fontSize = 15.sp,
                                         )
-                                        if (state.showCustomLkmBadge) {
-                                            Spacer(Modifier.width(8.dp))
-                                            StatusTag(
-                                                label = state.customLkmBadgeLabel ?: stringResource(R.string.home_lkm_custom),
-                                                contentColor = if (isDynamicColor) {
-                                                    colorScheme.onTertiaryContainer
-                                                } else if (isInDarkTheme()) {
-                                                    Color(0xFFB8E8C5)
-                                                } else {
-                                                    Color(0xFF164A29)
-                                                },
-                                                backgroundColor = if (isDynamicColor) {
-                                                    colorScheme.tertiaryContainer
-                                                } else if (isInDarkTheme()) {
-                                                    Color(0xFF315D3E)
-                                                } else {
-                                                    Color(0xFFB8E8C5)
-                                                },
-                                            )
-                                        }
                                     }
                                 }
                             }
