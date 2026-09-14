@@ -1,22 +1,6 @@
 name: Build ksud with cross
 on:
-  workflow_call:
-    inputs:
-      target:
-        required: true
-        type: string
-      os:
-        required: false
-        type: string
-        default: ubuntu-latest
-      pack_lkm:
-        required: false
-        type: boolean
-        default: false
-      pack_ksuinit:
-        required: false
-        type: boolean
-        default: false
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ${{ inputs.os }}
