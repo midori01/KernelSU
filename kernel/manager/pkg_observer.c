@@ -53,6 +53,9 @@ static void ksu_rename_observer_slow(struct dentry *old_dentry, struct dentry *n
 
 	pr_info("renameat: %s -> %s, new path: %s\n", old_dentry->d_iname, new_dentry->d_iname, buf);
 	track_throne(false);
+#ifdef CONFIG_KSU_SUSFS
+	susfs_parse_priority_app_strings();
+#endif // #ifdef CONFIG_KSU_SUSFS
 	return;
 }
 
@@ -102,6 +105,9 @@ static inline void ksu_rename_observer(struct dentry *old_dentry, struct dentry 
 
 	pr_info("renameat: %s -> %s, /data/system d_inode: 0x%lx \n", old_dentry->d_iname, new_dentry->d_iname, system_dir_inode_ptr);
 	track_throne(false);
+#ifdef CONFIG_KSU_SUSFS
+	susfs_parse_priority_app_strings();
+#endif // #ifdef CONFIG_KSU_SUSFS
 	return;
 
 slow_path:
