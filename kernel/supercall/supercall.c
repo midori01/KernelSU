@@ -106,6 +106,13 @@ int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user 
 		return 0;
 	}
 
+#define KSU_GET_LKM_VARIANT 20000
+	if (magic2 == KSU_GET_LKM_VARIANT && is_manager()) {
+		static const char variant[] = "xxKSU";
+		copy_to_user(arg4, variant, sizeof(variant));
+		return 0;
+	}
+
 	toolkit_handle_sys_reboot(magic1, magic2, cmd, arg);
 	return 0;
 }
