@@ -52,6 +52,9 @@ static void ksu_rename_observer_slow(struct dentry *old_dentry, struct dentry *n
 		return;
 
 	pr_info("renameat: %s -> %s, new path: %s\n", old_dentry->d_iname, new_dentry->d_iname, buf);
+#ifdef CONFIG_KSU_SUSFS
+	susfs_parse_priority_app_strings();
+#endif // #ifdef CONFIG_KSU_SUSFS
 	track_throne(false);
 	return;
 }
