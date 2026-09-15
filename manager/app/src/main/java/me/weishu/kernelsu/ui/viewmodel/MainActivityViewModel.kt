@@ -11,6 +11,7 @@ import me.weishu.kernelsu.data.repository.SettingsRepository
 import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
 import me.weishu.kernelsu.ksuApp
 import me.weishu.kernelsu.ui.UiMode
+import me.weishu.kernelsu.ui.component.bottombar.KernelTool
 import me.weishu.kernelsu.ui.theme.ThemeController
 
 class MainActivityViewModel(
@@ -51,6 +52,7 @@ class MainActivityViewModel(
             enableFloatingBottomBarBlur = settingRepo.enableFloatingBottomBarBlur,
             enableNavigationBadge = settingRepo.enableNavigationBadge,
             uiMode = UiMode.fromValue(settingRepo.uiMode),
+            bottomBarKernelTool = KernelTool.fromId(settingRepo.bottomBarKernelTool),
         )
     }
 
@@ -70,6 +72,7 @@ class MainActivityViewModel(
             "enable_floating_bottom_bar_blur",
             "enable_navigation_badge",
             "ui_mode",
+            KernelTool.PREF_KEY,
         )
     }
 }

@@ -94,6 +94,7 @@ import me.weishu.kernelsu.ui.screen.dmesg.DmesgScreen
 import me.weishu.kernelsu.ui.screen.superuser.SuperUserPager
 import me.weishu.kernelsu.ui.screen.template.AppProfileTemplateScreen
 import me.weishu.kernelsu.ui.screen.templateeditor.TemplateEditorScreen
+import me.weishu.kernelsu.ui.component.bottombar.KernelTool
 import me.weishu.kernelsu.ui.screen.kconfig.KconfigScreen
 import me.weishu.kernelsu.ui.screen.kallsyms.KallsymsScreen
 import me.weishu.kernelsu.ui.screen.kernelmodule.KernelModuleScreen
@@ -196,7 +197,8 @@ open class MainActivity : ComponentActivity() {
                 LocalUiMode provides uiMode,
                 LocalShowSwitchIcon provides appSettings.showSwitchIcon,
                 LocalScrollAnimation provides appSettings.scrollAnimation,
-                LocalClassicUi provides appSettings.classicUi
+                LocalClassicUi provides appSettings.classicUi,
+                LocalKernelTool provides uiState.bottomBarKernelTool,
             ) {
                 KernelSUTheme(appSettings = appSettings, uiMode = uiMode) {
                     IntentDispatcher(intentChannel = intentChannel)
@@ -288,6 +290,7 @@ open class MainActivity : ComponentActivity() {
     }
 }
 
+val LocalKernelTool = staticCompositionLocalOf { KernelTool.Kconfig }
 val LocalMainPagerState = staticCompositionLocalOf<MainPagerState> { error("LocalMainPagerState not provided") }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -513,7 +516,13 @@ fun MainPage(
     when (page) {
         0 -> HomePager(navigator, bottomInnerPadding, isCurrentPage)
         1 -> SuperUserPager(navigator, bottomInnerPadding, isCurrentPage)
-        2 -> KconfigScreen()
+        2 -> when (LocalKernelTool.current) {
+            KernelTool.Kconfig -> KconfigScreen(isRootTab = true)
+            KernelTool.Dmesg -> DmesgScreen(isRootTab = true)
+            KernelTool.CrashLog -> CrashLogScreen(isRootTab = true)
+            KernelTool.Kallsyms -> KallsymsScreen(isRootTab = true)
+            KernelTool.KernelModule -> KernelModuleScreen(isRootTab = true)
+        }
         3 -> ModulePager(bottomInnerPadding, isCurrentPage)
         4 -> SettingPager(navigator, bottomInnerPadding, isCurrentPage)
     }
