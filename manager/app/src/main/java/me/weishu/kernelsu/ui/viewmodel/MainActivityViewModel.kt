@@ -50,7 +50,7 @@ class MainActivityViewModel(
             enableBlur = settingRepo.enableBlur,
             enableFloatingBottomBar = settingRepo.enableFloatingBottomBar,
             enableFloatingBottomBarBlur = settingRepo.enableFloatingBottomBarBlur,
-            enableNavigationBadge = settingRepo.enableNavigationBadge,
+            enableModuleUpdateBadge = settingRepo.enableModuleUpdateBadge,
             uiMode = UiMode.fromValue(settingRepo.uiMode),
             bottomBarKernelTool = KernelTool.fromId(settingRepo.bottomBarKernelTool),
         )
@@ -71,7 +71,7 @@ class MainActivityViewModel(
             "enable_blur",
             "enable_floating_bottom_bar",
             "enable_floating_bottom_bar_blur",
-            "enable_navigation_badge",
+            "enable_module_update_badge",
             "ui_mode",
             KernelTool.PREF_KEY,
         )

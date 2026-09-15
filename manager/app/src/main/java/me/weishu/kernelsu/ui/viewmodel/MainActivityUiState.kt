@@ -12,7 +12,7 @@ data class MainActivityUiState(
     val enableBlur: Boolean,
     val enableFloatingBottomBar: Boolean,
     val enableFloatingBottomBarBlur: Boolean,
-    val enableNavigationBadge: Boolean,
+    val enableModuleUpdateBadge: Boolean,
     val uiMode: UiMode,
     val bottomBarKernelTool: KernelTool = KernelTool.Payload,
 )

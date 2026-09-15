@@ -434,19 +434,19 @@ fun ColorPaletteScreenMiuix(
                             )
                         }
                         SwitchPreference(
-                            title = stringResource(id = R.string.settings_navigation_badge),
-                            summary = stringResource(id = R.string.settings_navigation_badge_summary),
+                            title = stringResource(id = R.string.settings_module_update_badge),
+                            summary = stringResource(id = R.string.settings_module_update_badge_summary),
                             startAction = {
                                 Icon(
                                     Icons.Rounded.Pin,
                                     modifier = Modifier.padding(end = 6.dp),
-                                    contentDescription = stringResource(id = R.string.settings_navigation_badge),
+                                    contentDescription = stringResource(id = R.string.settings_module_update_badge),
                                     tint = colorScheme.onBackground
                                 )
                             },
-                            checked = uiState.enableNavigationBadge,
+                            checked = uiState.enableModuleUpdateBadge,
                             onCheckedChange = {
-                                actions.onSetEnableNavigationBadge(it)
+                                actions.onSetEnableModuleUpdateBadge(it)
                             }
                         )
                     }
