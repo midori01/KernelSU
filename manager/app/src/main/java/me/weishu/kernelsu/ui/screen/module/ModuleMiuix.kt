@@ -128,6 +128,7 @@ import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.DropdownImpl
 import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.utils.PressFeedbackType
 import top.yukonga.miuix.kmp.basic.FloatingActionButtonDefaults
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
@@ -849,7 +850,8 @@ fun ModuleItem(
         insideMargin = PaddingValues(16.dp),
         onClick = {
             if (hasDescription) expanded = !expanded
-        }
+        },
+        pressFeedbackType = if (hasDescription) PressFeedbackType.Sink else PressFeedbackType.None,
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),

@@ -27,6 +27,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -100,6 +101,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -130,6 +132,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import me.weishu.kernelsu.R
@@ -138,6 +141,7 @@ import me.weishu.kernelsu.data.model.ModuleUpdateInfo
 import me.weishu.kernelsu.data.repository.isSoftRebootPreferred
 import me.weishu.kernelsu.ui.component.ObserveAsEvents
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
+import me.weishu.kernelsu.ui.component.pressBounce
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.dialog.rememberLoadingDialog
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
@@ -768,27 +772,66 @@ private fun ModuleItem(
     onExecuteAction: () -> Unit,
     closeSearch: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val indication = LocalIndication.current
+    val coroutineScope = rememberCoroutineScope()
+    var pressStartTime by remember { mutableLongStateOf(0L) }
+    var expanded by rememberSaveable(module.id) { mutableStateOf(false) }
+    var isOverflowing by remember { mutableStateOf(false) }
+    val hasWebUi = module.hasWebUi && !module.remove && module.enabled
+    val canExpand = isOverflowing || expanded
+    val currentOnClick by rememberUpdatedState(onClick)
+
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            if (interaction is PressInteraction.Press) {
+                pressStartTime = System.currentTimeMillis()
+            }
+        }
+    }
+
+    val handleWebUiClick = {
+        val elapsed = System.currentTimeMillis() - pressStartTime
+        val remaining = (100L - elapsed).coerceAtLeast(0L)
+        if (remaining > 0L) {
+            coroutineScope.launch {
+                delay(remaining)
+                currentOnClick()
+            }
+        } else {
+            currentOnClick()
+        }
+    }
+
     TonalCard(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .pressBounce(
+                interactionSource = interactionSource,
+                enabled = hasWebUi || canExpand,
+            )
     ) {
         val haptic = LocalHapticFeedback.current
         val textDecoration = if (!module.remove) null else TextDecoration.LineThrough
-        val interactionSource = remember { MutableInteractionSource() }
-        val indication = LocalIndication.current
-        var expanded by rememberSaveable(module.id) { mutableStateOf(false) }
-        var isOverflowing by remember { mutableStateOf(false) }
 
         Column(
             modifier = Modifier
                 .run {
-                    if (module.hasWebUi) {
+                    if (hasWebUi) {
                         toggleable(
                             value = module.enabled,
-                            enabled = !module.remove && module.enabled,
+                            enabled = true,
                             interactionSource = interactionSource,
                             role = Role.Button,
                             indication = indication,
-                            onValueChange = { onClick() }
+                            onValueChange = { handleWebUiClick() }
+                        )
+                    } else if (canExpand) {
+                        clickable(
+                            interactionSource = interactionSource,
+                            role = Role.Button,
+                            indication = indication,
+                            onClick = { expanded = !expanded }
                         )
                     } else {
                         this
