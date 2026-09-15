@@ -149,6 +149,8 @@
     <string name="settings_kernelsu_toolkit_summary">Utility tool for KernelSU extra feature.</string>
     <string name="settings_kpatch_next">KPatch Next</string>
     <string name="settings_kpatch_next_summary">Standalone implementation of KPM support.</string>
+    <string name="settings_susfs4ksu">SUSFS for KernelSU</string>
+    <string name="settings_susfs4ksu_summary">Manage SUSFS configuration.</string>
     <string name="settings_profile_template">App Profile template</string>
     <string name="settings_profile_template_summary">Manage local and online template of App Profile.</string>
     <string name="app_profile_template_create">Create template</string>

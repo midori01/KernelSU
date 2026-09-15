@@ -144,7 +144,9 @@
     <string name="settings_kernelsu_toolkit_summary">KernelSU 추가 기능.</string>
     <string name="settings_kpatch_next">KPatch Next</string>
     <string name="settings_kpatch_next_summary">KPM 지원의 독립형 구현.</string>
+    <string name="settings_susfs4ksu">SUSFS for KernelSU</string>
     <string name="settings_sulog">SU 로그</string>
+    <string name="settings_susfs4ksu_summary">SUSFS 설정을 관리합니다.</string>
     <string name="settings_sulog_summary">root 관련 이벤트를 KernelSU sulog 파일에 기록합니다.</string>
     <string name="settings_profile_template">앱 프로필 템플릿</string>
     <string name="settings_profile_template_summary">로컬 및 온라인의 앱 프로필 템플릿을 관리합니다.</string>

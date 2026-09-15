@@ -130,7 +130,9 @@
     <string name="settings_kernelsu_toolkit_summary">KernelSU 的附加功能。</string>
     <string name="settings_kpatch_next">KPatch Next</string>
     <string name="settings_kpatch_next_summary">KPM 支援的獨立實作。</string>
+    <string name="settings_susfs4ksu">SUSFS for KernelSU</string>
     <string name="settings_sulog">SU 日誌</string>
+    <string name="settings_susfs4ksu_summary">管理 SUSFS 配置。</string>
     <string name="settings_sulog_summary">將 root 相關事件記錄到 KernelSU sulog 檔案中</string>
     <string name="settings_profile_template">App Profile 範本</string>
     <string name="settings_profile_template_summary">管理 App Profile 的本地、線上範本</string>
