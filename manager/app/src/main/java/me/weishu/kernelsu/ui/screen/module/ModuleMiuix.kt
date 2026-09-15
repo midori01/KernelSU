@@ -54,6 +54,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import me.weishu.kernelsu.ui.component.bottombar.RegisterTabReselect
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -281,6 +282,10 @@ fun ModulePagerMiuix(
 
     val listState = rememberLazyListState()
     val searchListState = rememberLazyListState()
+    RegisterTabReselect(3) {
+        val target = if (searchStatus.isExpanded()) searchListState else listState
+        target.animateScrollToItem(0)
+    }
     val refreshTick = remember { mutableIntStateOf(0) }
 
     val backdrop = rememberBlurBackdrop(enableBlur)
