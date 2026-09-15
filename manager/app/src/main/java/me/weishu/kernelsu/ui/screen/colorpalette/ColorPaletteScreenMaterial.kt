@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -54,6 +55,7 @@ import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.Brightness7
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.rounded.AspectRatio
+import androidx.compose.material.icons.rounded.CallToAction
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DesignServices
 import androidx.compose.material.icons.rounded.Pin
@@ -157,6 +159,7 @@ fun ColorPaletteScreenMaterial(
                 paletteStyle = colorStyle,
                 colorSpec = colorSpec,
                 appIconMode = uiState.appIconMode,
+                enableFloatingBottomBar = uiState.enableFloatingBottomBar,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -377,6 +380,14 @@ fun ColorPaletteScreenMaterial(
                     content = listOf(
                         {
                             SegmentedSwitchItem(
+                                icon = Icons.Rounded.CallToAction,
+                                title = stringResource(id = R.string.settings_floating_bottom_bar),
+                                checked = uiState.enableFloatingBottomBar,
+                                onCheckedChange = actions.onSetEnableFloatingBottomBar
+                            )
+                        },
+                        {
+                            SegmentedSwitchItem(
                                 icon = Icons.Rounded.Pin,
                                 title = stringResource(id = R.string.settings_navigation_badge),
                                 summary = stringResource(id = R.string.settings_navigation_badge_summary),
@@ -467,12 +478,13 @@ private fun ThemePreviewCard(
     paletteStyle: PaletteStyle = PaletteStyle.TonalSpot,
     colorSpec: ColorSpec.SpecVersion = ColorSpec.SpecVersion.SPEC_2025,
     appIconMode: Int = 0,
+    enableFloatingBottomBar: Boolean = false,
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.toFloat()
     val screenHeight = configuration.screenHeightDp.toFloat()
     val screenRatio = screenWidth / screenHeight
-    val useRail = useNavigationRail(enableFloatingBottomBar = false)
+    val useRail = useNavigationRail(enableFloatingBottomBar = enableFloatingBottomBar)
 
     val colorScheme = rememberKernelSUColorScheme(
         seedColor = if (keyColor == 0) Color.Unspecified else Color(keyColor),
@@ -482,28 +494,33 @@ private fun ThemePreviewCard(
         colorSpec = colorSpec,
     )
 
-    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-        Surface(
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Box(
             modifier = Modifier
                 .fillMaxWidth(0.4f)
-                .aspectRatio(screenRatio),
-            color = colorScheme.surfaceContainer,
-            shape = RoundedCornerShape(20.dp),
-            border = BorderStroke(1.dp, color = colorScheme.outlineVariant)
+                .aspectRatio(screenRatio)
+                .clip(RoundedCornerShape(20.dp))
+                .background(colorScheme.surface)
+                .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(20.dp))
         ) {
-            val content: @Composable ColumnScope.() -> Unit = {
-                // top bar
-                Box(
+            val content = @Composable {
+                Column(
                     modifier = Modifier
-                        .height(if (useRail) 36.dp else 48.dp)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.TopStart
+                        .fillMaxSize()
+                        .padding(bottom = if (useRail) 0.dp else 38.dp)
                 ) {
-                    Row(
+                    // top bar
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .height(if (useRail) 36.dp else 48.dp)
+                            .fillMaxWidth()
                             .padding(start = 12.dp, top = if (useRail) 8.dp else 16.dp, bottom = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
                             text = when (appIconMode) {
@@ -516,48 +533,51 @@ private fun ThemePreviewCard(
                             color = colorScheme.onSurface
                         )
                     }
-                }
 
-                BoxWithConstraints(modifier = Modifier.weight(1f)) {
-                    val showInfoCard = maxHeight >= 72.dp
-                    Column(
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 6.dp, vertical = 2.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        TonalCard(
-                            containerColor = colorScheme.secondaryContainer,
+                            .fillMaxWidth()
+                            .height(45.dp)
+                            .padding(horizontal = 8.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(colorScheme.secondaryContainer)
+                    )
+
+                    BoxWithConstraints(modifier = Modifier.weight(1f)) {
+                        val smallCardCount = when {
+                            maxHeight >= 96.dp -> 2
+                            maxHeight >= 72.dp -> 1
+                            else -> 0
+                        }
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(24.dp),
-                            shape = RoundedCornerShape(6.dp),
-                            content = { }
-                        )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                .fillMaxSize()
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            repeat(3) {
-                                TonalCard(
-                                    containerColor = colorScheme.surfaceBright,
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                repeat(3) {
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(24.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(colorScheme.surfaceContainerHigh)
+                                    )
+                                }
+                            }
+                            repeat(smallCardCount) {
+                                Box(
                                     modifier = Modifier
+                                        .fillMaxWidth()
                                         .weight(1f)
-                                        .height(24.dp),
-                                    shape = RoundedCornerShape(6.dp),
-                                    content = { }
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(colorScheme.surfaceContainerHigh)
                                 )
                             }
-                        }
-                        if (showInfoCard) {
-                            TonalCard(
-                                containerColor = colorScheme.surfaceBright,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                shape = RoundedCornerShape(8.dp),
-                                content = { }
-                            )
                         }
                     }
                 }
@@ -565,40 +585,148 @@ private fun ThemePreviewCard(
 
             if (useRail) {
                 Row {
-                    Surface(
-                        color = colorScheme.surfaceContainer,
-                        modifier = Modifier.fillMaxHeight()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(32.dp)
+                            .background(colorScheme.surfaceContainer),
+                        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .width(36.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(Icons.Filled.Home, null, tint = colorScheme.primary)
+                        repeat(5) { index ->
+                            if (index == 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .height(18.dp)
+                                        .width(26.dp)
+                                        .clip(CircleShape)
+                                        .background(colorScheme.secondaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(7.dp)
+                                            .clip(CircleShape)
+                                            .background(colorScheme.onSecondaryContainer)
+                                    )
+                                }
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .clip(RoundedCornerShape(2.dp))
+                                        .background(colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                                )
+                            }
                         }
                     }
-                    Column(modifier = Modifier.weight(1f)) { content() }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(0.5.dp)
+                            .background(colorScheme.outlineVariant.copy(alpha = 0.35f))
+                    )
+                    Box(modifier = Modifier.weight(1f)) { content() }
                 }
             } else {
-                Column {
-                    content()
+                content()
+            }
 
-                    // bottom bar
+            if (!useRail && enableFloatingBottomBar) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 6.dp),
+                ) {
                     Surface(
+                        shape = CircleShape,
                         color = colorScheme.surfaceContainer,
-                        modifier = Modifier.fillMaxWidth()
+                        tonalElevation = 3.dp,
+                        shadowElevation = 4.dp,
+                        border = BorderStroke(0.5.dp, colorScheme.outlineVariant.copy(alpha = 0.4f)),
+                        modifier = Modifier.wrapContentWidth()
                     ) {
                         Row(
                             modifier = Modifier
-                                .height(40.dp)
-                                .fillMaxWidth()
+                                .height(28.dp)
                                 .padding(horizontal = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Filled.Home, null, tint = colorScheme.primary)
+                            repeat(5) { index ->
+                                if (index == 0) {
+                                    Box(
+                                        modifier = Modifier
+                                            .height(18.dp)
+                                            .width(28.dp)
+                                            .clip(CircleShape)
+                                            .background(colorScheme.primaryContainer),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(7.dp)
+                                                .clip(CircleShape)
+                                                .background(colorScheme.onPrimaryContainer)
+                                        )
+                                    }
+                                } else {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(9.dp)
+                                            .clip(RoundedCornerShape(2.dp))
+                                            .background(colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (!useRail) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(0.5.dp)
+                            .background(colorScheme.outlineVariant.copy(alpha = 0.35f))
+                    )
+                    Row(
+                        modifier = Modifier
+                            .height(34.dp)
+                            .fillMaxWidth()
+                            .background(colorScheme.surfaceContainer)
+                            .padding(horizontal = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        repeat(5) { index ->
+                            if (index == 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .height(18.dp)
+                                        .width(26.dp)
+                                        .clip(CircleShape)
+                                        .background(colorScheme.secondaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(7.dp)
+                                            .clip(CircleShape)
+                                            .background(colorScheme.onSecondaryContainer)
+                                    )
+                                }
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .clip(RoundedCornerShape(2.dp))
+                                        .background(colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                                )
                             }
                         }
                     }
