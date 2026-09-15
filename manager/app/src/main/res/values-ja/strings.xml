@@ -300,6 +300,7 @@
     <string name="settings_selinux_hide_summary">アプリによる SELinux 変更の検出を防止</string>
     <string name="settings_selinux_hide_reboot_required">再起動後に有効</string>
     <string name="settings_selinux_hide_failed">エラー： %d</string>
+    <string name="settings_selinux_enforcing">SELinux モード切替</string>
     <string name="menu_sort">並び替え</string>
     <string name="sort_by_name">アプリ名</string>
     <string name="sort_by_package_name">パッケージ名</string>

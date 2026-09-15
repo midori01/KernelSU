@@ -333,6 +333,7 @@
     <string name="settings_classic_home_ui">經典主頁樣式</string>
     <string name="settings_switch_icon">開關圖表</string>
     <string name="settings_scroll_animation">使用滾動動畫</string>
+    <string name="settings_selinux_enforcing">SELinux 模式切換</string>
     <string name="kallsyms_title">核心符號表</string>
     <string name="kallsyms_search">搜尋核心符號…</string>
     <string name="dmesg_title">dmesg</string>

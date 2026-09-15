@@ -305,6 +305,7 @@
     <string name="settings_selinux_hide_summary">阻止應用檢測 SELinux 修改</string>
     <string name="settings_selinux_hide_reboot_required">重啟生效</string>
     <string name="settings_selinux_hide_failed">錯誤： %d</string>
+    <string name="settings_selinux_enforcing">SELinux 模式切換</string>
     <string name="menu_sort">排序</string>
     <string name="sort_by_name">應用名</string>
     <string name="sort_by_package_name">套件名</string>
