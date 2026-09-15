@@ -163,6 +163,8 @@
     <string name="settings_enable_predictive_back">預測性返回手勢</string>
     <string name="settings_enable_predictive_back_summary">啟用對預測性返回手勢的支援</string>
     <string name="settings_module_check_update">檢查模組更新</string>
+    <string name="settings_check_ksu_driver_update">檢查 KSU 驅動更新</string>
+    <string name="settings_check_ksu_driver_update_summary">啟動時自動檢查 KSU 驅動更新</string>
     <string name="grant_root_failed">無法獲取 Root 權限！</string>
     <string name="home_pr_build_warning">當前為 PR 調試構建，請勿在生產環境中使用！</string>
     <string name="home_pr_kernel_warning">當前內核包含 PR 簽名支持，這不是一個生產內核！</string>

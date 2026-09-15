@@ -157,6 +157,8 @@
     <string name="settings_enable_predictive_back">予測型バックジェスチャー</string>
     <string name="settings_enable_predictive_back_summary">予測型バックジェスチャーのサポートを有効にします。</string>
     <string name="settings_module_check_update">モジュールの更新を確認する</string>
+    <string name="settings_check_ksu_driver_update">KSU ドライバ更新を確認</string>
+    <string name="settings_check_ksu_driver_update_summary">起動時に KSU ドライバアップデートを自動的に確認する。</string>
     <string name="grant_root_failed">root の付与に失敗しました！</string>
     <string name="home_pr_build_warning">これは PR デバッグビルドです。本番環境では使用しないでください！</string>
     <string name="home_pr_kernel_warning">このカーネルには PR 署名サポートが含まれており、本番用カーネルではありません！</string>

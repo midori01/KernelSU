@@ -182,6 +182,8 @@
     <string name="settings_enable_predictive_back">예측형 뒤로 가기 제스처</string>
     <string name="settings_enable_predictive_back_summary">예측형 뒤로 가기 제스처 지원을 활성화합니다.</string>
     <string name="settings_module_check_update">모듈 업데이트 확인</string>
+    <string name="settings_check_ksu_driver_update">KSU 드라이버 업데이트 확인</string>
+    <string name="settings_check_ksu_driver_update_summary">시작 시 KSU 드라이버 업데이트를 자동으로 확인합니다.</string>
     <string name="home_pr_build_warning">이 빌드는 PR 디버그 빌드입니다. 프로덕션 환경에서 사용하지 마세요!</string>
     <string name="home_pr_kernel_warning">이 커널은 PR 서명 지원이 포함되어 있으며, 프로덕션용 커널이 아닙니다!</string>
     <string name="action">액션</string>
