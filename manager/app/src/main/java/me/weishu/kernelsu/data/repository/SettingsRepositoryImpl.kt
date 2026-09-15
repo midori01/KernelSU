@@ -187,8 +187,12 @@ class SettingsRepositoryImpl : SettingsRepository {
         set(value) = prefs.edit { putBoolean(KEY_MODULE_PREFLASH, value) }
 
     override var bottomBarKernelTool: String
-        get() = prefs.getString(KernelTool.PREF_KEY, KernelTool.Kconfig.id) ?: KernelTool.Kconfig.id
+        get() = prefs.getString(KernelTool.PREF_KEY, KernelTool.Payload.id) ?: KernelTool.Payload.id
         set(value) = prefs.edit { putString(KernelTool.PREF_KEY, value) }
+
+    override var bottomBarToolTipsShown: Boolean
+        get() = prefs.getBoolean("bottom_bar_tool_tips_shown", false)
+        set(value) = prefs.edit { putBoolean("bottom_bar_tool_tips_shown", value) }
 
     override val intentToken: String
         get() {

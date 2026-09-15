@@ -57,6 +57,9 @@ fun BottomBarMaterial(navigationBadge: NavigationBadgeState) {
     var showToolSelectDialog by remember { mutableStateOf(false) }
     val longPressTimeout = LocalViewConfiguration.current.longPressTimeoutMillis
 
+    val settingsRepo = remember { SettingsRepositoryImpl() }
+    var showTips by remember { mutableStateOf(!settingsRepo.bottomBarToolTipsShown) }
+
     val items = listOf(
         Triple(R.string.home, Icons.Filled.Home, Icons.Outlined.Home),
         Triple(R.string.superuser, Icons.Filled.Shield, Icons.Outlined.Shield),
@@ -87,6 +90,8 @@ fun BottomBarMaterial(navigationBadge: NavigationBadgeState) {
                             if (up == null) {
                                 // Long press
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                settingsRepo.bottomBarToolTipsShown = true
+                                showTips = false
                                 showToolSelectDialog = true
                             } else {
                                 up.consume()
@@ -105,11 +110,21 @@ fun BottomBarMaterial(navigationBadge: NavigationBadgeState) {
                     }
                 },
                 icon = {
-                    NavigationIconWithBadge(
-                        icon = if (selected) selectedIcon else unselectedIcon,
-                        contentDescription = stringResource(label),
-                        badge = badgeFor(index, navigationBadge),
-                    )
+                    androidx.compose.foundation.layout.Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
+                        NavigationIconWithBadge(
+                            icon = if (selected) selectedIcon else unselectedIcon,
+                            contentDescription = stringResource(label),
+                            badge = badgeFor(index, navigationBadge),
+                        )
+                        if (index == 2 && showTips) {
+                            KernelToolTipsMaterial(
+                                onDismiss = {
+                                    showTips = false
+                                    settingsRepo.bottomBarToolTipsShown = true
+                                }
+                            )
+                        }
+                    }
                 },
                 label = {
                     Text(
@@ -126,7 +141,9 @@ fun BottomBarMaterial(navigationBadge: NavigationBadgeState) {
         show = showToolSelectDialog,
         currentTool = currentKernelTool,
         onSelected = { tool ->
-            SettingsRepositoryImpl().bottomBarKernelTool = tool.id
+            settingsRepo.bottomBarKernelTool = tool.id
+            settingsRepo.bottomBarToolTipsShown = true
+            showTips = false
         },
         onDismissRequest = {
             showToolSelectDialog = false
