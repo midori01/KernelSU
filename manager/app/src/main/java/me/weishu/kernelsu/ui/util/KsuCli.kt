@@ -148,7 +148,14 @@ fun getModuleCount(): Int {
     val result = listModules()
     runCatching {
         val array = JSONArray(result)
-        return array.length()
+        var count = 0
+        for (i in 0 until array.length()) {
+            val obj = array.optJSONObject(i) ?: continue
+            if (obj.optBoolean("enabled", false)) {
+                count++
+            }
+        }
+        return count
     }.getOrElse { return 0 }
 }
 
