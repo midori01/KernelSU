@@ -543,10 +543,27 @@ private fun ThemePreviewCard(
                             containerColor = colorScheme.secondaryContainer,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(if (classicUi) 64.dp else 40.dp),
-                            shape = RoundedCornerShape(8.dp),
+                                .height(if (classicUi) 64.dp else 24.dp),
+                            shape = RoundedCornerShape(if (classicUi) 8.dp else 6.dp),
                             content = { }
                         )
+                        if (!classicUi) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                repeat(3) {
+                                    TonalCard(
+                                        containerColor = colorScheme.surfaceBright,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(24.dp),
+                                        shape = RoundedCornerShape(6.dp),
+                                        content = { }
+                                    )
+                                }
+                            }
+                        }
                         if (showInfoCard) {
                             TonalCard(
                                 containerColor = colorScheme.surfaceBright,
