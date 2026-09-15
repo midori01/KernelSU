@@ -63,8 +63,9 @@ import me.weishu.kernelsu.ui.component.ListPopupDefaults
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.SearchStatus
 import me.weishu.kernelsu.ui.component.bottombar.KernelTool
-import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMaterial
-import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMiuix
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolTitleDropdownMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolTopAppBarMiuix
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
@@ -191,27 +192,13 @@ fun CrashLogScreenMiuix(
         topBar = {
             BlurredBar(backdrop) {
                 searchStatus.TopAppBarAnim(backgroundColor = barColor) {
-                    MiuixTopAppBar(
+                    KernelToolTopAppBarMiuix(
+                        currentTool = KernelTool.CrashLog,
+                        isRootTab = isRootTab,
+                        titleRes = R.string.crash_analyzer_title,
+                        navigator = navigator,
                         color = barColor,
-                        title = stringResource(R.string.crash_analyzer_title),
                         scrollBehavior = scrollBehavior,
-                        navigationIcon = {
-                            if (isRootTab) {
-                                KernelToolNavigationIconsMiuix(KernelTool.CrashLog, navigator)
-                            } else {
-                                MiuixIconButton(onClick = { navigator.pop() }) {
-                                    val layoutDirection = LocalLayoutDirection.current
-                                    MiuixIcon(
-                                        modifier = Modifier.graphicsLayer {
-                                            if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
-                                        },
-                                        imageVector = MiuixIcons.Back,
-                                        contentDescription = null,
-                                        tint = colorScheme.onSurface,
-                                    )
-                                }
-                            }
-                        },
                         actions = {
                             if (uiState.availableSources.isNotEmpty()) {
                                 Box {
@@ -821,7 +808,13 @@ fun CrashLogScreenMaterial(
         topBar = {
             SearchAppBar(
                 snackbarHostState = snackbarHostState,
-                title = { Text(stringResource(R.string.crash_analyzer_title)) },
+                title = {
+                    if (isRootTab) {
+                        KernelToolTitleDropdownMaterial(KernelTool.CrashLog, navigator)
+                    } else {
+                        Text(stringResource(R.string.crash_analyzer_title))
+                    }
+                },
                 searchText = localSearchText,
                 onSearchTextChange = {
                     localSearchText = it
@@ -833,7 +826,7 @@ fun CrashLogScreenMaterial(
                 },
                 navigationIcon = {
                     if (isRootTab) {
-                        KernelToolNavigationIconsMaterial(KernelTool.CrashLog, navigator)
+                        KernelToolNavigationIconMaterial(KernelTool.CrashLog)
                     } else {
                         TopBarBackButton(onClick = { navigator.pop() })
                     }
