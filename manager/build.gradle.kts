@@ -16,20 +16,35 @@ val managerVersionCode by extra(getVersionCode())
 val managerVersionName by extra(getVersionName())
 
 fun getGitCommitCount(): Int {
-    val process = Runtime.getRuntime().exec(arrayOf("git", "rev-list", "--count", "HEAD"))
-    return process.inputStream.bufferedReader().use { it.readText().trim().toInt() }
+    return try {
+        val process = Runtime.getRuntime().exec(arrayOf("git", "rev-list", "--count", "HEAD"))
+        process.inputStream.bufferedReader().use { it.readText().trim().toIntOrNull() ?: 0 }
+    } catch (_: Exception) {
+        0
+    }
 }
 
 fun getGitDescribe(): String {
-    val process = Runtime.getRuntime().exec(arrayOf("git", "describe", "--tags", "--always"))
-    return process.inputStream.bufferedReader().use { it.readText().trim() }
+    return try {
+        val process = Runtime.getRuntime().exec(arrayOf("git", "describe", "--tags", "--always"))
+        process.inputStream.bufferedReader().use { it.readText().trim().ifEmpty { "unknown" } }
+    } catch (_: Exception) {
+        "unknown"
+    }
 }
 
 fun getVersionCode(): Int {
     val commitCount = getGitCommitCount()
-    return 30000 + commitCount
+    return 30999 + commitCount
 }
 
 fun getVersionName(): String {
+    val envVersion = System.getenv("KSU_VERSION_NAME")
+    if (envVersion != null) return envVersion
+
+    if (project.hasProperty("VERSION_NAME")) {
+        return project.property("VERSION_NAME").toString()
+    }
+
     return getGitDescribe()
 }
