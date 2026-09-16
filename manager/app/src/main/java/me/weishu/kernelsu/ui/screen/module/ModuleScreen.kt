@@ -59,17 +59,20 @@ fun ModulePager(
     val latestIsCurrentPage by rememberUpdatedState(isCurrentPage)
     val initialResumeHandled = rememberSaveable { mutableStateOf(false) }
 
-    var hasActivated by rememberSaveable { mutableStateOf(false) }
+    var hasRequestedPermission by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(isCurrentPage) {
-        if (isCurrentPage && !hasActivated) {
-            hasActivated = true
+        if (isCurrentPage) {
             viewModel.refreshEnvironmentState()
             viewModel.initializePreferences()
             val state = viewModel.uiState.value
-            if (!state.hasLoaded && !state.isRefreshing) {
-                viewModel.fetchModuleList()
+            if ((!state.hasLoaded || viewModel.isNeedRefresh) && !state.isRefreshing) {
+                viewModel.fetchModuleList(
+                    checkUpdate = !state.hasLoaded || viewModel.isNeedRefresh,
+                    resort = !state.hasLoaded,
+                )
             }
-            if (Build.VERSION.SDK_INT >= 33) {
+            if (Build.VERSION.SDK_INT >= 33 && !hasRequestedPermission) {
+                hasRequestedPermission = true
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
