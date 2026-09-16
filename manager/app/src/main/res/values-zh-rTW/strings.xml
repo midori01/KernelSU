@@ -130,7 +130,9 @@
     <string name="settings_kernelsu_toolkit_summary">KernelSU 的附加功能。</string>
     <string name="settings_kpatch_next">KPatch Next</string>
     <string name="settings_kpatch_next_summary">KPM 支援的獨立實作。</string>
+    <string name="settings_susfs4ksu">SUSFS for KernelSU</string>
     <string name="settings_sulog">SU 日誌</string>
+    <string name="settings_susfs4ksu_summary">管理 SUSFS 配置。</string>
     <string name="settings_sulog_summary">將 root 相關事件記錄到 KernelSU sulog 檔案中</string>
     <string name="settings_profile_template">App Profile 範本</string>
     <string name="settings_profile_template_summary">管理 App Profile 的本地、線上範本</string>
@@ -163,6 +165,8 @@
     <string name="settings_enable_predictive_back">預測性返回手勢</string>
     <string name="settings_enable_predictive_back_summary">啟用對預測性返回手勢的支援</string>
     <string name="settings_module_check_update">檢查模組更新</string>
+    <string name="settings_check_ksu_driver_update">檢查 KSU 驅動更新</string>
+    <string name="settings_check_ksu_driver_update_summary">啟動時自動檢查 KSU 驅動更新</string>
     <string name="grant_root_failed">無法獲取 Root 權限！</string>
     <string name="home_pr_build_warning">當前為 PR 調試構建，請勿在生產環境中使用！</string>
     <string name="home_pr_kernel_warning">當前內核包含 PR 簽名支持，這不是一個生產內核！</string>
@@ -301,6 +305,7 @@
     <string name="settings_selinux_hide_summary">阻止應用檢測 SELinux 修改</string>
     <string name="settings_selinux_hide_reboot_required">重啟生效</string>
     <string name="settings_selinux_hide_failed">錯誤： %d</string>
+    <string name="settings_selinux_enforcing">SELinux 模式切換</string>
     <string name="menu_sort">排序</string>
     <string name="sort_by_name">應用名</string>
     <string name="sort_by_package_name">套件名</string>
