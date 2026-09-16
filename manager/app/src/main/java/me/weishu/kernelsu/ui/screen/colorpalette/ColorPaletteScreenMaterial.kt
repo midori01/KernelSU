@@ -400,10 +400,10 @@ fun ColorPaletteScreenMaterial(
                         {
                             SegmentedSwitchItem(
                                 icon = Icons.Rounded.Pin,
-                                title = stringResource(id = R.string.settings_navigation_badge),
-                                summary = stringResource(id = R.string.settings_navigation_badge_summary),
-                                checked = uiState.enableNavigationBadge,
-                                onCheckedChange = actions.onSetEnableNavigationBadge
+                                title = stringResource(id = R.string.settings_module_update_badge),
+                                summary = stringResource(id = R.string.settings_module_update_badge_summary),
+                                checked = uiState.enableModuleUpdateBadge,
+                                onCheckedChange = actions.onSetEnableModuleUpdateBadge
                             )
                         }
                     )

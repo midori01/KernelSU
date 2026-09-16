@@ -38,7 +38,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -59,12 +58,8 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.bottombar.BottomBar
@@ -107,8 +102,7 @@ import me.weishu.kernelsu.ui.theme.LocalColorMode
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.theme.LocalEnableFloatingBottomBar
 import me.weishu.kernelsu.ui.theme.LocalEnableFloatingBottomBarBlur
-import me.weishu.kernelsu.ui.theme.LocalEnableNavigationBadge
-import me.weishu.kernelsu.ui.util.getSuperuserCount
+import me.weishu.kernelsu.ui.theme.LocalEnableModuleUpdateBadge
 import me.weishu.kernelsu.ui.util.LocalScrollAnimation
 import me.weishu.kernelsu.ui.util.LocalShowSwitchIcon
 import me.weishu.kernelsu.ui.util.install
@@ -195,7 +189,7 @@ open class MainActivity : ComponentActivity() {
                 LocalEnableBlur provides uiState.enableBlur,
                 LocalEnableFloatingBottomBar provides uiState.enableFloatingBottomBar,
                 LocalEnableFloatingBottomBarBlur provides uiState.enableFloatingBottomBarBlur,
-                LocalEnableNavigationBadge provides uiState.enableNavigationBadge,
+                LocalEnableModuleUpdateBadge provides uiState.enableModuleUpdateBadge,
                 LocalUiMode provides uiMode,
                 LocalShowSwitchIcon provides appSettings.showSwitchIcon,
                 LocalScrollAnimation provides appSettings.scrollAnimation,
@@ -319,17 +313,12 @@ fun MainScreen(
     val isFullFeatured = Natives.isFullFeatured()
     var userScrollEnabled by remember(isFullFeatured) { mutableStateOf(isFullFeatured) }
 
-    val enableNavigationBadge = LocalEnableNavigationBadge.current
-    val badgeEnabled = enableNavigationBadge && isFullFeatured
+    val enableModuleUpdateBadge = LocalEnableModuleUpdateBadge.current
+    val badgeEnabled = enableModuleUpdateBadge && isFullFeatured
     val moduleViewModel = viewModel<ModuleViewModel>()
     val moduleUiState by moduleViewModel.uiState.collectAsStateWithLifecycle()
 
     val superUserViewModel = viewModel<SuperUserViewModel>()
-    val grantedUidCount by remember(superUserViewModel) {
-        superUserViewModel.uiState
-            .map { state -> state.groupedApps.count { it.anyAllowSu } }
-            .distinctUntilChanged()
-    }.collectAsStateWithLifecycle(0)
 
     var startupPreloadStarted by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(isFullFeatured) {
@@ -358,16 +347,8 @@ fun MainScreen(
         startupPreloadStarted = true
     }
 
-    // Loading the app list just for a badge is too expensive; read the kernel allowlist instead.
-    var superuserCount by remember { mutableIntStateOf(0) }
-    LaunchedEffect(badgeEnabled, grantedUidCount) {
-        superuserCount = if (badgeEnabled) withContext(Dispatchers.IO) { getSuperuserCount() } else 0
-    }
-
     val navigationBadge = if (badgeEnabled) {
         NavigationBadgeState(
-            superuserCount = superuserCount,
-            moduleEnabledCount = moduleUiState.modules.count { it.enabled },
             moduleUpdatableCount = moduleUiState.updateInfo.count { it.value.downloadUrl.isNotBlank() },
         )
     } else {
