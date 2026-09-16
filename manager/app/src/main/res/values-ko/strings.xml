@@ -57,6 +57,7 @@
     <string name="module_failed_to_disable">모듈 비활성화 실패: %s</string>
     <string name="module_empty">설치된 모듈 없음</string>
     <string name="kernel_modules">커널 모듈</string>
+    <string name="kernel_modules_search">커널 모듈 검색…</string>
     <string name="module">모듈</string>
     <string name="module_install_prompt_with_name">다음 모듈이 설치됩니다: %1$s</string>
     <string name="module_sort_action_first">액션 우선</string>
