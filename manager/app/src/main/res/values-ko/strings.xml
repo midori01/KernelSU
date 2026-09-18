@@ -330,5 +330,8 @@
     <string name="install_force_backup_summary">선택한 boot 이미지가 순정 이미지인지 확인하세요</string>
     <string name="module_shortcut_copy_scheme">URL 스킴 복사</string>
     <string name="module_shortcut_scheme_copied">URL 스킴이 복사됨</string>
+    <string name="kallsyms_title">커널 심볼</string>
+    <string name="kallsyms_search">심볼 검색…</string>
+    <string name="share">공유</string>
     <string name="settings_official_icon">공식 앱 아이콘 사용</string>
 </resources>

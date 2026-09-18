@@ -209,7 +209,11 @@ private fun TopBar(
 ) {
     LargeFlexibleTopAppBar(
         title = { Text(appName) },
-        navigationIcon = {},
+        navigationIcon = {
+            IconButton(onClick = { navigator.push(Route.Kallsyms) }) {
+                Icon(Icons.Outlined.DataObject, "kallsyms")
+            }
+        },
         actions = { RebootListPopup() },
         colors = expressiveTopAppBarColors(),
         windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
