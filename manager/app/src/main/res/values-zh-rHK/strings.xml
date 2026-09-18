@@ -359,4 +359,24 @@
     <string name="install_select_slot">選取刷入插槽</string>
     <string name="slot_active_tag">目前使用中</string>
     <string name="settings_app_icon">應用圖示</string>
+    <string name="backup_profiles">備份應用程式設定</string>
+    <string name="restore_profiles">恢復應用程式設定</string>
+    <string name="backup_export_file">匯出為檔案</string>
+    <string name="backup_export_file_summary">將應用程式設定儲存為 JSON 檔案</string>
+    <string name="backup_copy_clipboard">複製到剪貼簿</string>
+    <string name="backup_copy_clipboard_summary">將設定資料複製到系統剪貼簿</string>
+    <string name="restore_import_file">從檔案匯入</string>
+    <string name="restore_import_file_summary">選取要恢復的 JSON 備份檔案</string>
+    <string name="restore_paste_clipboard">從剪貼簿讀取</string>
+    <string name="restore_paste_clipboard_summary">從剪貼簿中的文字恢復設定</string>
+    <string name="backup_profiles_empty">沒有已設定的應用程式設定可備份</string>
+    <string name="backup_profiles_success">應用程式設定已複製到剪貼簿</string>
+    <string name="backup_profiles_file_saved">應用程式設定儲存成功</string>
+    <string name="backup_profiles_failed">匯出應用程式設定失敗：%s</string>
+    <string name="restore_confirm_title">恢復應用程式設定</string>
+    <string name="restore_confirm_message">在備份中發現 %1$d 個應用程式設定：%2$d 個已在目前裝置安裝，%3$d 個未安裝。\n\n是否確認恢復這些設定？</string>
+    <string name="restore_profiles_success">成功恢復 %1$d 個應用程式設定（%2$d 個未安裝已略過）</string>
+    <string name="restore_profiles_failed">恢復應用程式設定失敗：%s</string>
+    <string name="restore_data_invalid">未包含有效的應用程式設定備份資料</string>
+    <string name="restore_clipboard_invalid">剪貼簿中未包含有效的應用程式設定備份資料</string>
 </resources>
