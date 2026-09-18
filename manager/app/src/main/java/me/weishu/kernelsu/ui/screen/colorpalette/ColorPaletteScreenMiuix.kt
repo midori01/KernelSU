@@ -730,7 +730,7 @@ private fun ThemePreviewCardMiuix(
                         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        repeat(4) {
+                        repeat(5) {
                             Box(
                                 modifier = Modifier
                                     .size(13.dp)
@@ -766,11 +766,11 @@ private fun ThemePreviewCardMiuix(
                                 else navBarColor
                             )
                             .border(0.5.dp, textColor.copy(alpha = 0.1f), RoundedCornerShape(14.dp))
-                            .padding(horizontal = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            .padding(horizontal = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        repeat(4) {
+                        repeat(5) {
                             Box(
                                 modifier = Modifier
                                     .size(13.dp)
@@ -801,7 +801,7 @@ private fun ThemePreviewCardMiuix(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        repeat(4) {
+                        repeat(5) {
                             Box(
                                 modifier = Modifier
                                     .size(15.dp)
