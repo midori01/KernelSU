@@ -231,7 +231,15 @@ private fun TopBar(
     BlurredBar(backdrop = backdrop) {
         TopAppBar(
             title = appName,
-            navigationIcon = {},
+            navigationIcon = {
+                IconButton(onClick = { navigator.push(Route.Kallsyms) }) {
+                    Icon(
+                        imageVector = Icons.Outlined.DataObject,
+                        contentDescription = "kallsyms",
+                        tint = colorScheme.onSurface,
+                    )
+                }
+            },
             actions = {
                 RebootListPopupMiuix()
             },
