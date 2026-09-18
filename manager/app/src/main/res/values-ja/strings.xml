@@ -46,6 +46,7 @@
     <string name="module_failed_to_disable">モジュールの無効化に失敗しました: %s</string>
     <string name="module_empty">モジュールがインストールされていません</string>
     <string name="kernel_modules">カーネルモジュール</string>
+    <string name="kernel_modules_search">カーネルモジュールを検索…</string>
     <string name="module">モジュール</string>
     <string name="module_sort_action_first">並べ替え（アクション優先）</string>
     <string name="module_sort_enabled_first">並べ替え（最初に有効）</string>
