@@ -40,6 +40,7 @@ data class HomeUiState(
     val isGki2: Boolean,
     val localVersion: String,
     val latestKsuDriverInfo: LatestKsuDriverInfo = LatestKsuDriverInfo(),
+    val hasCrashLog: Boolean = false,
 ) {
     val isSELinuxPermissive: Boolean
         get() = systemInfo.selinuxStatus == "Permissive"
@@ -89,4 +90,5 @@ data class HomeActions(
     val onOpenUrl: (String) -> Unit,
     val onKernelModuleClick: () -> Unit,
     val onJailbreakClick: () -> Unit = {},
+    val onCrashLogClick: () -> Unit = {},
 )
