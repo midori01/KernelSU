@@ -379,4 +379,8 @@
     <string name="restore_profiles_failed">恢復應用程式設定失敗：%s</string>
     <string name="restore_data_invalid">未包含有效的應用程式設定備份資料</string>
     <string name="restore_clipboard_invalid">剪貼簿中未包含有效的應用程式設定備份資料</string>
+    <string name="export_module_as_zip">匯出為 ZIP</string>
+    <string name="export_module_success">模組 %s 匯出成功</string>
+    <string name="export_module_failed">匯出模組失敗：%s</string>
+    <string name="exporting_module">正在匯出模組 %s…</string>
 </resources>
