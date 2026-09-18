@@ -2,7 +2,14 @@ package me.weishu.kernelsu.ui.screen.home
 
 import android.content.Context
 import android.os.Build
+import android.os.SystemClock
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -42,7 +49,6 @@ import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material.icons.outlined.Android
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.outlined.Hub
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Link
@@ -71,21 +77,28 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -97,6 +110,7 @@ import androidx.compose.ui.unit.sp
 import me.weishu.kernelsu.KernelVersion
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
+import me.weishu.kernelsu.ui.MainActivity
 import me.weishu.kernelsu.ui.component.WarningLevel
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
@@ -107,7 +121,6 @@ import me.weishu.kernelsu.ui.component.material.expressiveTopAppBarColors
 import me.weishu.kernelsu.ui.component.rebootlistpopup.RebootListPopup
 import me.weishu.kernelsu.ui.component.statustag.StatusTag
 import me.weishu.kernelsu.ui.navigation3.Navigator
-import me.weishu.kernelsu.ui.navigation3.Route
 import me.weishu.kernelsu.ui.theme.LocalAppIconMode
 
 @Composable
@@ -115,12 +128,13 @@ fun HomePagerMaterial(
     state: HomeUiState,
     actions: HomeActions,
     bottomInnerPadding: Dp,
-    navigator: Navigator
+    navigator: Navigator,
+    isCurrentPage: Boolean = true,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     ExpressiveScaffold(
-        topBar = { TopBar(appName = state.appName, scrollBehavior = scrollBehavior, navigator = navigator) },
+        topBar = { TopBar(appName = state.appName, scrollBehavior = scrollBehavior, isCurrentPage = isCurrentPage) },
         contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
     ) { innerPadding ->
         Column(
@@ -203,13 +217,101 @@ private fun UpdateCard(
 private fun TopBar(
     appName: String,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    navigator: Navigator
+    isCurrentPage: Boolean = true,
 ) {
+    val scale = remember { Animatable(1f) }
+    val rotation = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
+    val appIconMode = LocalAppIconMode.current
+
+    LaunchedEffect(isCurrentPage) {
+        if (!isCurrentPage) return@LaunchedEffect
+        val elapsed = if (MainActivity.splashStartedAt > 0L) {
+            SystemClock.uptimeMillis() - MainActivity.splashStartedAt
+        } else 0L
+        val delayMs = (1000L - elapsed).coerceAtLeast(150L)
+        if (delayMs > 0L) {
+            delay(delayMs)
+        }
+        // Playful wobble tilt
+        launch {
+            rotation.animateTo(-16f, tween(70, easing = FastOutLinearInEasing))
+            rotation.animateTo(12f, tween(90, easing = LinearOutSlowInEasing))
+            rotation.animateTo(
+                0f,
+                spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        }
+        // Jelly squash & bouncy rebound
+        launch {
+            scale.animateTo(0.80f, tween(70, easing = FastOutLinearInEasing))
+            scale.animateTo(
+                1f,
+                spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+        }
+    }
+
     LargeFlexibleTopAppBar(
         title = { Text(appName) },
         navigationIcon = {
-            IconButton(onClick = { navigator.push(Route.Kallsyms) }) {
-                Icon(Icons.Outlined.DataObject, "kallsyms")
+            IconButton(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
+                    coroutineScope.launch {
+                        // Playful wobble tilt
+                        launch {
+                            rotation.animateTo(-16f, tween(70, easing = FastOutLinearInEasing))
+                            rotation.animateTo(12f, tween(90, easing = LinearOutSlowInEasing))
+                            rotation.animateTo(
+                                0f,
+                                spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                )
+                            )
+                        }
+                        // Jelly squash & bouncy rebound
+                        launch {
+                            scale.animateTo(0.80f, tween(70, easing = FastOutLinearInEasing))
+                            scale.animateTo(
+                                1f,
+                                spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            )
+                        }
+                    }
+                }
+            ) {
+                Icon(
+                    painter = painterResource(
+                        when (appIconMode) {
+                            1 -> R.drawable.ic_launcher_kowsu
+                            2 -> R.drawable.ic_launcher_monochrome
+                            else -> R.drawable.ic_launcher_midorisu
+                        }
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .wrapContentSize(unbounded = true)
+                        .requiredSize(48.dp)
+                        .graphicsLayer {
+                            scaleX = scale.value
+                            scaleY = scale.value
+                            rotationZ = rotation.value
+                        },
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             }
         },
         actions = { RebootListPopup() },
