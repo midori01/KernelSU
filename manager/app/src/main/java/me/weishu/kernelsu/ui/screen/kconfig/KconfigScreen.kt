@@ -43,6 +43,7 @@ import me.weishu.kernelsu.ui.component.SearchStatus
 import me.weishu.kernelsu.ui.component.bottombar.KernelTool
 import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconMaterial
 import me.weishu.kernelsu.ui.component.bottombar.KernelToolTitleDropdownMaterial
+import me.weishu.kernelsu.ui.component.bottombar.RegisterTabReselect
 import me.weishu.kernelsu.ui.component.bottombar.KernelToolTopAppBarMiuix
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
@@ -106,6 +107,12 @@ fun KconfigScreenMiuix(
     val listState = rememberLazyListState()
     val searchListState = rememberLazyListState()
     var searchStatus by remember { mutableStateOf(SearchStatus(context.getString(R.string.kconfig_search))) }
+    if (isRootTab) {
+        RegisterTabReselect(2) {
+            val target = if (searchStatus.isExpanded()) searchListState else listState
+            target.animateScrollToItem(0)
+        }
+    }
 
     LaunchedEffect(query) {
         searchStatus = searchStatus.copy(
@@ -325,6 +332,12 @@ fun KconfigScreenMaterial(
     val listState = rememberLazyListState()
     val searchListState = rememberLazyListState()
     var localSearchText by remember { mutableStateOf(query) }
+    if (isRootTab) {
+        RegisterTabReselect(2) {
+            val target = if (localSearchText.isNotEmpty()) searchListState else listState
+            target.animateScrollToItem(0)
+        }
+    }
 
     LaunchedEffect(query) {
         localSearchText = query
