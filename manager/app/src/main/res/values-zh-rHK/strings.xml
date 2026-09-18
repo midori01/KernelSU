@@ -325,6 +325,10 @@
     <string name="settings_kernelsu_toolkit_summary">KernelSU 的附加功能。</string>
     <string name="settings_kpatch_next">KPatch Next</string>
     <string name="settings_kpatch_next_summary">KPM 支援的獨立實作。</string>
+    <string name="settings_susfs4ksu">SUSFS for KernelSU</string>
+    <string name="settings_susfs4ksu_summary">管理 SUSFS 配置。</string>
+    <string name="settings_check_ksu_driver_update">檢查 KSU 驅動更新</string>
+    <string name="settings_check_ksu_driver_update_summary">啟動時自動檢查 KSU 驅動更新</string>
     <string name="flash_module">刷入模組</string>
     <string name="anykernel_install">刷入 AnyKernel</string>
     <string name="settings_avc_spoof">AVC 日誌偽裝</string>
@@ -332,6 +336,7 @@
     <string name="settings_classic_home_ui">經典主頁樣式</string>
     <string name="settings_switch_icon">開關圖表</string>
     <string name="settings_scroll_animation">使用滾動動畫</string>
+    <string name="settings_selinux_enforcing">SELinux 模式切換</string>
     <string name="kallsyms_title">核心符號表</string>
     <string name="kallsyms_search">搜尋核心符號…</string>
     <string name="dmesg_title">dmesg</string>
