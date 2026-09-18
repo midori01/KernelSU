@@ -15,5 +15,5 @@ data class MainActivityUiState(
     val enableNavigationBadge: Boolean,
     val moduleDescriptionMaxLines: Int = 4,
     val uiMode: UiMode,
-    val bottomBarKernelTool: KernelTool = KernelTool.Kconfig,
+    val bottomBarKernelTool: KernelTool = KernelTool.Payload,
 )
