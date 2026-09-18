@@ -46,6 +46,9 @@ import me.weishu.kernelsu.ui.LocalUiMode
 import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.SearchStatus
+import me.weishu.kernelsu.ui.component.bottombar.KernelTool
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMiuix
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
@@ -76,15 +79,15 @@ import top.yukonga.miuix.kmp.utils.overScrollVertical
 import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 
 @Composable
-fun KernelModuleScreen() {
+fun KernelModuleScreen(isRootTab: Boolean = false) {
     val viewModel = viewModel<KernelModuleViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val navigator = LocalNavigator.current
 
     when (LocalUiMode.current) {
-        UiMode.Miuix -> KernelModuleScreenMiuix(uiState, viewModel, context, navigator)
-        UiMode.Material -> KernelModuleScreenMaterial(uiState, viewModel, context, navigator)
+        UiMode.Miuix -> KernelModuleScreenMiuix(uiState, viewModel, context, navigator, isRootTab)
+        UiMode.Material -> KernelModuleScreenMaterial(uiState, viewModel, context, navigator, isRootTab)
     }
 }
 
@@ -93,7 +96,8 @@ fun KernelModuleScreenMiuix(
     uiState: KernelModuleUiState,
     viewModel: KernelModuleViewModel,
     context: Context,
-    navigator: Navigator
+    navigator: Navigator,
+    isRootTab: Boolean = false,
 ) {
     val enableBlur = LocalEnableBlur.current
     val density = LocalDensity.current
@@ -167,16 +171,20 @@ fun KernelModuleScreenMiuix(
                         title = stringResource(R.string.kernel_modules),
                         scrollBehavior = scrollBehavior,
                         navigationIcon = {
-                            MiuixIconButton(onClick = { navigator.pop() }) {
-                                val layoutDirection = LocalLayoutDirection.current
-                                MiuixIcon(
-                                    modifier = Modifier.graphicsLayer {
-                                        if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
-                                    },
-                                    imageVector = MiuixIcons.Back,
-                                    contentDescription = null,
-                                    tint = colorScheme.onSurface,
-                                )
+                            if (isRootTab) {
+                                KernelToolNavigationIconsMiuix(KernelTool.KernelModule, navigator)
+                            } else {
+                                MiuixIconButton(onClick = { navigator.pop() }) {
+                                    val layoutDirection = LocalLayoutDirection.current
+                                    MiuixIcon(
+                                        modifier = Modifier.graphicsLayer {
+                                            if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
+                                        },
+                                        imageVector = MiuixIcons.Back,
+                                        contentDescription = null,
+                                        tint = colorScheme.onSurface,
+                                    )
+                                }
                             }
                         },
                         actions = {
@@ -339,7 +347,8 @@ fun KernelModuleScreenMaterial(
     uiState: KernelModuleUiState,
     viewModel: KernelModuleViewModel,
     context: Context,
-    navigator: Navigator
+    navigator: Navigator,
+    isRootTab: Boolean = false,
 ) {
     val listState = rememberLazyListState()
     val searchListState = rememberLazyListState()
@@ -402,7 +411,11 @@ fun KernelModuleScreenMaterial(
                     viewModel.setSearchQuery("")
                 },
                 navigationIcon = {
-                    TopBarBackButton(onClick = { navigator.pop() })
+                    if (isRootTab) {
+                        KernelToolNavigationIconsMaterial(KernelTool.KernelModule, navigator)
+                    } else {
+                        TopBarBackButton(onClick = { navigator.pop() })
+                    }
                 },
                 actions = {
                     IconButton(onClick = { filePicker.launch(arrayOf("*/*")) }) {
