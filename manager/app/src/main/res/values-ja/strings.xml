@@ -374,4 +374,8 @@
     <string name="restore_profiles_failed">アプリ設定の復元に失敗しました: %s</string>
     <string name="restore_data_invalid">有効なアプリ設定のバックアップデータが見つかりません</string>
     <string name="restore_clipboard_invalid">クリップボードに有効なバックアップデータが含まれていません</string>
+    <string name="export_module_as_zip">ZIP としてエクスポート</string>
+    <string name="export_module_success">モジュール %s を正常にエクスポートしました</string>
+    <string name="export_module_failed">モジュールのエクスポートに失敗しました: %s</string>
+    <string name="exporting_module">モジュール %s をエクスポート中…</string>
 </resources>
