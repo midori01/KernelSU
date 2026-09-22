@@ -103,4 +103,8 @@ sealed interface Route : NavKey, Parcelable {
     @Parcelize
     @Serializable
     data object CrashLog : Route
+
+    @Parcelize
+    @Serializable
+    data object PayloadExtract : Route
 }
