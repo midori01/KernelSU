@@ -46,7 +46,7 @@ internal suspend fun isDownloadAvailable(uri: Uri): Boolean = withContext(Dispat
 
 fun checkNewVersion(): LatestVersionInfo {
     if (!isNetworkAvailable(ksuApp)) return LatestVersionInfo()
-    val url = "https://api.github.com/repos/tiann/KernelSU/releases/latest"
+    val url = "https://api.github.com/repos/midori01/KernelSU/releases/latest"
     // default null value if failed
     val defaultValue = LatestVersionInfo()
     runCatching {
@@ -67,7 +67,7 @@ fun checkNewVersion(): LatestVersionInfo {
                         continue
                     }
 
-                    val regex = Regex("v(.+?)_(\\d+)-")
+                    val regex = Regex("MidoriSU_(.+?)_(\\d+)-")
                     val matchResult = regex.find(name) ?: continue
                     matchResult.groupValues[1]
                     val versionCode = matchResult.groupValues[2].toInt()
