@@ -311,6 +311,6 @@
     <string name="module_shortcut_scheme_copied">Skema URL disalin</string>
     <string name="nav_rail_expand">Perluas bilah navigasi</string>
     <string name="nav_rail_collapse">Ciutkan bilah navigasi</string>
-    <string name="settings_navigation_badge">Lencana navigasi</string>
-    <string name="settings_navigation_badge_summary">Tampilkan jumlah aplikasi yang diberi akses dan modul aktif pada bilah navigasi</string>
+    <string name="settings_module_update_badge">Lencana pembaruan modul</string>
+    <string name="settings_module_update_badge_summary">Tampilkan lencana pada bilah navigasi saat pembaruan modul tersedia</string>
 </resources>
