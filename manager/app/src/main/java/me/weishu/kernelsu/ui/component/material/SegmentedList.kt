@@ -7,12 +7,16 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -496,6 +500,7 @@ fun SegmentedDropdownItem(
 fun SegmentedRadioItem(
     title: String,
     summary: String? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
     colors: ListItemColors = defaultSegmentedColors(),
     selected: Boolean,
     enabled: Boolean = true,
@@ -511,7 +516,17 @@ fun SegmentedRadioItem(
         },
         enabled = enabled,
         colors = colors,
-        headlineContent = { Text(title) },
+        headlineContent = {
+            if (leadingIcon != null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    leadingIcon()
+                    Spacer(Modifier.width(10.dp))
+                    Text(title)
+                }
+            } else {
+                Text(title)
+            }
+        },
         leadingContent = {
             RadioButton(
                 selected = selected,
