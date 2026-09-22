@@ -53,7 +53,13 @@ jobs:
         git fetch xx master
         git checkout xx/master
 
-        curl -sSL https://raw.githubusercontent.com/KOWX712/files/main/KowSU/xxksu.patch | patch -p1
+        if ! (set -o pipefail; curl -sSfL "https://raw.githubusercontent.com/KOWX712/files/main/KowSU/xxksu.patch" | patch -p1); then
+          echo "Patch failed or rejected, restoring modified files..."
+          git checkout .
+          git clean -fd
+          echo "Applying fallback patch from midori01/KernelSU xx branch (xx~2)..."
+          patch -p1 < <(curl -sSfL "https://github.com/midori01/KernelSU/commit/xx~2.patch")
+        fi
 
         sed -i "s/CFLAGS_ksu.o += -DKSU_VERSION=.*/CFLAGS_ksu.o += -DKSU_VERSION=${{ steps.version.outputs.KSU_VERSION }}/" kernel/Makefile
 
