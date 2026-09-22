@@ -270,8 +270,8 @@ fun FloatingBottomBar(
                 val targetIndex = targetValue.roundToInt().coerceIn(0, tabsCount - 1)
                 if (currentIndex != targetIndex) {
                     currentIndex = targetIndex
-                    onSelectedUpdated(targetIndex)
                 }
+                onSelectedUpdated(targetIndex)
                 updateValue(targetIndex.toFloat())
                 animationScope.launch {
                     offsetAnimation.animateTo(0f, spring(1f, 300f, 0.5f))
@@ -308,8 +308,8 @@ fun FloatingBottomBar(
         if (index !in 0 until tabsCount) return
         if (currentIndex != index) {
             currentIndex = index
-            onSelectedUpdated(index)
         }
+        onSelectedUpdated(index)
         dampedDragAnimation.animateToValue(index.toFloat())
     }
 
