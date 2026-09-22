@@ -339,6 +339,10 @@
     <string name="settings_scroll_animation">使用滾動動畫</string>
     <string name="kallsyms_title">核心符號表</string>
     <string name="kallsyms_search">搜尋核心符號…</string>
+    <string name="dmesg_title">dmesg</string>
+    <string name="dmesg_search">搜尋 dmesg…</string>
+    <string name="dmesg_sort_asc">正序</string>
+    <string name="dmesg_sort_desc">倒序</string>
     <string name="share">分享</string>
     <string name="sulog_filter_root_execve">Root execve</string>
     <string name="sulog_filter_sucompat">傳統 SU</string>
