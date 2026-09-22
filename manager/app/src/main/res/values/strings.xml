@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name_official" translatable="false">KernelSU</string>
+    <string name="app_name_midorisu" translatable="false">MidoriSU</string>
+    <string name="app_name_kowsu" translatable="false">KowSU</string>
     <string name="home">Home</string>
     <string name="home_not_installed">Not installed</string>
     <string name="home_click_to_install">Tap to install</string>
@@ -158,7 +160,7 @@
     <string name="settings_pager_gesture_cross_axis">Cross-axis</string>
     <string name="settings_pager_gesture_ios_like">iOS-like</string>
     <string name="settings_module_check_update">Check for module updates</string>
-    <string name="grant_root_failed">Failed to grant Root!</string>
+    <string name="grant_root_failed">Failed to grant root!</string>
     <string name="home_pr_build_warning">This is a PR debug build. Do NOT use it in production!</string>
     <string name="home_pr_kernel_warning">The kernel was built with PR signature support. This is not a production kernel!</string>
     <string name="action">Action</string>
@@ -206,14 +208,14 @@
     <string name="settings_sucompat">Classic SU command</string>
     <string name="settings_sucompat_summary">Allow Root access via /system/bin/su, in new processes</string>
     <string name="settings_kernel_umount">Kernel umount</string>
-    <string name="settings_kernel_umount_summary">Unmount modules from kernel in App Profile</string>
+    <string name="settings_kernel_umount_summary">Umount modules from kernel in App Profile</string>
     <string name="settings_selinux_hide">Hide SELinux modification</string>
     <string name="settings_selinux_hide_summary">Prevent applications from detecting SELinux modifications</string>
     <string name="settings_selinux_hide_reboot_required">Reboot to take effect</string>
     <string name="settings_selinux_hide_failed">Error: %d</string>
     <string name="settings_sulog">SU Log</string>
-    <string name="settings_sulog_summary">Record Root-related events into KernelSU sulog files</string>
-    <string name="settings_avc_spoof">Avc log spoofing</string>
+    <string name="settings_sulog_summary">Record root-related events into KernelSU sulog files.</string>
+    <string name="settings_avc_spoof">AVC Log spoofing</string>
     <string name="settings_avc_spoof_summary">Fix selinux context leak caused by avc denial in audit log.</string>
     <string name="feature_status_unsupported_summary">Kernel does not support this feature</string>
     <string name="feature_status_managed_summary">This feature is managed by a module</string>
@@ -319,6 +321,7 @@
     <string name="sort_by_install_time">Install time</string>
     <string name="sort_by_update_time">Update time</string>
     <string name="sort_reverse">Reverse</string>
+    <string name="copy_success">Copied to clipboard</string>
     <string name="profile_flags_desc_no_new_privs">Prevent further privilege escalation via KernelSU from within the context of this root profile</string>
     <string name="module_shortcut_copy_scheme">Copy URL scheme</string>
     <string name="module_shortcut_scheme_copied">URL scheme copied</string>
