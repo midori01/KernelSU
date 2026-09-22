@@ -346,4 +346,5 @@
     <string name="sulog_filter_ioctl_grant_root">Root 許可</string>
     <string name="sulog_filter_daemon_restart">デーモン再起動</string>
     <string name="settings_official_icon">公式アプリアイコンを使用</string>
+    <string name="settings_app_icon">アプリアイコン</string>
 </resources>
