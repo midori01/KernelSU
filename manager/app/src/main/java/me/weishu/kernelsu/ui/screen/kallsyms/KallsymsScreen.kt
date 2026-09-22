@@ -48,8 +48,9 @@ import me.weishu.kernelsu.ui.component.material.TopBarBackButton
 import me.weishu.kernelsu.ui.component.miuix.SearchBarFake
 import me.weishu.kernelsu.ui.component.miuix.SearchBox
 import me.weishu.kernelsu.ui.component.bottombar.KernelTool
-import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMaterial
-import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMiuix
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolTitleDropdownMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolTopAppBarMiuix
 import me.weishu.kernelsu.ui.component.miuix.SearchPager
 import me.weishu.kernelsu.ui.navigation3.LocalNavigator
 import me.weishu.kernelsu.ui.navigation3.Navigator
@@ -130,27 +131,13 @@ fun KallsymsScreenMiuix(
         topBar = {
             BlurredBar(backdrop) {
                 searchStatus.TopAppBarAnim(backgroundColor = barColor) {
-                    MiuixTopAppBar(
+                    KernelToolTopAppBarMiuix(
+                        currentTool = KernelTool.Kallsyms,
+                        isRootTab = isRootTab,
+                        titleRes = R.string.kallsyms_title,
+                        navigator = navigator,
                         color = barColor,
-                        title = stringResource(R.string.kallsyms_title),
                         scrollBehavior = scrollBehavior,
-                        navigationIcon = {
-                            if (isRootTab) {
-                                KernelToolNavigationIconsMiuix(KernelTool.Kallsyms, navigator)
-                            } else {
-                                MiuixIconButton(onClick = { navigator.pop() }) {
-                                    val layoutDirection = LocalLayoutDirection.current
-                                    MiuixIcon(
-                                        modifier = Modifier.graphicsLayer {
-                                            if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
-                                        },
-                                        imageVector = MiuixIcons.Back,
-                                        contentDescription = null,
-                                        tint = colorScheme.onSurface,
-                                    )
-                                }
-                            }
-                        },
                         actions = {
                             MiuixIconButton(onClick = {
                                 val uri = exportKallsymsToFile(context, uiState.filteredEntries)
@@ -321,7 +308,13 @@ fun KallsymsScreenMaterial(
         topBar = {
             SearchAppBar(
                 snackbarHostState = snackbarHostState,
-                title = { Text(stringResource(R.string.kallsyms_title)) },
+                title = {
+                    if (isRootTab) {
+                        KernelToolTitleDropdownMaterial(KernelTool.Kallsyms, navigator)
+                    } else {
+                        Text(stringResource(R.string.kallsyms_title))
+                    }
+                },
                 searchText = localSearchText,
                 onSearchTextChange = {
                     localSearchText = it
@@ -333,7 +326,7 @@ fun KallsymsScreenMaterial(
                 },
                 navigationIcon = {
                     if (isRootTab) {
-                        KernelToolNavigationIconsMaterial(KernelTool.Kallsyms, navigator)
+                        KernelToolNavigationIconMaterial(KernelTool.Kallsyms)
                     } else {
                         TopBarBackButton(onClick = { navigator.pop() })
                     }
