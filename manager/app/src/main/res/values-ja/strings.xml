@@ -346,5 +346,8 @@
     <string name="sulog_filter_ioctl_grant_root">Root 許可</string>
     <string name="sulog_filter_daemon_restart">デーモン再起動</string>
     <string name="settings_official_icon">公式アプリアイコンを使用</string>
+    <string name="anykernel_install_summary">フラッシュする AnyKernel3 zip パッケージを選択</string>
+    <string name="install_select_slot">スロットを選択</string>
+    <string name="slot_active_tag">アクティブ</string>
     <string name="settings_app_icon">アプリアイコン</string>
 </resources>

@@ -30,6 +30,11 @@ internal data class InstallUiState(
     val canForceBackup: Boolean,
     val blockModules: String,
     val blockModulesValid: Boolean,
+    val isAbDevice: Boolean = false,
+    val canSelectSlot: Boolean = false,
+    val slotItems: List<String> = emptyList(),
+    val slotSelectionIndex: Int = 0,
+    val isNextEnabled: Boolean = false,
 )
 
 @Immutable
@@ -39,6 +44,7 @@ internal data class InstallScreenActions(
     val onDownloadFile: () -> Unit,
     val onSelectBootImage: () -> Unit,
     val onSelectAnyKernel: () -> Unit,
+    val onSelectSlot: (Int) -> Unit,
     val onSelectLkm: () -> Unit,
     val onClearLkm: () -> Unit,
     val onSelectLkmVariant: (LkmVariant) -> Unit,
