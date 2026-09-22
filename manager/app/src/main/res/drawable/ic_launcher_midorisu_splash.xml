@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_midorisu_splash_vector">
+    <target
+        android:name="bg_group"
+        android:animation="@animator/anim_midorisu_bg" />
+    <target
+        android:name="ring_group"
+        android:animation="@animator/anim_midorisu_ring" />
+    <target
+        android:name="glyph_group"
+        android:animation="@animator/anim_midorisu_glyph" />
+</animated-vector>
