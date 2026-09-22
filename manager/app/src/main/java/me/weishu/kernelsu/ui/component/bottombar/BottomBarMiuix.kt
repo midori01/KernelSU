@@ -91,23 +91,21 @@ fun BottomBarMiuix(
                         NavigationBarItem(
                             modifier = Modifier
                                 .weight(1f)
-                                .then(
-                                    if (index == 2) {
-                                        Modifier.pointerInput(Unit) {
-                                            detectTapGestures(
-                                                onLongPress = {
-                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                    settingsRepo.bottomBarToolTipsShown = true
-                                                    showTips = false
-                                                    showToolSelectDialog = true
-                                                },
-                                                onTap = {
-                                                    mainState.animateToPage(index)
-                                                }
-                                            )
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onLongPress = if (index == 2) {
+                                            {
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                settingsRepo.bottomBarToolTipsShown = true
+                                                showTips = false
+                                                showToolSelectDialog = true
+                                            }
+                                        } else null,
+                                        onTap = {
+                                            mainState.animateToPage(index)
                                         }
-                                    } else Modifier
-                                ),
+                                    )
+                                },
                             icon = item.icon,
                             label = item.label,
                             selected = mainState.selectedPage == index,
@@ -155,23 +153,21 @@ fun BottomBarMiuix(
                     },
                     modifier = Modifier
                         .defaultMinSize(minWidth = 68.dp)
-                        .then(
-                            if (index == 2) {
-                                Modifier.pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onLongPress = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            settingsRepo.bottomBarToolTipsShown = true
-                                            showTips = false
-                                            showToolSelectDialog = true
-                                        },
-                                        onTap = {
-                                            activateTab(index)
-                                        }
-                                    )
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onLongPress = if (index == 2) {
+                                    {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        settingsRepo.bottomBarToolTipsShown = true
+                                        showTips = false
+                                        showToolSelectDialog = true
+                                    }
+                                } else null,
+                                onTap = {
+                                    activateTab(index)
                                 }
-                            } else Modifier
-                        )
+                            )
+                        }
                 ) {
                     // Icon and label take LocalContentColor so the FloatingBottomBar backdrop copy
                     // can recolor them to the accent tone inside the indicator pill.
