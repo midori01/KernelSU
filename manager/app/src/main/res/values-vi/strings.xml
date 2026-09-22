@@ -314,6 +314,6 @@
     <string name="install_force_backup_summary">Vui lòng đảm bảo boot image bạn chọn là stock image.</string>
     <string name="nav_rail_expand">Mở rộng thanh điều hướng</string>
     <string name="nav_rail_collapse">Thu gọn thanh điều hướng</string>
-    <string name="settings_navigation_badge">Biểu tượng Điều hướng</string>
-    <string name="settings_navigation_badge_summary">Hiển thị số lượng ứng dụng được cấp phép và số lượng module được kích hoạt trên thanh điều hướng.</string>
+    <string name="settings_module_update_badge">Huy hiệu cập nhật module</string>
+    <string name="settings_module_update_badge_summary">Hiển thị huy hiệu trên thanh điều hướng khi có bản cập nhật module</string>
 </resources>
