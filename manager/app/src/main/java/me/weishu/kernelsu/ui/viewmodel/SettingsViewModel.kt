@@ -51,6 +51,7 @@ class SettingsViewModel(
             val moduleDescriptionMaxLines = repo.moduleDescriptionMaxLines
             val enableWebDebugging = repo.enableWebDebugging
             val appIconMode = repo.appIconMode
+            val modernBento = repo.modernBento
             val classicUi = repo.classicUi
             val showSwitchIcon = repo.showSwitchIcon
             val scrollAnimation = repo.scrollAnimation
@@ -114,6 +115,7 @@ class SettingsViewModel(
                     miuixMonet = miuixMonet,
                     keyColor = keyColor,
                     appIconMode = appIconMode,
+                    modernBento = modernBento,
                     classicUi = classicUi,
                     showSwitchIcon = showSwitchIcon,
                     scrollAnimation = scrollAnimation,
@@ -255,9 +257,13 @@ class SettingsViewModel(
         _uiState.update { it.copy(appIconMode = mode) }
     }
 
+    fun setModernBento(enabled: Boolean) {
+        repo.modernBento = enabled
+        _uiState.update { it.copy(modernBento = enabled, classicUi = !enabled) }
+    }
+
     fun setClassicUi(enabled: Boolean) {
-        repo.classicUi = enabled
-        _uiState.update { it.copy(classicUi = enabled) }
+        setModernBento(!enabled)
     }
 
     fun setShowSwitchIcon(enabled: Boolean) {
