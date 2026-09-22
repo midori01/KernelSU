@@ -119,6 +119,7 @@ fun SulogScreenMiuix(
     val barColor = if (blurActive) Color.Transparent else colorScheme.surface
     val pullToRefreshState = rememberPullToRefreshState()
     val listState = rememberLazyListState()
+    val searchListState = rememberLazyListState()
     val fileSelector = buildSulogFileSelector(state.files, state.selectedFilePath)
     val refreshTexts = listOf(
         stringResource(R.string.refresh_pulling),
@@ -251,13 +252,15 @@ fun SulogScreenMiuix(
             }
         },
         popupHost = {
-            searchStatus.SearchPager(
-                onSearchStatusChange = ::onSearchStatusChange,
-                defaultResult = {},
-                searchBarTopPadding = dynamicTopPadding,
-            ) {
+            val searchListContent = @Composable {
                 val imeBottomPadding = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+                val latestVisibleEntries = rememberUpdatedState(state.visibleEntries)
+                ScrollToTopOnChange(
+                    searchListState,
+                    state.searchText,
+                ) { latestVisibleEntries.value }
                 LazyColumn(
+                    state = searchListState,
                     modifier = Modifier
                         .fillMaxSize()
                         .overScrollVertical(),
@@ -274,6 +277,13 @@ fun SulogScreenMiuix(
                         Spacer(Modifier.height(imeBottomPadding))
                     }
                 }
+            }
+            searchStatus.SearchPager(
+                onSearchStatusChange = ::onSearchStatusChange,
+                defaultResult = { searchListContent() },
+                searchBarTopPadding = dynamicTopPadding,
+            ) {
+                searchListContent()
             }
         },
         contentWindowInsets = WindowInsets.systemBars.add(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal),
