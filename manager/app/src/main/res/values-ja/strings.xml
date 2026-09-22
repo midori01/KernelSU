@@ -321,6 +321,10 @@
     <string name="module_shortcut_scheme_copied">URL スキームをコピーしました</string>
     <string name="kallsyms_title">カーネルシンボル</string>
     <string name="kallsyms_search">シンボルを検索…</string>
+    <string name="dmesg_title">dmesg</string>
+    <string name="dmesg_search">dmesg を検索…</string>
+    <string name="dmesg_sort_asc">昇順</string>
+    <string name="dmesg_sort_desc">降順</string>
     <string name="share">共有</string>
     <string name="sulog_log_files">ログファイル</string>
     <string name="sulog_failed_to_load">sulog の読み込みに失敗しました</string>
