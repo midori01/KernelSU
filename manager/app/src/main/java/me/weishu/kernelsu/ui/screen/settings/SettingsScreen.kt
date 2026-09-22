@@ -55,6 +55,7 @@ fun SettingPager(
     val actions = SettingsScreenActions(
         onSetCheckUpdate = viewModel::setCheckUpdate,
         onSetCheckModuleUpdate = viewModel::setCheckModuleUpdate,
+        onSetCheckKsuDriverUpdate = viewModel::setCheckKsuDriverUpdate,
         onOpenTheme = { navigator.push(Route.ColorPalette) },
         onSetUiModeIndex = { index ->
             viewModel.setUiMode(if (index == 0) UiMode.Miuix.value else UiMode.Material.value)
@@ -63,6 +64,7 @@ fun SettingPager(
         onSetSuCompatMode = viewModel::setSuCompatMode,
         onSetKernelUmountEnabled = viewModel::setKernelUmountEnabled,
         onSetSelinuxHideEnabled = viewModel::setSelinuxHideEnabled,
+        onSetSelinuxEnforcing = viewModel::setSelinuxEnforcing,
         onSetSulogEnabled = viewModel::setSulogEnabled,
         onSetAdbRootEnabled = viewModel::setAdbRootEnabled,
         onSetAvcSpoofEnabled = viewModel::setAvcSpoofEnabled,

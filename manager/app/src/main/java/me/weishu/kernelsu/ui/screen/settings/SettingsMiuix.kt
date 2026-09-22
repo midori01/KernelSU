@@ -32,16 +32,21 @@ import androidx.compose.material.icons.rounded.ElectricalServices
 import androidx.compose.material.icons.rounded.Fence
 import androidx.compose.material.icons.rounded.FolderDelete
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.VerifiedUser
 import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.SystemUpdateAlt
+import androidx.compose.material.icons.rounded.Update
+import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -145,6 +150,20 @@ fun SettingPagerMiuix(
                                 checked = uiState.checkModuleUpdate,
                                 onCheckedChange = actions.onSetCheckModuleUpdate
                             )
+                            SwitchPreference(
+                                title = stringResource(R.string.settings_check_ksu_driver_update),
+                                summary = stringResource(R.string.settings_check_ksu_driver_update_summary),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.NewReleases,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(R.string.settings_check_ksu_driver_update),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                checked = uiState.checkKsuDriverUpdate,
+                                onCheckedChange = actions.onSetCheckKsuDriverUpdate
+                            )
                         }
                     }
 
@@ -206,7 +225,7 @@ fun SettingPagerMiuix(
                         }
                     }
 
-                    if (uiState.isToolkitInstalled || uiState.isKpatchNextInstalled) KsuIsValid {
+                    if (uiState.isToolkitInstalled || uiState.isKpatchNextInstalled || uiState.isSusfsInstalled) KsuIsValid {
                         Card(
                             modifier = Modifier
                                 .padding(top = 12.dp)
@@ -243,6 +262,23 @@ fun SettingPagerMiuix(
                                     },
                                     onClick = {
                                         actions.onOpenWebUi("KPatch-Next", "KPatch-Next")
+                                    }
+                                )
+                            }
+                            if (uiState.isSusfsInstalled) {
+                                ArrowPreference(
+                                    title = stringResource(R.string.settings_susfs4ksu),
+                                    summary = stringResource(R.string.settings_susfs4ksu_summary),
+                                    startAction = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_sus),
+                                            modifier = Modifier.padding(end = 6.dp),
+                                            contentDescription = stringResource(id = R.string.settings_susfs4ksu),
+                                            tint = colorScheme.onBackground
+                                        )
+                                    },
+                                    onClick = {
+                                        actions.onOpenWebUi("susfs4ksu", "SUSFS for KernelSU")
                                     }
                                 )
                             }
@@ -323,6 +359,21 @@ fun SettingPagerMiuix(
                                 enabled = uiState.selinuxHideStatus == "supported",
                                 checked = uiState.isSelinuxHideEnabled,
                                 onCheckedChange = actions.onSetSelinuxHideEnabled
+                            )
+
+                            SwitchPreference(
+                                title = stringResource(id = R.string.settings_selinux_enforcing),
+                                summary = if (uiState.isSelinuxEnforcing) stringResource(R.string.selinux_status_enforcing) else stringResource(R.string.selinux_status_permissive),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.VerifiedUser,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(id = R.string.settings_selinux_enforcing),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                checked = uiState.isSelinuxEnforcing,
+                                onCheckedChange = actions.onSetSelinuxEnforcing
                             )
 
                             val sulogSummary = when (uiState.sulogStatus) {
