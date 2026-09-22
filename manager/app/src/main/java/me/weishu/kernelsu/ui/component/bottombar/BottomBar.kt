@@ -20,6 +20,14 @@ import me.weishu.kernelsu.ui.util.shouldShowSplitPane
 import top.yukonga.miuix.kmp.blur.Backdrop
 import top.yukonga.miuix.kmp.blur.LayerBackdrop
 import top.yukonga.miuix.kmp.utils.springAnimateToPage
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import me.weishu.kernelsu.ui.LocalMainPagerState
+import kotlin.math.abs
 
 class MainPagerState(
     val pagerState: PagerState,
@@ -27,6 +35,12 @@ class MainPagerState(
     private val animatePageChanges: Boolean,
     initialPage: Int = pagerState.currentPage,
 ) {
+    private val _pageReselectFlow = MutableSharedFlow<Int>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+    val pageReselectFlow: SharedFlow<Int> = _pageReselectFlow.asSharedFlow()
+
     var selectedPage by mutableIntStateOf(initialPage)
         private set
 
@@ -38,7 +52,10 @@ class MainPagerState(
     private var navJob: Job? = null
 
     fun animateToPage(targetIndex: Int) {
-        if (targetIndex == selectedPage) return
+        if (targetIndex == selectedPage) {
+            _pageReselectFlow.tryEmit(targetIndex)
+            return
+        }
 
         navJob?.cancel()
 
@@ -130,5 +147,18 @@ fun SideRail(
     when (LocalUiMode.current) {
         UiMode.Miuix -> NavigationRailMiuix(navigationBadge, modifier)
         UiMode.Material -> NavigationRailMaterial(navigationBadge, modifier)
+    }
+}
+
+@Composable
+fun RegisterTabReselect(targetPage: Int, onReselect: suspend () -> Unit) {
+    val mainState = LocalMainPagerState.current
+    val currentOnReselect by rememberUpdatedState(onReselect)
+    LaunchedEffect(mainState, targetPage) {
+        mainState.pageReselectFlow.collect { page ->
+            if (page == targetPage) {
+                currentOnReselect()
+            }
+        }
     }
 }
