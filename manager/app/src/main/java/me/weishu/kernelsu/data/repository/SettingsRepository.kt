@@ -37,6 +37,7 @@ interface SettingsRepository {
     var useSoftReboot: Boolean
     var modulePreflashInspection: Boolean
     var bottomBarKernelTool: String
+    var bottomBarToolTipsShown: Boolean
     val intentToken: String
 
     suspend fun getSuCompatStatus(): String
