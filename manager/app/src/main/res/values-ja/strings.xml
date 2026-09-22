@@ -319,6 +319,9 @@
     <string name="install_force_backup_summary">選択した boot イメージが純正イメージであることを確認してください</string>
     <string name="module_shortcut_copy_scheme">URL スキームをコピー</string>
     <string name="module_shortcut_scheme_copied">URL スキームをコピーしました</string>
+    <string name="kallsyms_title">カーネルシンボル</string>
+    <string name="kallsyms_search">シンボルを検索…</string>
+    <string name="share">共有</string>
     <string name="sulog_log_files">ログファイル</string>
     <string name="sulog_failed_to_load">sulog の読み込みに失敗しました</string>
     <string name="sulog_disabled_title">SU ログは無効です</string>
