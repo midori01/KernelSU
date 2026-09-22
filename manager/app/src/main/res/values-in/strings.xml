@@ -115,8 +115,6 @@
     <string name="module_downloading">Mengunduh modul: %s</string>
     <string name="module_start_downloading">Mulai mengunduh: %s</string>
     <string name="module_action_success">Aksi modul berhasil dieksekusi.</string>
-    <string name="start_downloading">Mulai mengunduh</string>
-    <string name="download_failed">Gagal mengunduh: %s</string>
     <string name="new_version_available">Versi baru %s tersedia, ketuk untuk memperbarui!</string>
     <string name="launch_app">Luncurkan</string>
     <string name="force_stop_app">Paksa henti</string>
