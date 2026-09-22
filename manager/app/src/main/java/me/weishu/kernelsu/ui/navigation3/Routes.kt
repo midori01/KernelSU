@@ -95,4 +95,8 @@ sealed interface Route : NavKey, Parcelable {
     @Parcelize
     @Serializable
     data object KernelModule : Route
+
+    @Parcelize
+    @Serializable
+    data object Kconfig : Route
 }
