@@ -6,16 +6,19 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.filled.ViewModule
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.outlined.Terminal
+import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material.icons.outlined.ViewModule
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.DataObject
 import androidx.compose.material.icons.rounded.Terminal
+import androidx.compose.material.icons.rounded.Unarchive
 import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.ui.graphics.vector.ImageVector
 import me.weishu.kernelsu.R
@@ -29,6 +32,14 @@ enum class KernelTool(
     val roundedIcon: ImageVector,
     val route: Route,
 ) {
+    Payload(
+        id = "payload",
+        label = R.string.payload_extract_title,
+        outlinedIcon = Icons.Outlined.Unarchive,
+        filledIcon = Icons.Filled.Unarchive,
+        roundedIcon = Icons.Rounded.Unarchive,
+        route = Route.PayloadExtract,
+    ),
     Kconfig(
         id = "kconfig",
         label = R.string.kconfig_title,
@@ -74,6 +85,6 @@ enum class KernelTool(
         const val PREF_KEY = "bottom_bar_kernel_tool"
 
         fun fromId(id: String?): KernelTool =
-            entries.firstOrNull { it.id == id } ?: Kconfig
+            entries.firstOrNull { it.id == id } ?: Payload
     }
 }

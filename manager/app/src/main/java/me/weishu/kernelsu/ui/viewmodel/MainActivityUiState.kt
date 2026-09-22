@@ -17,5 +17,5 @@ data class MainActivityUiState(
     val pagerInterceptionMode: Int,
     val moduleDescriptionMaxLines: Int = 4,
     val uiMode: UiMode,
-    val bottomBarKernelTool: KernelTool = KernelTool.Kconfig,
+    val bottomBarKernelTool: KernelTool = KernelTool.Payload,
 )
