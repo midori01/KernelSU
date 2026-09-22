@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LayersClear
 import androidx.compose.material.icons.filled.EditNote
@@ -134,6 +135,15 @@ fun SettingPagerMaterial(
                                 summary = stringResource(R.string.settings_check_ksu_driver_update_summary),
                                 checked = uiState.checkKsuDriverUpdate,
                                 onCheckedChange = actions.onSetCheckKsuDriverUpdate
+                            )
+                        },
+                        {
+                            SegmentedSwitchItem(
+                                icon = Icons.Filled.HealthAndSafety,
+                                title = stringResource(R.string.settings_module_preflash),
+                                summary = stringResource(R.string.settings_module_preflash_summary),
+                                checked = uiState.modulePreflashInspection,
+                                onCheckedChange = actions.onSetModulePreflashInspection
                             )
                         }
                     )

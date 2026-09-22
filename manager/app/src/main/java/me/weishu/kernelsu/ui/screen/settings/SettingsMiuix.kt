@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.DeveloperMode
 import androidx.compose.material.icons.rounded.DisplaySettings
 import androidx.compose.material.icons.rounded.FlashOn
+import androidx.compose.material.icons.rounded.HealthAndSafety
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.LayersClear
 import androidx.compose.material.icons.rounded.EditNote
@@ -163,6 +164,20 @@ fun SettingPagerMiuix(
                                 },
                                 checked = uiState.checkKsuDriverUpdate,
                                 onCheckedChange = actions.onSetCheckKsuDriverUpdate
+                            )
+                            SwitchPreference(
+                                title = stringResource(R.string.settings_module_preflash),
+                                summary = stringResource(R.string.settings_module_preflash_summary),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.HealthAndSafety,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(R.string.settings_module_preflash),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                checked = uiState.modulePreflashInspection,
+                                onCheckedChange = actions.onSetModulePreflashInspection
                             )
                         }
                     }
