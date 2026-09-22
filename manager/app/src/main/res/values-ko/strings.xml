@@ -346,4 +346,5 @@
     <string name="kconfig_search">커널 설정 검색…</string>
     <string name="share">공유</string>
     <string name="settings_official_icon">공식 앱 아이콘 사용</string>
+    <string name="settings_app_icon">앱 아이콘</string>
 </resources>

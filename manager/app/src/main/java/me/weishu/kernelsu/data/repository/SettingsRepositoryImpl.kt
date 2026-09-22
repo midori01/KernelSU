@@ -74,9 +74,9 @@ class SettingsRepositoryImpl : SettingsRepository {
         get() = prefs.getString("color_spec", ColorSpec.SpecVersion.SPEC_2025.name) ?: ColorSpec.SpecVersion.SPEC_2025.name
         set(value) = prefs.edit { putString("color_spec", value) }
 
-    override var enableOfficialLauncher: Boolean
-        get() = prefs.getBoolean("enable_official_launcher", false)
-        set(value) = prefs.edit { putBoolean("enable_official_launcher", value) }
+    override var appIconMode: Int
+        get() = prefs.getInt("app_icon_mode", 0)
+        set(value) = prefs.edit { putInt("app_icon_mode", value) }
 
     override var classicUi: Boolean
         get() = prefs.getBoolean("classic_ui", false)
