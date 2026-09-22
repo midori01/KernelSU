@@ -34,6 +34,7 @@ import me.weishu.kernelsu.ui.util.getSuperuserCount
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 import me.weishu.kernelsu.ui.util.resolveDeviceName
 import me.weishu.kernelsu.ui.util.rootAvailable
+import me.weishu.kernelsu.ui.util.CrashLogHelper
 import me.weishu.kernelsu.ui.util.getRootShell
 
 class HomeViewModel(
@@ -43,12 +44,13 @@ class HomeViewModel(
     private val prefs = ksuApp.getSharedPreferences("settings", Context.MODE_PRIVATE)
     private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
-            "app_icon_mode" -> _uiState.update { it.copy(appName = buildState().appName) }
-            "classic_ui" -> _uiState.update { it.copy(classicUi = buildState().classicUi) }
+            "app_icon_mode" -> _uiState.update { it.copy(appName = buildState(checkShell = false).appName) }
+            "classic_ui" -> _uiState.update { it.copy(classicUi = buildState(checkShell = false).classicUi) }
+            CrashLogHelper.PREF_LAST_READ_CRASH -> _uiState.update { it.copy(hasCrashLog = false) }
         }
     }
 
-    private val _uiState = MutableStateFlow(buildState())
+    private val _uiState = MutableStateFlow(buildState(checkShell = false))
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
@@ -85,6 +87,13 @@ class HomeViewModel(
                 }
                 _uiState.update { it.copy(latestKsuDriverInfo = driverInfo) }
             }
+        }
+    }
+
+    fun markCrashLogAsRead() {
+        _uiState.update { it.copy(hasCrashLog = false) }
+        viewModelScope.launch(Dispatchers.IO) {
+            CrashLogHelper.markCrashAsRead(ksuApp)
         }
     }
 
@@ -127,7 +136,7 @@ class HomeViewModel(
         }
     }
 
-    private fun buildState(): HomeUiState {
+    private fun buildState(checkShell: Boolean = true): HomeUiState {
         val prefs = ksuApp.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val classicUi = prefs.getBoolean("classic_ui", false)
         val appIconMode = prefs.getInt("app_icon_mode", 0)
@@ -160,7 +169,7 @@ class HomeViewModel(
             else -> ""
         }
 
-        val (rekernelVersion, rekernelLabel) = if (isManager && ksuVersion != null) {
+        val (rekernelVersion, rekernelLabel) = if (checkShell && isManager && ksuVersion != null) {
             runCatching {
                 val reV = com.topjohnwu.superuser.ShellUtils.fastCmd(
                     getRootShell(true),
@@ -213,7 +222,7 @@ class HomeViewModel(
             currentManagerVersionCode = managerVersion.versionCode,
             superuserCount = getSuperuserCount(),
             moduleCount = getModuleCount(),
-            kernelModuleCount = if (isManager && ksuVersion != null) {
+            kernelModuleCount = if (checkShell && isManager && ksuVersion != null) {
                 runCatching {
                     com.topjohnwu.superuser.ShellUtils.fastCmd(
                         getRootShell(true),
@@ -221,29 +230,34 @@ class HomeViewModel(
                     ).trim().toIntOrNull()?.minus(1) ?: 0
                 }.getOrDefault(0)
             } else 0,
+            hasCrashLog = if (checkShell && isManager && ksuVersion != null) {
+                CrashLogHelper.hasUnreadCrash(ksuApp)
+            } else false,
             systemInfo = SystemInfo(
-                kernelVersion = runCatching {
-                    val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
-                        getRootShell(true),
-                        "cat /proc/version"
-                    ).trim()
-                    if (result.isNotEmpty()) {
-                        val afterPrefix = result.removePrefix("Linux version ")
-                        val versionPart = afterPrefix.substringBefore(" (")
-                        val userHost = Regex("\\(([^)]+)\\)").find(afterPrefix)?.groupValues?.get(1) ?: ""
-                        val buildIndex = afterPrefix.lastIndexOf(") #")
-                        val buildPart = if (buildIndex >= 0) {
-                            afterPrefix.substring(buildIndex + 2).replace("SMP PREEMPT ", "")
-                        } else ""
-                        if (buildPart.isNotEmpty()) {
-                            "$versionPart\n$buildPart ($userHost)"
+                kernelVersion = if (checkShell) {
+                    runCatching {
+                        val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                            getRootShell(true),
+                            "cat /proc/version"
+                        ).trim()
+                        if (result.isNotEmpty()) {
+                            val afterPrefix = result.removePrefix("Linux version ")
+                            val versionPart = afterPrefix.substringBefore(" (")
+                            val userHost = Regex("\\(([^)]+)\\)").find(afterPrefix)?.groupValues?.get(1) ?: ""
+                            val buildIndex = afterPrefix.lastIndexOf(") #")
+                            val buildPart = if (buildIndex >= 0) {
+                                afterPrefix.substring(buildIndex + 2).replace("SMP PREEMPT ", "")
+                            } else ""
+                            if (buildPart.isNotEmpty()) {
+                                "$versionPart\n$buildPart ($userHost)"
+                            } else {
+                                versionPart
+                            }
                         } else {
-                            versionPart
+                            Os.uname().release
                         }
-                    } else {
-                        Os.uname().release
-                    }
-                }.getOrDefault(Os.uname().release),
+                    }.getOrDefault(Os.uname().release)
+                } else Os.uname().release,
                 managerVersion = "${managerVersion.versionName} (${managerVersion.versionCode}-${managerUAPIVersion.toRoman()})",
                 deviceModel = resolveDeviceName(),
                 socInfo = getSocInfo(),
@@ -258,7 +272,7 @@ class HomeViewModel(
                     val nativeHookType = Natives.getHookType()
                     if (nativeHookType.isNotEmpty() && nativeHookType != "Unknown" && nativeHookType != "N/A") {
                         nativeHookType
-                    } else {
+                    } else if (checkShell) {
                         fun checkKconfig(option: String): Boolean {
                             val result = runCatching {
                                 com.topjohnwu.superuser.ShellUtils.fastCmd(
@@ -284,14 +298,14 @@ class HomeViewModel(
                             checkKconfig("CONFIG_KPROBES") || checkKconfig("CONFIG_HAVE_SYSCALL_TRACEPOINTS") -> "Hybrid"
                             else -> "Manual"
                         }
-                    }
+                    } else "N/A"
                 } else "N/A",
                 selinuxStatus = getSELinuxStatusRaw(),
                 seccompStatus = runCatching {
                     Os.prctl(21 /* PR_GET_SECCOMP */, 0, 0, 0, 0)
                 }.getOrDefault(-1),
                 susfsVersion = if (isManager && ksuVersion != null) Natives.getSusFSVersion() else "",
-                droidspacesVersion = if (isManager && ksuVersion != null) {
+                droidspacesVersion = if (checkShell && isManager && ksuVersion != null) {
                     runCatching {
                         val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
                             getRootShell(true),
