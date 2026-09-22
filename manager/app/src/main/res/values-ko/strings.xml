@@ -346,5 +346,8 @@
     <string name="kconfig_search">커널 설정 검색…</string>
     <string name="share">공유</string>
     <string name="settings_official_icon">공식 앱 아이콘 사용</string>
+    <string name="anykernel_install_summary">플래시할 AnyKernel3 zip 패키지 선택</string>
+    <string name="install_select_slot">슬롯 선택</string>
+    <string name="slot_active_tag">현재 활성</string>
     <string name="settings_app_icon">앱 아이콘</string>
 </resources>

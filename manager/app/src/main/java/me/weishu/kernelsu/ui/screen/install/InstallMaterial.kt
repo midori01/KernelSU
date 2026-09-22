@@ -93,6 +93,26 @@ internal fun InstallScreenMaterial(
             )
 
             AnimatedVisibility(
+                visible = uiState.canSelectSlot,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                SegmentedColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                ) {
+                    item {
+                        SegmentedDropdownItem(
+                            items = uiState.slotItems,
+                            selectedIndex = uiState.slotSelectionIndex,
+                            title = stringResource(R.string.install_select_slot),
+                            onItemSelected = actions.onSelectSlot,
+                            icon = Icons.Filled.Edit
+                        )
+                    }
+                }
+            }
+
+            AnimatedVisibility(
                 visible = uiState.showInstallOptions,
                 enter = fadeIn() + expandVertically(),
                 exit = fadeOut() + shrinkVertically()
@@ -218,7 +238,7 @@ internal fun InstallScreenMaterial(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                enabled = uiState.installMethod != null,
+                enabled = uiState.isNextEnabled,
                 onClick = actions.onNext
             ) { Text(stringResource(R.string.install_next)) }
         }
@@ -257,10 +277,11 @@ private fun SelectInstallMethod(
             modifier = Modifier.padding(horizontal = 16.dp),
             content = state.installMethodOptions.map { option ->
                 {
+                    val isSelected = option.javaClass == state.installMethod?.javaClass
                     SegmentedRadioItem(
                         title = stringResource(option.label),
-                        summary = option.summary,
-                        selected = option.javaClass == state.installMethod?.javaClass,
+                        summary = if (isSelected) state.installMethod.summary ?: option.summary else option.summary,
+                        selected = isSelected,
                         onClick = { onClick(option) }
                     )
                 }
