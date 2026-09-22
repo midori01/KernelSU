@@ -16,7 +16,7 @@ data class SettingsUiState(
     val keyColor: Int = 0,
     val colorStyle: String = PaletteStyle.TonalSpot.name,
     val colorSpec: String = ColorSpec.SpecVersion.Default.name,
-    val enableOfficialLauncher: Boolean = false,
+    val appIconMode: Int = 0,
     val classicUi: Boolean = false,
     val showSwitchIcon: Boolean = false,
     val scrollAnimation: Boolean = false,
@@ -79,6 +79,7 @@ data class SettingsUiState(
 
 @Immutable
 data class SettingsScreenActions(
+    val onSetAppIconMode: (Int) -> Unit,
     val onSetCheckUpdate: (Boolean) -> Unit,
     val onSetCheckModuleUpdate: (Boolean) -> Unit,
     val onSetCheckKsuDriverUpdate: (Boolean) -> Unit,
