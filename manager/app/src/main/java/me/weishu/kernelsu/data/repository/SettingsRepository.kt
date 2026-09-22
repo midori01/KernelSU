@@ -36,6 +36,7 @@ interface SettingsRepository {
     var autoJailbreak: Boolean
     var useSoftReboot: Boolean
     var modulePreflashInspection: Boolean
+    var bottomBarKernelTool: String
     val intentToken: String
 
     suspend fun getSuCompatStatus(): String

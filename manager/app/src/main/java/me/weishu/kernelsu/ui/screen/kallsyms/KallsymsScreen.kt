@@ -47,6 +47,9 @@ import me.weishu.kernelsu.ui.component.material.SearchAppBar
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
 import me.weishu.kernelsu.ui.component.miuix.SearchBarFake
 import me.weishu.kernelsu.ui.component.miuix.SearchBox
+import me.weishu.kernelsu.ui.component.bottombar.KernelTool
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMiuix
 import me.weishu.kernelsu.ui.component.miuix.SearchPager
 import me.weishu.kernelsu.ui.navigation3.LocalNavigator
 import me.weishu.kernelsu.ui.navigation3.Navigator
@@ -72,15 +75,15 @@ import top.yukonga.miuix.kmp.utils.overScrollVertical
 import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 
 @Composable
-fun KallsymsScreen() {
+fun KallsymsScreen(isRootTab: Boolean = false) {
     val viewModel = viewModel<KallsymsViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val navigator = LocalNavigator.current
 
     when (LocalUiMode.current) {
-        UiMode.Miuix -> KallsymsScreenMiuix(uiState, viewModel::setSearchQuery, context, navigator)
-        UiMode.Material -> KallsymsScreenMaterial(uiState, viewModel::setSearchQuery, context, navigator)
+        UiMode.Miuix -> KallsymsScreenMiuix(uiState, viewModel::setSearchQuery, context, navigator, isRootTab)
+        UiMode.Material -> KallsymsScreenMaterial(uiState, viewModel::setSearchQuery, context, navigator, isRootTab)
     }
 }
 
@@ -89,7 +92,8 @@ fun KallsymsScreenMiuix(
     uiState: KallsymsUiState,
     onSearch: (String) -> Unit,
     context: Context,
-    navigator: Navigator
+    navigator: Navigator,
+    isRootTab: Boolean = false,
 ) {
     val enableBlur = LocalEnableBlur.current
     val density = LocalDensity.current
@@ -131,16 +135,20 @@ fun KallsymsScreenMiuix(
                         title = stringResource(R.string.kallsyms_title),
                         scrollBehavior = scrollBehavior,
                         navigationIcon = {
-                            MiuixIconButton(onClick = { navigator.pop() }) {
-                                val layoutDirection = LocalLayoutDirection.current
-                                MiuixIcon(
-                                    modifier = Modifier.graphicsLayer {
-                                        if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
-                                    },
-                                    imageVector = MiuixIcons.Back,
-                                    contentDescription = null,
-                                    tint = colorScheme.onSurface,
-                                )
+                            if (isRootTab) {
+                                KernelToolNavigationIconsMiuix(KernelTool.Kallsyms, navigator)
+                            } else {
+                                MiuixIconButton(onClick = { navigator.pop() }) {
+                                    val layoutDirection = LocalLayoutDirection.current
+                                    MiuixIcon(
+                                        modifier = Modifier.graphicsLayer {
+                                            if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
+                                        },
+                                        imageVector = MiuixIcons.Back,
+                                        contentDescription = null,
+                                        tint = colorScheme.onSurface,
+                                    )
+                                }
                             }
                         },
                         actions = {
@@ -292,7 +300,8 @@ fun KallsymsScreenMaterial(
     uiState: KallsymsUiState,
     onSearch: (String) -> Unit,
     context: Context,
-    navigator: Navigator
+    navigator: Navigator,
+    isRootTab: Boolean = false,
 ) {
     val listState = rememberLazyListState()
     val searchListState = rememberLazyListState()
@@ -323,7 +332,11 @@ fun KallsymsScreenMaterial(
                     onSearch("")
                 },
                 navigationIcon = {
-                    TopBarBackButton(onClick = { navigator.pop() })
+                    if (isRootTab) {
+                        KernelToolNavigationIconsMaterial(KernelTool.Kallsyms, navigator)
+                    } else {
+                        TopBarBackButton(onClick = { navigator.pop() })
+                    }
                 },
                 actions = {
                     IconButton(onClick = {
