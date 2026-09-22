@@ -354,4 +354,24 @@
     <string name="install_select_slot">スロットを選択</string>
     <string name="slot_active_tag">アクティブ</string>
     <string name="settings_app_icon">アプリアイコン</string>
+    <string name="backup_profiles">アプリ設定をバックアップ</string>
+    <string name="restore_profiles">アプリ設定を復元</string>
+    <string name="backup_export_file">ファイルにエクスポート</string>
+    <string name="backup_export_file_summary">アプリ設定を JSON ファイルとして保存</string>
+    <string name="backup_copy_clipboard">クリップボードにコピー</string>
+    <string name="backup_copy_clipboard_summary">設定データをクリップボードにコピー</string>
+    <string name="restore_import_file">ファイルからインポート</string>
+    <string name="restore_import_file_summary">復元する JSON バックアップファイルを選択</string>
+    <string name="restore_paste_clipboard">クリップボードから読み込み</string>
+    <string name="restore_paste_clipboard_summary">クリップボードのテキストから設定を復元</string>
+    <string name="backup_profiles_empty">バックアップする設定済みアプリがありません</string>
+    <string name="backup_profiles_success">アプリ設定をクリップボードにコピーしました</string>
+    <string name="backup_profiles_file_saved">アプリ設定を保存しました</string>
+    <string name="backup_profiles_failed">アプリ設定のエクスポートに失敗しました: %s</string>
+    <string name="restore_confirm_title">アプリ設定の復元</string>
+    <string name="restore_confirm_message">バックアップ内に %1$d 件の設定が見つかりました（インストール済み: %2$d 件、未インストール: %3$d 件）。\n\nこれらの設定を復元しますか？</string>
+    <string name="restore_profiles_success">%1$d 件のアプリ設定を復元しました（未インストール %2$d 件をスキップ）</string>
+    <string name="restore_profiles_failed">アプリ設定の復元に失敗しました: %s</string>
+    <string name="restore_data_invalid">有効なアプリ設定のバックアップデータが見つかりません</string>
+    <string name="restore_clipboard_invalid">クリップボードに有効なバックアップデータが含まれていません</string>
 </resources>
