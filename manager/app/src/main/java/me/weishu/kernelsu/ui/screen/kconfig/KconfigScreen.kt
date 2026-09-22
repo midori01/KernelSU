@@ -41,8 +41,9 @@ import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.SearchStatus
 import me.weishu.kernelsu.ui.component.bottombar.KernelTool
-import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMaterial
-import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMiuix
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolTitleDropdownMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolTopAppBarMiuix
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
@@ -128,27 +129,13 @@ fun KconfigScreenMiuix(
         topBar = {
             BlurredBar(backdrop) {
                 searchStatus.TopAppBarAnim(backgroundColor = barColor) {
-                    MiuixTopAppBar(
+                    KernelToolTopAppBarMiuix(
+                        currentTool = KernelTool.Kconfig,
+                        isRootTab = isRootTab,
+                        titleRes = R.string.kconfig_title,
+                        navigator = navigator,
                         color = barColor,
-                        title = stringResource(R.string.kconfig_title),
                         scrollBehavior = scrollBehavior,
-                        navigationIcon = {
-                            if (isRootTab) {
-                                KernelToolNavigationIconsMiuix(KernelTool.Kconfig, navigator)
-                            } else {
-                                MiuixIconButton(onClick = { navigator.pop() }) {
-                                    val layoutDirection = LocalLayoutDirection.current
-                                    MiuixIcon(
-                                        modifier = Modifier.graphicsLayer {
-                                            if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
-                                        },
-                                        imageVector = MiuixIcons.Back,
-                                        contentDescription = null,
-                                        tint = colorScheme.onSurface,
-                                    )
-                                }
-                            }
-                        },
                         actions = {
                             MiuixIconButton(onClick = {
                                 val allText = items.joinToString("\n") { "${it.key}=${it.value}" }
@@ -351,7 +338,13 @@ fun KconfigScreenMaterial(
         topBar = {
             SearchAppBar(
                 snackbarHostState = snackbarHostState,
-                title = { Text(stringResource(R.string.kconfig_title)) },
+                title = {
+                    if (isRootTab) {
+                        KernelToolTitleDropdownMaterial(KernelTool.Kconfig, navigator)
+                    } else {
+                        Text(stringResource(R.string.kconfig_title))
+                    }
+                },
                 searchText = localSearchText,
                 onSearchTextChange = {
                     localSearchText = it
@@ -363,7 +356,7 @@ fun KconfigScreenMaterial(
                 },
                 navigationIcon = {
                     if (isRootTab) {
-                        KernelToolNavigationIconsMaterial(KernelTool.Kconfig, navigator)
+                        KernelToolNavigationIconMaterial(KernelTool.Kconfig)
                     } else {
                         TopBarBackButton(onClick = { navigator.pop() })
                     }
