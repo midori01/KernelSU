@@ -352,6 +352,10 @@
     <string name="sulog_filter_ioctl_grant_root">授予 Root</string>
     <string name="sulog_filter_daemon_restart">Daemon 重啟</string>
     <string name="settings_official_icon">使用官方應用程式圖示</string>
+    <string name="backup_boot">備份 boot.img</string>
+    <string name="backup_boot_summary">從目前使用中插槽擷取並備份 boot.img 至 /sdcard/Download</string>
+    <string name="flash_boot_img">刷入 boot.img</string>
+    <string name="flash_boot_img_summary">選取一個 boot.img 映像檔刷入</string>
     <string name="anykernel_install_summary">選取一個 AnyKernel3 zip 刷機套件刷入</string>
     <string name="install_select_slot">選取刷入插槽</string>
     <string name="slot_active_tag">目前使用中</string>

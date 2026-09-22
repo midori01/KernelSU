@@ -132,6 +132,7 @@ internal fun InstallScreenMiuix(
                             onDownloadFile = actions.onDownloadFile,
                             onSelectBootImage = actions.onSelectBootImage,
                             onSelectAnyKernel = actions.onSelectAnyKernel,
+                            onSelectBootImg = actions.onSelectBootImg,
                         )
                     }
                     AnimatedVisibility(
@@ -166,11 +167,7 @@ internal fun InstallScreenMiuix(
                         exit = fadeOut() + shrinkVertically()
                     ) {
                         Column {
-                            AnimatedVisibility(
-                                visible = uiState.canSelectPartition,
-                                enter = expandVertically(),
-                                exit = shrinkVertically()
-                            ) {
+                            if (uiState.canSelectPartition) {
                                 val isDownload = uiState.installMethod is InstallMethod.DownloadFile
                                 val partitionItems = if (isDownload) {
                                     uiState.remoteDisplayPartitions
@@ -274,75 +271,75 @@ internal fun InstallScreenMiuix(
                                     }
                                 )
                             }
-                        }
-                    }
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp),
-                    ) {
-                        BasicComponent(
-                            title = stringResource(id = R.string.advanced_options),
-                            onClick = actions.onAdvancedOptionsClicked,
-                            endActions = {
-                                Icon(
-                                    if (uiState.advancedOptionsShown) MiuixIcons.ExpandLess else MiuixIcons.ExpandMore,
-                                    modifier = Modifier.size(16.dp),
-                                    tint = colorScheme.onSurfaceVariantActions,
-                                    contentDescription = stringResource(R.string.expand),
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 12.dp),
+                            ) {
+                                BasicComponent(
+                                    title = stringResource(id = R.string.advanced_options),
+                                    onClick = actions.onAdvancedOptionsClicked,
+                                    endActions = {
+                                        Icon(
+                                            if (uiState.advancedOptionsShown) MiuixIcons.ExpandLess else MiuixIcons.ExpandMore,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = colorScheme.onSurfaceVariantActions,
+                                            contentDescription = stringResource(R.string.expand),
+                                        )
+                                    }
                                 )
-                            }
-                        )
-                        AnimatedVisibility(
-                            visible = uiState.advancedOptionsShown,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut()
-                        ) {
-                            Column {
-                                CheckboxPreference(
-                                    title = stringResource(id = R.string.allow_shell),
-                                    checked = uiState.allowShell,
-                                    summary = stringResource(id = R.string.allow_shell_summary),
-                                    onCheckedChange = actions.onSelectAllowShell
-                                )
-                                CheckboxPreference(
-                                    title = stringResource(id = R.string.enable_adb),
-                                    checked = uiState.enableAdb,
-                                    summary = stringResource(id = R.string.enable_adb_summary),
-                                    onCheckedChange = actions.onSelectEnableAdb
-                                )
-                                CheckboxPreference(
-                                    title = stringResource(id = R.string.install_block_modules),
-                                    checked = uiState.blockModulesEnabled,
-                                    summary = stringResource(id = R.string.install_block_modules_warning),
-                                    onCheckedChange = actions.onSelectBlockModules
-                                )
-                                if (uiState.blockModulesEnabled) {
-                                    TextField(
-                                        value = uiState.blockModules,
-                                        onValueChange = actions.onBlockModulesChange,
-                                        label = stringResource(id = R.string.install_block_modules_list),
-                                        singleLine = true,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 12.dp, vertical = 8.dp)
-                                    )
-                                    Text(
-                                        text = stringResource(
-                                            if (uiState.blockModulesValid) {
-                                                R.string.install_block_modules_summary
-                                            } else {
-                                                R.string.install_block_modules_invalid
-                                            }
-                                        ),
-                                        fontSize = 12.sp,
-                                        color = if (uiState.blockModulesValid) {
-                                            colorScheme.onSurfaceVariantSummary
-                                        } else {
-                                            colorScheme.error
-                                        },
-                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                                    )
+                                AnimatedVisibility(
+                                    visible = uiState.advancedOptionsShown,
+                                    enter = expandVertically() + fadeIn(),
+                                    exit = shrinkVertically() + fadeOut()
+                                ) {
+                                    Column {
+                                        CheckboxPreference(
+                                            title = stringResource(id = R.string.allow_shell),
+                                            checked = uiState.allowShell,
+                                            summary = stringResource(id = R.string.allow_shell_summary),
+                                            onCheckedChange = actions.onSelectAllowShell
+                                        )
+                                        CheckboxPreference(
+                                            title = stringResource(id = R.string.enable_adb),
+                                            checked = uiState.enableAdb,
+                                            summary = stringResource(id = R.string.enable_adb_summary),
+                                            onCheckedChange = actions.onSelectEnableAdb
+                                        )
+                                        CheckboxPreference(
+                                            title = stringResource(id = R.string.install_block_modules),
+                                            checked = uiState.blockModulesEnabled,
+                                            summary = stringResource(id = R.string.install_block_modules_warning),
+                                            onCheckedChange = actions.onSelectBlockModules
+                                        )
+                                        if (uiState.blockModulesEnabled) {
+                                            TextField(
+                                                value = uiState.blockModules,
+                                                onValueChange = actions.onBlockModulesChange,
+                                                label = stringResource(id = R.string.install_block_modules_list),
+                                                singleLine = true,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                                            )
+                                            Text(
+                                                text = stringResource(
+                                                    if (uiState.blockModulesValid) {
+                                                        R.string.install_block_modules_summary
+                                                    } else {
+                                                        R.string.install_block_modules_invalid
+                                                    }
+                                                ),
+                                                fontSize = 12.sp,
+                                                color = if (uiState.blockModulesValid) {
+                                                    colorScheme.onSurfaceVariantSummary
+                                                } else {
+                                                    colorScheme.error
+                                                },
+                                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -351,7 +348,13 @@ internal fun InstallScreenMiuix(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 12.dp),
-                        text = stringResource(id = R.string.install_next),
+                        text = stringResource(
+                            id = if (uiState.installMethod is InstallMethod.BackupBoot) {
+                                R.string.backup_boot
+                            } else {
+                                R.string.install_next
+                            }
+                        ),
                         enabled = uiState.isNextEnabled && uiState.blockModulesValid,
                         colors = ButtonDefaults.textButtonColorsPrimary(),
                         onClick = actions.onNext
@@ -375,6 +378,7 @@ private fun SelectInstallMethod(
     onDownloadFile: () -> Unit,
     onSelectBootImage: () -> Unit,
     onSelectAnyKernel: () -> Unit,
+    onSelectBootImg: () -> Unit,
 ) {
     val confirmDialog = rememberConfirmDialog(
         onConfirm = {
@@ -391,6 +395,8 @@ private fun SelectInstallMethod(
             is InstallMethod.DirectInstall -> onSelected(option)
             is InstallMethod.DirectInstallToInactiveSlot -> confirmDialog.showConfirm(dialogTitle, dialogContent)
             is InstallMethod.AnyKernel -> onSelectAnyKernel()
+            is InstallMethod.FlashBootImg -> onSelectBootImg()
+            is InstallMethod.BackupBoot -> onSelected(option)
         }
     }
 
