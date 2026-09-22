@@ -71,7 +71,7 @@ import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.SearchStatus
 import me.weishu.kernelsu.ui.component.bottombar.KernelTool
-import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMiuix
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolTopAppBarMiuix
 import me.weishu.kernelsu.ui.component.miuix.SearchBarFake
 import me.weishu.kernelsu.ui.component.miuix.SearchBox
 import me.weishu.kernelsu.ui.component.miuix.SearchPager
@@ -239,27 +239,13 @@ fun PayloadMiuix(
                         )
                     }
                 } else {
-                    MiuixTopAppBar(
+                    KernelToolTopAppBarMiuix(
+                        currentTool = KernelTool.Payload,
+                        isRootTab = isRootTab,
+                        titleRes = R.string.payload_extract_title,
+                        navigator = navigator,
                         color = barColor,
-                        title = stringResource(R.string.payload_extract_title),
                         scrollBehavior = scrollBehavior,
-                        navigationIcon = {
-                            if (isRootTab) {
-                                KernelToolNavigationIconsMiuix(KernelTool.Payload, navigator)
-                            } else {
-                                MiuixIconButton(onClick = { navigator.pop() }) {
-                                    val layoutDirection = LocalLayoutDirection.current
-                                    MiuixIcon(
-                                        modifier = Modifier.graphicsLayer {
-                                            if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
-                                        },
-                                        imageVector = MiuixIcons.Back,
-                                        contentDescription = null,
-                                        tint = colorScheme.onSurface,
-                                    )
-                                }
-                            }
-                        },
                         actions = {
                             MiuixIconButton(onClick = {
                                 filePickerLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
