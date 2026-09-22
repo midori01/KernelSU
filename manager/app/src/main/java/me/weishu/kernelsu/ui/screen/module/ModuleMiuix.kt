@@ -57,6 +57,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -219,7 +220,31 @@ fun ModulePagerMiuix(
     }
 
     val scope = rememberCoroutineScope()
+    val loadingDialog = rememberLoadingDialog()
     val snackbarJob = remember { mutableStateOf<Job?>(null) }
+
+    var exportTargetModuleId by rememberSaveable { mutableStateOf<String?>(null) }
+    val exportZipLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
+        val targetId = exportTargetModuleId
+        val target = uiState.modules.firstOrNull { it.id == targetId }
+        if (uri != null && target != null) {
+            scope.launch {
+                loadingDialog.withLoading {
+                    actions.onExportModule(target, uri)
+                }
+            }
+        }
+        exportTargetModuleId = null
+    }
+
+    val onExportModuleClicked: (Module) -> Unit = { module ->
+        exportTargetModuleId = module.id
+        val cleanVersion = module.version.replace(Regex("[^a-zA-Z0-9._-]"), "_").trim('_')
+        val defaultFileName = "MidoriSU_${module.id}_${cleanVersion}.zip"
+        exportZipLauncher.launch(defaultFileName)
+    }
     ObserveAsEvents(moduleEvent) { event ->
         when (event) {
             is ModuleEffect.Toast -> {
@@ -434,6 +459,7 @@ fun ModulePagerMiuix(
                     updateInfoMap = uiState.updateInfo,
                     actions = actions,
                     onModuleAddShortcut = ::onModuleAddShortcut,
+                    onExportModule = onExportModuleClicked,
                     contentPadding = PaddingValues(
                         top = 6.dp,
                         start = 0.dp,
@@ -540,6 +566,7 @@ fun ModulePagerMiuix(
                             onModuleAddShortcut = { module, type ->
                                 onModuleAddShortcut(module, type)
                             },
+                            onExportModule = onExportModuleClicked,
                             contentPadding = contentPadding,
                             listState = listState,
                         )
@@ -693,6 +720,7 @@ private fun ModuleList(
     updateInfoMap: Map<String, ModuleUpdateInfo>,
     actions: ModuleActions,
     onModuleAddShortcut: (Module, ShortcutType) -> Unit,
+    onExportModule: (Module) -> Unit,
     contentPadding: PaddingValues,
     listState: LazyListState = rememberLazyListState(),
 ) {
@@ -715,6 +743,9 @@ private fun ModuleList(
                 ModuleItem(
                     module = module,
                     updateUrl = moduleUpdateInfo.downloadUrl,
+                    onExport = {
+                        onExportModule(currentModuleState.value)
+                    },
                     onUninstall = {
                         actions.onRequestUninstallConfirmation(currentModuleState.value)
                     },
@@ -761,6 +792,7 @@ private fun ModuleList(
 fun ModuleItem(
     module: Module,
     updateUrl: String,
+    onExport: () -> Unit,
     onUndoUninstall: () -> Unit,
     onUninstall: () -> Unit,
     onCheckChanged: (Boolean) -> Unit,
@@ -1003,6 +1035,20 @@ fun ModuleItem(
                         )
                     }
                 }
+            }
+            IconButton(
+                modifier = Modifier.padding(end = 8.dp),
+                minHeight = 35.dp,
+                minWidth = 35.dp,
+                onClick = onExport,
+                backgroundColor = secondaryContainer,
+            ) {
+                Icon(
+                    modifier = Modifier.size(20.dp),
+                    imageVector = Icons.Outlined.Archive,
+                    tint = actionIconTint,
+                    contentDescription = stringResource(R.string.export_module_as_zip),
+                )
             }
             IconButton(
                 minHeight = 35.dp,
