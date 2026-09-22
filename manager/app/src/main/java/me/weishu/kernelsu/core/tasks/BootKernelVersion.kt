@@ -40,6 +40,7 @@ object BootKernelVersion {
     private val gzipMagic = byteArrayOf(0x1F, 0x8B.toByte())
     private val xzMagic = byteArrayOf(0xFD.toByte(), 0x37, 0x7A, 0x58, 0x5A, 0x00)
     private val lz4FrameMagic = byteArrayOf(0x04, 0x22, 0x4D, 0x18)
+    private val lz4LegacyMagic = byteArrayOf(0x02, 0x21, 0x4C, 0x18)
 
     fun parseKmiFromBoot(file: File): String? {
         FileChannel.open(file.toPath(), StandardOpenOption.READ).use { channel ->
@@ -125,7 +126,8 @@ object BootKernelVersion {
     private fun isCompressedKernel(data: ByteArray, offset: Int): Boolean {
         return startsWithAt(data, offset, gzipMagic) ||
             startsWithAt(data, offset, xzMagic) ||
-            startsWithAt(data, offset, lz4FrameMagic)
+            startsWithAt(data, offset, lz4FrameMagic) ||
+            startsWithAt(data, offset, lz4LegacyMagic)
     }
 
     private fun readRange(channel: FileChannel, position: Long, length: Long): ByteArray? {
@@ -167,6 +169,9 @@ object BootKernelVersion {
 
     private fun decompressPartial(data: ByteArray): ByteArray? {
         return try {
+            if (startsWith(data, lz4LegacyMagic)) {
+                return me.weishu.kernelsu.ui.util.BootKernelAnalyzer.decompressLz4Legacy(data)
+            }
             val stream = when {
                 startsWith(data, gzipMagic) -> GZIPInputStream(ByteArrayInputStream(data))
                 startsWith(data, xzMagic) -> XZCompressorInputStream(ByteArrayInputStream(data))

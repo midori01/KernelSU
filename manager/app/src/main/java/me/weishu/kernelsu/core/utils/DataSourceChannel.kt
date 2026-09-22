@@ -21,6 +21,7 @@ class DataSourceChannel private constructor(
 ) : SeekableByteChannel {
 
     constructor(client: OkHttpClient, url: String) : this(client, url, null, 0, fetchTotalSize(client, url))
+    constructor(fileChannel: FileChannel) : this(null, null, fileChannel, 0, fileChannel.size())
 
     private var pos = 0L
     private var open = true
@@ -56,6 +57,23 @@ class DataSourceChannel private constructor(
         if (!open) throw ClosedChannelException()
         if (position < 0) throw IllegalArgumentException("Position out of bounds: $position")
         if (position >= totalSize) return -1
+
+        if (fileChannel != null) {
+            val startPosition = startOffset + position
+            val endPosition = minOf(position + dst.remaining(), totalSize)
+            val readLen = (endPosition - position).toInt()
+            if (readLen <= 0) return 0
+            val oldLimit = dst.limit()
+            dst.limit(dst.position() + readLen)
+            var totalRead = 0
+            while (dst.hasRemaining()) {
+                val r = fileChannel.read(dst, startPosition + totalRead)
+                if (r <= 0) break
+                totalRead += r
+            }
+            dst.limit(oldLimit)
+            return if (totalRead == 0 && readLen > 0) -1 else totalRead
+        }
 
         val requestSize = dst.remaining()
         if (requestSize == 0) return 0
@@ -96,10 +114,15 @@ class DataSourceChannel private constructor(
     fun readFully(position: Long, length: Long): ByteArray? {
         if (length > Int.MAX_VALUE) return null
         val buffer = ByteBuffer.allocate(length.toInt())
-        val bytesRead = read(buffer, position)
-        if (bytesRead <= 0) return null
+        var totalRead = 0
+        while (buffer.hasRemaining() && position + totalRead < totalSize) {
+            val r = read(buffer, position + totalRead)
+            if (r <= 0) break
+            totalRead += r
+        }
+        if (totalRead == 0) return null
         buffer.flip()
-        val data = ByteArray(bytesRead)
+        val data = ByteArray(totalRead)
         buffer.get(data)
         return data
     }
@@ -167,9 +190,14 @@ class DataSourceChannel private constructor(
         val start = maxOf(0L, maxEnd - cacheSize)
 
         val buffer = ByteBuffer.allocate((maxEnd - start).toInt())
-        val bytesRead = readDirectly(buffer, start)
-        if (bytesRead != buffer.capacity()) {
-            throw IOException("Failed to fill cache.")
+        var totalRead = 0
+        while (buffer.hasRemaining() && start + totalRead < totalSize) {
+            val bytesRead = readDirectly(buffer, start + totalRead)
+            if (bytesRead <= 0) break
+            totalRead += bytesRead
+        }
+        if (totalRead == 0 && buffer.capacity() > 0) {
+            throw IOException("Failed to fill cache: reached EOF at $start")
         }
 
         cache = buffer.array()
@@ -192,6 +220,18 @@ class DataSourceChannel private constructor(
     }
 
     private fun readDirectly(dst: ByteBuffer, position: Long): Int {
+        if (fileChannel != null) {
+            val startPosition = startOffset + position
+            val endPosition = minOf(position + dst.remaining(), totalSize)
+            val readLen = (endPosition - position).toInt()
+            if (readLen <= 0) return 0
+            val oldLimit = dst.limit()
+            dst.limit(dst.position() + readLen)
+            val r = fileChannel.read(dst, startPosition)
+            dst.limit(oldLimit)
+            return maxOf(0, r)
+        }
+
         Channels.newChannel(streamRead(position, dst.remaining().toLong())).use { channel ->
             var totalBytesRead = 0
             while (true) {
@@ -208,24 +248,54 @@ class DataSourceChannel private constructor(
     override fun truncate(size: Long): DataSourceChannel = throw NonWritableChannelException()
 
     companion object {
-        private const val RANDOM_READ_CACHE_SIZE = 16 * 1024
-        private const val SEQ_READ_CACHE_SIZE = 1024 * 1024
-        private const val SEQ_READ_THRESHOLD = 1024
-        private const val DIRECT_READ_THRESHOLD = 512 * 1024
+        private const val RANDOM_READ_CACHE_SIZE = 32 * 1024
+        private const val SEQ_READ_CACHE_SIZE = 128 * 1024
+        private const val SEQ_READ_THRESHOLD = 2048
+        private const val DIRECT_READ_THRESHOLD = 64 * 1024
 
         private fun fetchTotalSize(client: OkHttpClient, url: String): Long {
-            val request = Request.Builder().url(url).head().build()
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw IOException("Failed to connect to URL: $response")
+            // First attempt: HEAD request
+            try {
+                val headRequest = Request.Builder().url(url).head().build()
+                client.newCall(headRequest).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val contentLength = response.header("Content-Length")?.toLongOrNull()
+                        if (contentLength != null && contentLength > 0L) {
+                            return contentLength
+                        }
+                    }
                 }
-                val contentLength = response.header("Content-Length")
-                    ?: throw IOException("Could not determine file size.")
-                val acceptRanges = response.header("Accept-Ranges")
-                if (acceptRanges == null || !acceptRanges.equals("bytes", ignoreCase = true)) {
-                    throw IOException("Server does not support byte ranges: $response")
+            } catch (_: Throwable) {
+                // Fallback to GET with Range
+            }
+
+            // Second attempt: GET request with Range: bytes=0-0 (handles servers blocking HEAD or requiring Range)
+            val rangeRequest = Request.Builder()
+                .url(url)
+                .header("Range", "bytes=0-0")
+                .build()
+
+            client.newCall(rangeRequest).execute().use { response ->
+                if (response.code == 206) {
+                    val contentRange = response.header("Content-Range")
+                    if (contentRange != null) {
+                        val slashIdx = contentRange.lastIndexOf('/')
+                        if (slashIdx != -1) {
+                            val totalStr = contentRange.substring(slashIdx + 1).trim()
+                            val total = totalStr.toLongOrNull()
+                            if (total != null && total > 0L) {
+                                return total
+                            }
+                        }
+                    }
                 }
-                return contentLength.toLong()
+                if (response.isSuccessful) {
+                    val contentLength = response.header("Content-Length")?.toLongOrNull()
+                    if (contentLength != null && contentLength > 0L) {
+                        return contentLength
+                    }
+                }
+                throw IOException("Could not determine file size or server does not support byte ranges (HTTP ${response.code})")
             }
         }
     }
