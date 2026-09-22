@@ -337,6 +337,8 @@
     <string name="dmesg_search">dmesg 검색…</string>
     <string name="dmesg_sort_asc">오름차순</string>
     <string name="dmesg_sort_desc">내림차순</string>
+    <string name="kconfig_title">커널 설정</string>
+    <string name="kconfig_search">커널 설정 검색…</string>
     <string name="share">공유</string>
     <string name="settings_official_icon">공식 앱 아이콘 사용</string>
 </resources>

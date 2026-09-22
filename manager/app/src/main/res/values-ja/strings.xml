@@ -326,6 +326,8 @@
     <string name="dmesg_search">dmesg を検索…</string>
     <string name="dmesg_sort_asc">昇順</string>
     <string name="dmesg_sort_desc">降順</string>
+    <string name="kconfig_title">カーネル設定</string>
+    <string name="kconfig_search">カーネル設定を検索…</string>
     <string name="share">共有</string>
     <string name="sulog_log_files">ログファイル</string>
     <string name="sulog_failed_to_load">sulog の読み込みに失敗しました</string>
