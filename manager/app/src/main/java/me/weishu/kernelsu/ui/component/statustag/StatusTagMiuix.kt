@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import top.yukonga.miuix.kmp.basic.Text
@@ -17,8 +18,10 @@ fun StatusTagMiuix(
     label: String,
     modifier: Modifier = Modifier,
     backgroundColor: Color,
-    contentColor: Color
+    contentColor: Color,
+    fontSize: TextUnit = TextUnit.Unspecified
 ) {
+    val actualFontSize = if (fontSize != TextUnit.Unspecified) fontSize else 9.sp
     Box(
         modifier = modifier
             .background(
@@ -27,10 +30,13 @@ fun StatusTagMiuix(
             )
     ) {
         Text(
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+            modifier = Modifier.padding(
+                horizontal = if (actualFontSize >= 12.sp) 6.dp else 4.dp,
+                vertical = 2.dp
+            ),
             text = label,
             color = contentColor,
-            fontSize = 9.sp,
+            fontSize = actualFontSize,
             fontWeight = FontWeight(750),
             maxLines = 1,
             softWrap = false
