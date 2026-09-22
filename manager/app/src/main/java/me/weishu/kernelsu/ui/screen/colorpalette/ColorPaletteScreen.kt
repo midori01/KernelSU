@@ -55,7 +55,7 @@ fun ColorPaletteScreen() {
         onSetEnableBlur = viewModel::setEnableBlur,
         onSetEnableFloatingBottomBar = viewModel::setEnableFloatingBottomBar,
         onSetEnableFloatingBottomBarBlur = viewModel::setEnableFloatingBottomBarBlur,
-        onSetEnableNavigationBadge = viewModel::setEnableNavigationBadge,
+        onSetEnableModuleUpdateBadge = viewModel::setEnableModuleUpdateBadge,
         onSetEnablePredictiveBack = {
             viewModel.setEnablePredictiveBack(it)
             KernelSUApplication.setEnableOnBackInvokedCallback(context.applicationInfo, it)
