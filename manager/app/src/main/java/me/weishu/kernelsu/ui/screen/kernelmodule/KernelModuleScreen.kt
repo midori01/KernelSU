@@ -50,6 +50,7 @@ import me.weishu.kernelsu.ui.component.bottombar.KernelTool
 import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconMaterial
 import me.weishu.kernelsu.ui.component.bottombar.KernelToolTitleDropdownMaterial
 import me.weishu.kernelsu.ui.component.bottombar.KernelToolTopAppBarMiuix
+import me.weishu.kernelsu.ui.component.bottombar.RegisterTabReselect
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
@@ -112,6 +113,12 @@ fun KernelModuleScreenMiuix(
     val listState = rememberLazyListState()
     val searchListState = rememberLazyListState()
     var searchStatus by remember { mutableStateOf(SearchStatus(context.getString(R.string.kernel_modules_search))) }
+    if (isRootTab) {
+        RegisterTabReselect(2) {
+            val target = if (searchStatus.isExpanded()) searchListState else listState
+            target.animateScrollToItem(0)
+        }
+    }
 
     LaunchedEffect(uiState.searchQuery) {
         searchStatus = searchStatus.copy(
@@ -342,6 +349,12 @@ fun KernelModuleScreenMaterial(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val snackbarHostState = remember { SnackbarHostState() }
     var localSearchText by remember { mutableStateOf(uiState.searchQuery) }
+    if (isRootTab) {
+        RegisterTabReselect(2) {
+            val target = if (localSearchText.isNotEmpty()) searchListState else listState
+            target.animateScrollToItem(0)
+        }
+    }
 
     LaunchedEffect(uiState.searchQuery) {
         localSearchText = uiState.searchQuery
