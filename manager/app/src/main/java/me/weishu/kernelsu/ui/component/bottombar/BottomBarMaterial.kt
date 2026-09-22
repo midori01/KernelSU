@@ -169,18 +169,14 @@ fun BottomBarMaterial(
                                 } else {
                                     up.consume()
                                     // Tap
-                                    if (!selected) {
-                                        mainPagerState.animateToPage(index)
-                                    }
+                                    mainPagerState.animateToPage(index)
                                 }
                             }
                         }
                     } else Modifier,
                     selected = selected,
                     onClick = {
-                        if (!selected) {
-                            mainPagerState.animateToPage(index)
-                        }
+                        mainPagerState.animateToPage(index)
                     },
                     icon = {
                         Box(contentAlignment = Alignment.Center) {
@@ -299,9 +295,7 @@ private fun FloatingBottomBarMaterial(
                                         interactionSource = itemInteractionSource,
                                         indication = null,
                                         onClick = {
-                                            if (!selected) {
-                                                onSelectPage(index)
-                                            }
+                                            onSelectPage(index)
                                         },
                                         onLongClick = onKernelToolLongPress
                                     )
@@ -310,9 +304,7 @@ private fun FloatingBottomBarMaterial(
                                         interactionSource = itemInteractionSource,
                                         indication = null,
                                         onClick = {
-                                            if (!selected) {
-                                                onSelectPage(index)
-                                            }
+                                            onSelectPage(index)
                                         }
                                     )
                                 }
