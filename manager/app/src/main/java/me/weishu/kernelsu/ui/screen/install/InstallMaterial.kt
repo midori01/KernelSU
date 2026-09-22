@@ -91,6 +91,7 @@ internal fun InstallScreenMaterial(
                 onDownloadFile = actions.onDownloadFile,
                 onSelectBootImage = actions.onSelectBootImage,
                 onSelectAnyKernel = actions.onSelectAnyKernel,
+                onSelectBootImg = actions.onSelectBootImg,
             )
 
             AnimatedVisibility(
@@ -264,7 +265,17 @@ internal fun InstallScreenMaterial(
                     .padding(horizontal = 16.dp),
                 enabled = uiState.isNextEnabled && uiState.blockModulesValid,
                 onClick = actions.onNext
-            ) { Text(stringResource(R.string.install_next)) }
+            ) {
+                Text(
+                    stringResource(
+                        if (uiState.installMethod is InstallMethod.BackupBoot) {
+                            R.string.backup_boot
+                        } else {
+                            R.string.install_next
+                        }
+                    )
+                )
+            }
         }
     }
 }
@@ -276,6 +287,7 @@ private fun SelectInstallMethod(
     onDownloadFile: () -> Unit,
     onSelectBootImage: () -> Unit,
     onSelectAnyKernel: () -> Unit,
+    onSelectBootImg: () -> Unit,
 ) {
     val confirmDialog = rememberConfirmDialog(
         onConfirm = {
@@ -293,6 +305,8 @@ private fun SelectInstallMethod(
             is InstallMethod.DirectInstall -> onSelected(option)
             is InstallMethod.DirectInstallToInactiveSlot -> confirmDialog.showConfirm(dialogTitle, dialogContent)
             is InstallMethod.AnyKernel -> onSelectAnyKernel()
+            is InstallMethod.FlashBootImg -> onSelectBootImg()
+            is InstallMethod.BackupBoot -> onSelected(option)
         }
     }
 
