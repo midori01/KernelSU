@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import me.weishu.kernelsu.ui.component.bottombar.RegisterTabReselect
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -93,6 +94,11 @@ fun SettingPagerMaterial(
         onDismissRequest = { showUninstallDialog.value = false }
     )
 
+    val scrollState = rememberScrollState()
+    RegisterTabReselect(4) {
+        scrollState.animateScrollTo(0)
+    }
+
     ExpressiveScaffold(
         topBar = {
             TopBar(scrollBehavior = scrollBehavior)
@@ -104,7 +110,7 @@ fun SettingPagerMaterial(
             modifier = Modifier
                 .padding(paddingValues)
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
             KsuIsValid {
                 SegmentedColumn(
