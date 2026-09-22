@@ -69,3 +69,52 @@ fun Int.toRoman(): String {
         }
     }
 }
+
+fun generateDiagnosticReport(context: Context, systemInfo: SystemInfo): String {
+    val selinuxDisplay = when (systemInfo.selinuxStatus) {
+        "Enforcing" -> context.getString(R.string.selinux_status_enforcing)
+        "Permissive" -> context.getString(R.string.selinux_status_permissive)
+        "Disabled" -> context.getString(R.string.selinux_status_disabled)
+        else -> context.getString(R.string.selinux_status_unknown)
+    }
+    val seccompDisplay = when (systemInfo.seccompStatus) {
+        -1 -> context.getString(R.string.seccomp_status_not_supported)
+        0 -> context.getString(R.string.seccomp_status_disabled)
+        1 -> context.getString(R.string.seccomp_status_strict)
+        2 -> context.getString(R.string.seccomp_status_filter)
+        else -> context.getString(R.string.seccomp_status_unknown)
+    }
+    val hookDisplay = if (systemInfo.hookType.isNotEmpty() && systemInfo.hookType != "N/A" && systemInfo.hookType != "Unknown") {
+        getHookTypeDisplayName(systemInfo.hookType, context)
+    } else null
+
+    return buildString {
+        appendLine("### MidoriSU Diagnostic Report")
+        appendLine("- **Manager Version**: ${systemInfo.managerVersion}")
+        appendLine("- **Kernel Version**: ${systemInfo.kernelVersion}")
+        appendLine("- **Device Model**: ${systemInfo.deviceModel}${if (systemInfo.socInfo.isNotEmpty()) " (${systemInfo.socInfo})" else ""}")
+        appendLine("- **Fingerprint**: ${systemInfo.fingerprint}")
+        appendLine("- **Android Version**: ${systemInfo.androidVersion}")
+        appendLine("- **Security Patch**: ${systemInfo.securityPatch}")
+        if (hookDisplay != null) {
+            appendLine("- **Hook Type**: $hookDisplay")
+        }
+        appendLine("- **SELinux Status**: $selinuxDisplay")
+        appendLine("- **Seccomp Status**: $seccompDisplay")
+        if (systemInfo.susfsVersion.isNotEmpty() && systemInfo.susfsVersion != "Not supported") {
+            appendLine("- **SUSFS Version**: ${systemInfo.susfsVersion}")
+        }
+        if (systemInfo.droidspacesVersion.isNotEmpty()) {
+            appendLine("- **Droidspaces**: ${systemInfo.droidspacesVersion}")
+        }
+        if (systemInfo.rekernelVersion.isNotEmpty()) {
+            appendLine("- **${systemInfo.rekernelLabel}**: ${systemInfo.rekernelVersion}")
+        }
+        if (systemInfo.driverName.isNotEmpty()) {
+            appendLine("- **Driver**: ${systemInfo.driverName}")
+        }
+        if (systemInfo.oemUnlock.isNotEmpty()) {
+            appendLine("- **OEM Unlock**: ${systemInfo.oemUnlock}")
+        }
+    }
+}
