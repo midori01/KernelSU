@@ -325,6 +325,7 @@
     <string name="home_rekernel_version">Re:Kernel 版本</string>
     <string name="home_rekernel_x_version">Re:Kernel-X 版本</string>
     <string name="kernel_modules">核心模組</string>
+    <string name="kernel_modules_search">搜尋核心模組…</string>
     <string name="profile_flags">標籤</string>
     <string name="settings_kernelsu_toolkit">KernelSU 工具箱</string>
     <string name="settings_kernelsu_toolkit_summary">KernelSU 的附加功能。</string>
