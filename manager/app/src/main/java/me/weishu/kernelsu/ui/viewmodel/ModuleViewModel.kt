@@ -1,5 +1,7 @@
 package me.weishu.kernelsu.ui.viewmodel
 
+import android.content.Context
+import android.net.Uri
 import android.os.SystemClock
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -37,6 +39,7 @@ import me.weishu.kernelsu.ui.screen.module.ModuleEffect
 import me.weishu.kernelsu.ui.screen.module.ModuleUiState
 import me.weishu.kernelsu.ui.util.PinyinUtil
 import me.weishu.kernelsu.ui.util.hasMagisk
+import me.weishu.kernelsu.ui.util.module.ModuleExportHelper
 import me.weishu.kernelsu.ui.util.module.fetchModuleDetail
 import me.weishu.kernelsu.ui.util.module.fetchReleaseDescriptionHtml
 import okhttp3.Request
@@ -424,6 +427,27 @@ class ModuleViewModel(
                     res.getString(
                         if (success) R.string.module_undo_uninstall_success else R.string.module_undo_uninstall_failed
                     ).format(module.name)
+                )
+            )
+        }
+    }
+
+    suspend fun exportModule(context: Context, module: Module, targetUri: Uri) {
+        val res = context.resources
+        val result = withContext(Dispatchers.IO) {
+            ModuleExportHelper.exportModule(context, module, targetUri)
+        }
+        if (result.isSuccess) {
+            emitEffect(
+                ModuleEffect.Toast(
+                    res.getString(R.string.export_module_success, module.name)
+                )
+            )
+        } else {
+            val err = result.exceptionOrNull()?.localizedMessage ?: "Unknown error"
+            emitEffect(
+                ModuleEffect.Toast(
+                    res.getString(R.string.export_module_failed, err)
                 )
             )
         }
