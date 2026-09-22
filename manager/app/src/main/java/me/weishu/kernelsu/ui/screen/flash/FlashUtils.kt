@@ -102,6 +102,12 @@ sealed class FlashIt : Parcelable {
 
     @Parcelize
     data object FlashUninstall : FlashIt()
+
+    @Parcelize
+    data object BackupBoot : FlashIt()
+
+    @Parcelize
+    data class FlashBootImg(val uri: Uri, val slot: String = "") : FlashIt()
 }
 
 fun flashModulesSequentially(
@@ -158,6 +164,196 @@ fun flashIt(
 
         FlashIt.FlashRestore -> restoreBoot(onStdout, onStderr)
         FlashIt.FlashUninstall -> uninstallPermanently(onStdout, onStderr)
+
+        is FlashIt.BackupBoot -> {
+            val slot = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                me.weishu.kernelsu.ui.util.getRootShell(true),
+                "getprop ro.boot.slot_suffix"
+            ).trim()
+            val timestamp = java.text.SimpleDateFormat("yyyyMMdd-HHmmss", java.util.Locale.getDefault()).format(java.util.Date())
+            val outputPath = "/sdcard/Download/boot_backup_${timestamp}.img"
+            val cmd = """
+                slot="$slot"
+                if [ -z "§slot" ]; then
+                    slot=§(getprop ro.boot.slot_suffix)
+                    if [ -z "§slot" ]; then
+                        s=§(getprop ro.boot.slot)
+                        [ -n "§s" ] && slot="_§s"
+                    fi
+                fi
+
+                target="boot§slot"
+                boot_dev=""
+                for candidate in \
+                    "/dev/block/by-name/§target" \
+                    "/dev/block/bootdevice/by-name/§target" \
+                    /dev/block/platform/*/by-name/§target \
+                    /dev/block/platform/*/*/by-name/§target; do
+                    if [ -e "§candidate" ]; then
+                        boot_dev="§candidate"
+                        break
+                    fi
+                done
+                if [ -z "§boot_dev" ]; then
+                    boot_dev=§(find /dev/block \( -type b -o -type c -o -type l \) -iname "§target" 2>/dev/null | head -n 1)
+                fi
+                if [ -z "§boot_dev" ]; then
+                    for uevent in /sys/dev/block/*/uevent; do
+                        [ -f "§uevent" ] || continue
+                        devname=§(grep -E '^DEVNAME=' "§uevent" | cut -d= -f2)
+                        partname=§(grep -E '^PARTNAME=' "§uevent" | cut -d= -f2)
+                        if [ -n "§partname" ] && [ "§(echo "§target" | tr '[:upper:]' '[:lower:]')" = "§(echo "§partname" | tr '[:upper:]' '[:lower:]')" ]; then
+                            boot_dev="/dev/block/§devname"
+                            break
+                        fi
+                    done
+                fi
+
+                if [ -n "§boot_dev" ]; then
+                    real_dev=§(readlink -f "§boot_dev" 2>/dev/null || echo "§boot_dev")
+                    [ -b "§real_dev" ] && boot_dev="§real_dev"
+                fi
+
+                if [ -z "§boot_dev" ] || [ ! -b "§boot_dev" ]; then
+                    echo "Error: Cannot find boot§slot partition block device!" >&2
+                    exit 1
+                fi
+
+                mkdir -p /sdcard/Download 2>/dev/null || true
+                out_dir=§(dirname "$outputPath")
+                mkdir -p "§out_dir" 2>/dev/null || true
+
+                echo "Backing up §boot_dev to $outputPath..."
+                if dd if="§boot_dev" of="$outputPath" bs=1M; then
+                    sync
+                    if [ -s "$outputPath" ]; then
+                        echo "boot.img backed up successfully to: $outputPath"
+                    else
+                        echo "Error: Output backup file is empty!" >&2
+                        rm -f "$outputPath" 2>/dev/null || true
+                        exit 1
+                    fi
+                else
+                    sync
+                    echo "Error: dd command failed while reading from §boot_dev!" >&2
+                    rm -f "$outputPath" 2>/dev/null || true
+                    exit 1
+                fi
+            """.trimIndent().replace('§', '$')
+            me.weishu.kernelsu.ui.util.flashBootBackup(cmd, onStdout, onStderr)
+        }
+
+        is FlashIt.FlashBootImg -> {
+            val slot = if (flashIt.slot.isNotEmpty()) {
+                flashIt.slot
+            } else {
+                val s = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                    me.weishu.kernelsu.ui.util.getRootShell(true),
+                    "getprop ro.boot.slot_suffix"
+                ).trim()
+                if (s.isNotEmpty()) s else {
+                    val s2 = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                        me.weishu.kernelsu.ui.util.getRootShell(true),
+                        "getprop ro.boot.slot"
+                    ).trim()
+                    if (s2.isNotEmpty()) "_$s2" else ""
+                }
+            }
+            val cacheFile = java.io.File(me.weishu.kernelsu.ksuApp.cacheDir, "boot_flash.img")
+            try {
+                me.weishu.kernelsu.ksuApp.contentResolver.openInputStream(flashIt.uri)?.use { input ->
+                    cacheFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            } catch (e: Exception) {
+                onStderr("Failed to read selected file: ${e.message}")
+                return FlashResult(-1, e.message ?: "Failed to read file", false)
+            }
+            if (!cacheFile.exists() || cacheFile.length() == 0L) {
+                onStderr("Error: The selected file is empty or unreadable!")
+                return FlashResult(-1, "File is empty or unreadable", false)
+            }
+            cacheFile.setReadable(true, false)
+
+            // Verify Android boot image magic: first 8 bytes must be "ANDROID!"
+            val magic = ByteArray(8)
+            val bytesRead = try {
+                cacheFile.inputStream().use { it.read(magic) }
+            } catch (_: Exception) { -1 }
+            if (bytesRead < 8 || !magic.contentEquals("ANDROID!".toByteArray(Charsets.US_ASCII))) {
+                cacheFile.delete()
+                onStderr("Error: Invalid boot image! The file does not have the required 'ANDROID!' header.")
+                return FlashResult(-1, "Invalid boot image header", false)
+            }
+
+            val cmd = """
+                target="boot$slot"
+                boot_dev=""
+                for candidate in \
+                    "/dev/block/by-name/§target" \
+                    "/dev/block/bootdevice/by-name/§target" \
+                    /dev/block/platform/*/by-name/§target \
+                    /dev/block/platform/*/*/by-name/§target; do
+                    if [ -e "§candidate" ]; then
+                        boot_dev="§candidate"
+                        break
+                    fi
+                done
+                if [ -z "§boot_dev" ]; then
+                    boot_dev=§(find /dev/block \( -type b -o -type c -o -type l \) -iname "§target" 2>/dev/null | head -n 1)
+                fi
+                if [ -z "§boot_dev" ]; then
+                    for uevent in /sys/dev/block/*/uevent; do
+                        [ -f "§uevent" ] || continue
+                        devname=§(grep -E '^DEVNAME=' "§uevent" | cut -d= -f2)
+                        partname=§(grep -E '^PARTNAME=' "§uevent" | cut -d= -f2)
+                        if [ -n "§partname" ] && [ "§(echo "§target" | tr '[:upper:]' '[:lower:]')" = "§(echo "§partname" | tr '[:upper:]' '[:lower:]')" ]; then
+                            boot_dev="/dev/block/§devname"
+                            break
+                        fi
+                    done
+                fi
+
+                if [ -n "§boot_dev" ]; then
+                    real_dev=§(readlink -f "§boot_dev" 2>/dev/null || echo "§boot_dev")
+                    [ -b "§real_dev" ] && boot_dev="§real_dev"
+                fi
+
+                if [ -z "§boot_dev" ] || [ ! -b "§boot_dev" ]; then
+                    echo "Error: Cannot find boot$slot partition block device!" >&2
+                    exit 1
+                fi
+
+                img_path="${cacheFile.absolutePath}"
+                img_size=§(wc -c < "§img_path")
+                dev_size=§(blockdev --getsize64 "§boot_dev" 2>/dev/null || true)
+                if [ -n "§dev_size" ] && [ "§dev_size" -gt 0 ] 2>/dev/null; then
+                    if [ "§img_size" -gt "§dev_size" ]; then
+                        echo "Error: Image size (§img_size bytes) exceeds partition size (§dev_size bytes)!" >&2
+                        exit 1
+                    fi
+                    echo "Image size: §img_size bytes, Partition size: §dev_size bytes"
+                fi
+
+                echo "Flashing boot image to §boot_dev..."
+                if dd if="§img_path" of="§boot_dev" bs=1M conv=fsync; then
+                    sync
+                    echo "Flashing completed successfully!"
+                else
+                    sync
+                    echo "Error: dd command failed during flashing!" >&2
+                    exit 1
+                fi
+            """.trimIndent().replace('§', '$')
+
+            val result = try {
+                me.weishu.kernelsu.ui.util.flashBootImgCmd(cmd, onStdout, onStderr)
+            } finally {
+                cacheFile.delete()
+            }
+            result
+        }
     }
 }
 
