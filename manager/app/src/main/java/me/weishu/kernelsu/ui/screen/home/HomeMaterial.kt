@@ -162,6 +162,13 @@ fun HomePagerMaterial(
                     onClick = { actions.onOpenUrl(state.latestKsuDriverInfo.releaseUrl) }
                 )
             }
+            if (state.hasCrashLog) {
+                WarningCard(
+                    message = stringResource(id = R.string.crash_home_card_title),
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    onClick = actions.onCrashLogClick
+                )
+            }
             InfoCard(
                 systemInfo = state.systemInfo,
                 modifier = Modifier.fillMaxWidth(),
