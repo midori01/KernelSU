@@ -4,8 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -134,35 +132,20 @@ internal fun InstallScreenMiuix(
                         )
                     }
                     AnimatedVisibility(
-                        visible = uiState.canSelectPartition,
-                        enter = expandVertically(),
-                        exit = shrinkVertically()
+                        visible = uiState.canSelectSlot,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically()
                     ) {
-                        val isDownload = uiState.installMethod is InstallMethod.DownloadFile
-                        val partitionItems = if (isDownload) {
-                            uiState.remoteDisplayPartitions
-                        } else {
-                            uiState.displayPartitions
-                        }
-                        val partitionIndex = if (isDownload) {
-                            uiState.remotePartitionSelectionIndex
-                        } else {
-                            uiState.partitionSelectionIndex
-                        }
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 12.dp),
                         ) {
                             OverlayDropdownPreference(
-                                items = partitionItems,
-                                selectedIndex = partitionIndex,
-                                title = if (isDownload) {
-                                    stringResource(R.string.install_select_partition)
-                                } else {
-                                    "${stringResource(R.string.install_select_partition)} (${uiState.slotSuffix})"
-                                },
-                                onSelectedIndexChange = actions.onSelectPartition,
+                                items = uiState.slotItems,
+                                selectedIndex = uiState.slotSelectionIndex,
+                                title = stringResource(R.string.install_select_slot),
+                                onSelectedIndexChange = actions.onSelectSlot,
                                 startAction = {
                                     Icon(
                                         MiuixIcons.ConvertFile,
@@ -180,6 +163,47 @@ internal fun InstallScreenMiuix(
                         exit = fadeOut() + shrinkVertically()
                     ) {
                         Column {
+                            AnimatedVisibility(
+                                visible = uiState.canSelectPartition,
+                                enter = expandVertically(),
+                                exit = shrinkVertically()
+                            ) {
+                                val isDownload = uiState.installMethod is InstallMethod.DownloadFile
+                                val partitionItems = if (isDownload) {
+                                    uiState.remoteDisplayPartitions
+                                } else {
+                                    uiState.displayPartitions
+                                }
+                                val partitionIndex = if (isDownload) {
+                                    uiState.remotePartitionSelectionIndex
+                                } else {
+                                    uiState.partitionSelectionIndex
+                                }
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 12.dp),
+                                ) {
+                                    OverlayDropdownPreference(
+                                        items = partitionItems,
+                                        selectedIndex = partitionIndex,
+                                        title = if (isDownload) {
+                                            stringResource(R.string.install_select_partition)
+                                        } else {
+                                            "${stringResource(R.string.install_select_partition)} (${uiState.slotSuffix})"
+                                        },
+                                        onSelectedIndexChange = actions.onSelectPartition,
+                                        startAction = {
+                                            Icon(
+                                                MiuixIcons.ConvertFile,
+                                                tint = colorScheme.onSurface,
+                                                modifier = Modifier.padding(end = 12.dp),
+                                                contentDescription = null
+                                            )
+                                        }
+                                    )
+                                }
+                            }
                             if (uiState.canForceBackup) {
                                 Card(
                                     modifier = Modifier
@@ -292,7 +316,7 @@ internal fun InstallScreenMiuix(
                             .fillMaxWidth()
                             .padding(top = 12.dp),
                         text = stringResource(id = R.string.install_next),
-                        enabled = uiState.installMethod != null,
+                        enabled = uiState.isNextEnabled,
                         colors = ButtonDefaults.textButtonColorsPrimary(),
                         onClick = actions.onNext
                     )
@@ -337,12 +361,13 @@ private fun SelectInstallMethod(
     Column {
         state.installMethodOptions.forEach { option ->
             val interactionSource = remember { MutableInteractionSource() }
+            val isSelected = option.javaClass == state.installMethod?.javaClass
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .toggleable(
-                        value = option.javaClass == state.installMethod?.javaClass,
+                        value = isSelected,
                         onValueChange = { onClick(option) },
                         role = Role.RadioButton,
                         indication = LocalIndication.current,
@@ -351,8 +376,8 @@ private fun SelectInstallMethod(
             ) {
                 CheckboxPreference(
                     title = stringResource(id = option.label),
-                    summary = option.summary,
-                    checked = option.javaClass == state.installMethod?.javaClass,
+                    summary = if (isSelected) state.installMethod.summary ?: option.summary else option.summary,
+                    checked = isSelected,
                     onCheckedChange = { onClick(option) },
                 )
             }
