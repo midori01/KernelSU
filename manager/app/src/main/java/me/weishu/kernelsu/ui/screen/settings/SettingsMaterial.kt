@@ -31,10 +31,15 @@ import androidx.compose.material.icons.filled.ElectricalServices
 import androidx.compose.material.icons.filled.Fence
 import androidx.compose.material.icons.filled.FolderDelete
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.SystemUpdateAlt
+import androidx.compose.material.icons.filled.Update
+import androidx.compose.material.icons.rounded.Dashboard
+import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.SnackbarHostState
@@ -50,6 +55,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -120,6 +126,15 @@ fun SettingPagerMaterial(
                                 checked = uiState.checkModuleUpdate,
                                 onCheckedChange = actions.onSetCheckModuleUpdate
                             )
+                        },
+                        {
+                            SegmentedSwitchItem(
+                                icon = Icons.Filled.NewReleases,
+                                title = stringResource(R.string.settings_check_ksu_driver_update),
+                                summary = stringResource(R.string.settings_check_ksu_driver_update_summary),
+                                checked = uiState.checkKsuDriverUpdate,
+                                onCheckedChange = actions.onSetCheckKsuDriverUpdate
+                            )
                         }
                     )
                 )
@@ -176,7 +191,7 @@ fun SettingPagerMaterial(
                 )
             }
 
-            if (uiState.isToolkitInstalled || uiState.isKpatchNextInstalled) KsuIsValid {
+            if (uiState.isToolkitInstalled || uiState.isKpatchNextInstalled || uiState.isSusfsInstalled) KsuIsValid {
                 SegmentedColumn(
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 13.dp),
                     content = buildList {
@@ -212,6 +227,27 @@ fun SettingPagerMaterial(
                                     Icon(
                                         Icons.Filled.Build,
                                         stringResource(R.string.settings_kpatch_next)
+                                    )
+                                },
+                                trailingContent = {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        null
+                                    )
+                                }
+                            )
+                        }
+                        if (uiState.isSusfsInstalled) add {
+                            SegmentedListItem(
+                                onClick = {
+                                    actions.onOpenWebUi("susfs4ksu", "SUSFS for KernelSU")
+                                },
+                                headlineContent = { Text(stringResource(R.string.settings_susfs4ksu)) },
+                                supportingContent = { Text(stringResource(R.string.settings_susfs4ksu_summary)) },
+                                leadingContent = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_sus),
+                                        contentDescription = stringResource(R.string.settings_susfs4ksu)
                                     )
                                 },
                                 trailingContent = {
@@ -280,6 +316,15 @@ fun SettingPagerMaterial(
                                 enabled = uiState.selinuxHideStatus == "supported",
                                 checked = uiState.isSelinuxHideEnabled,
                                 onCheckedChange = actions.onSetSelinuxHideEnabled
+                            )
+                        },
+                        {
+                            SegmentedSwitchItem(
+                                icon = Icons.Filled.VerifiedUser,
+                                title = stringResource(id = R.string.settings_selinux_enforcing),
+                                summary = if (uiState.isSelinuxEnforcing) stringResource(R.string.selinux_status_enforcing) else stringResource(R.string.selinux_status_permissive),
+                                checked = uiState.isSelinuxEnforcing,
+                                onCheckedChange = actions.onSetSelinuxEnforcing
                             )
                         },
                         {

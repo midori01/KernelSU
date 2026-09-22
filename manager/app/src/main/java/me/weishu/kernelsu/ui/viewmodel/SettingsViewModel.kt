@@ -19,6 +19,7 @@ import me.weishu.kernelsu.ksuApp
 import me.weishu.kernelsu.ui.screen.settings.SettingsUiState
 import me.weishu.kernelsu.ui.theme.ColorMode
 import me.weishu.kernelsu.ui.util.isWebuiModuleInstalled
+import me.weishu.kernelsu.ui.util.getRootShell
 
 class SettingsViewModel(
     private val repo: SettingsRepository = SettingsRepositoryImpl()
@@ -35,6 +36,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             val checkUpdate = repo.checkUpdate
             val checkModuleUpdate = repo.checkModuleUpdate
+            val checkKsuDriverUpdate = repo.checkKsuDriverUpdate
             val themeMode = repo.themeMode
             val miuixMonet = repo.miuixMonet
             val keyColor = repo.keyColor
@@ -59,6 +61,7 @@ class SettingsViewModel(
             // WebUI modules shortcut entry
             val isToolkitInstalled = isWebuiModuleInstalled("ksu_toolkit")
             val isKpatchNextInstalled = isWebuiModuleInstalled("KPatch-Next")
+            val isSusfsInstalled = isWebuiModuleInstalled("susfs4ksu")
 
             // Async loading for natives/features
             val suCompatStatus = repo.getSuCompatStatus()
@@ -71,6 +74,9 @@ class SettingsViewModel(
             val isKernelUmountEnabled = repo.isKernelUmountEnabled()
             val selinuxHideStatus = repo.getSelinuxHideStatus()
             val isSelinuxHideEnabled = repo.isSelinuxHideEnabled()
+            val isSelinuxEnforcing = runCatching {
+                com.topjohnwu.superuser.ShellUtils.fastCmd(getRootShell(true), "getenforce").trim() != "Permissive"
+            }.getOrDefault(true)
             val sulogStatus = repo.getSulogStatus()
             val isSulogEnabled = repo.getSulogPersistValue() == 1L
             val adbRootStatus = repo.getAdbRootStatus()
@@ -88,6 +94,7 @@ class SettingsViewModel(
                     uiMode = uiMode,
                     checkUpdate = checkUpdate,
                     checkModuleUpdate = checkModuleUpdate,
+                    checkKsuDriverUpdate = checkKsuDriverUpdate,
                     themeMode = themeMode,
                     miuixMonet = miuixMonet,
                     keyColor = keyColor,
@@ -109,6 +116,7 @@ class SettingsViewModel(
                     colorSpec = colorSpec,
                     isToolkitInstalled = isToolkitInstalled,
                     isKpatchNextInstalled = isKpatchNextInstalled,
+                    isSusfsInstalled = isSusfsInstalled,
                     suCompatStatus = suCompatStatus,
                     suCompatMode = suCompatMode,
                     isSuEnabled = isSuEnabled,
@@ -118,6 +126,7 @@ class SettingsViewModel(
                     isKernelUmountEnabled = isKernelUmountEnabled,
                     selinuxHideStatus = selinuxHideStatus,
                     isSelinuxHideEnabled = isSelinuxHideEnabled,
+                    isSelinuxEnforcing = isSelinuxEnforcing,
                     sulogStatus = sulogStatus,
                     isSulogEnabled = isSulogEnabled,
                     avcSpoofStatus = avcSpoofStatus,
@@ -170,6 +179,11 @@ class SettingsViewModel(
     fun setCheckModuleUpdate(enabled: Boolean) {
         repo.checkModuleUpdate = enabled
         _uiState.update { it.copy(checkModuleUpdate = enabled) }
+    }
+
+    fun setCheckKsuDriverUpdate(enabled: Boolean) {
+        repo.checkKsuDriverUpdate = enabled
+        _uiState.update { it.copy(checkKsuDriverUpdate = enabled) }
     }
 
     fun setThemeMode(mode: Int) {
@@ -343,6 +357,14 @@ class SettingsViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun setSelinuxEnforcing(enforcing: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val cmd = if (enforcing) "setenforce 1" else "setenforce 0"
+            com.topjohnwu.superuser.ShellUtils.fastCmd(getRootShell(true), cmd)
+            _uiState.update { it.copy(isSelinuxEnforcing = enforcing) }
         }
     }
 
