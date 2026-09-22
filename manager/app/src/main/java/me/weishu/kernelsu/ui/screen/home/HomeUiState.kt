@@ -14,6 +14,7 @@ data class LatestKsuDriverInfo(
 @Immutable
 data class HomeUiState(
     val appName: String,
+    val modernBento: Boolean = true,
     val classicUi: Boolean = false,
     val kernelVersion: KernelVersion,
     val ksuVersion: Int?,
@@ -91,4 +92,5 @@ data class HomeActions(
     val onKernelModuleClick: () -> Unit,
     val onJailbreakClick: () -> Unit = {},
     val onCrashLogClick: () -> Unit = {},
+    val onKernelToolClick: () -> Unit = {},
 )
