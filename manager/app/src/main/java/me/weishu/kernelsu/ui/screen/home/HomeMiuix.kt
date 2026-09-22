@@ -676,7 +676,7 @@ private val previewSystemInfo = SystemInfo(
     droidspacesVersion = "v6.0.0",
     rekernelVersion = "v10.0",
     rekernelLabel = "Re:Kernel version",
-    driverName = "MIDORI",
+    driverName = "KOW",
     oemUnlock = ""
 )
 
