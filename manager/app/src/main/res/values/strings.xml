@@ -149,6 +149,8 @@
     <string name="settings_kernelsu_toolkit_summary">Utility tool for KernelSU extra feature.</string>
     <string name="settings_kpatch_next">KPatch Next</string>
     <string name="settings_kpatch_next_summary">Standalone implementation of KPM support.</string>
+    <string name="settings_susfs4ksu">SUSFS for KernelSU</string>
+    <string name="settings_susfs4ksu_summary">Manage SUSFS configuration.</string>
     <string name="settings_profile_template">App Profile template</string>
     <string name="settings_profile_template_summary">Manage local and online template of App Profile.</string>
     <string name="app_profile_template_create">Create template</string>
@@ -180,6 +182,8 @@
     <string name="settings_pager_gesture_cross_axis">Cross-axis</string>
     <string name="settings_pager_gesture_ios_like">iOS-like</string>
     <string name="settings_module_check_update">Check for module updates</string>
+    <string name="settings_check_ksu_driver_update">Check KSU driver updates</string>
+    <string name="settings_check_ksu_driver_update_summary">Automatically check for KSU driver updates on startup.</string>
     <string name="grant_root_failed">Failed to grant root!</string>
     <string name="home_pr_build_warning">This is a PR debug build. Do NOT use it in production!</string>
     <string name="home_pr_kernel_warning">The kernel was built with PR signature support. This is not a production kernel!</string>
@@ -233,6 +237,7 @@
     <string name="settings_selinux_hide_summary">Prevent applications from detecting SELinux modifications</string>
     <string name="settings_selinux_hide_reboot_required">Reboot to take effect</string>
     <string name="settings_selinux_hide_failed">Error: %d</string>
+    <string name="settings_selinux_enforcing">SELinux mode switch</string>
     <string name="settings_sulog">SU Log</string>
     <string name="settings_sulog_summary">Record root-related events into KernelSU sulog files.</string>
     <string name="settings_avc_spoof">AVC Log spoofing</string>
