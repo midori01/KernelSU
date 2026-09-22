@@ -60,20 +60,21 @@ fun ModulePager(
     val latestIsCurrentPage by rememberUpdatedState(isCurrentPage)
     val initialResumeHandled = rememberSaveable { mutableStateOf(false) }
 
-    var hasActivated by rememberSaveable { mutableStateOf(false) }
+    var hasRequestedPermission by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(isCurrentPage) {
         if (isCurrentPage) {
-            if (!hasActivated) {
-                hasActivated = true
-                viewModel.refreshEnvironmentState()
-                viewModel.initializePreferences()
-                val state = viewModel.uiState.value
-                if (!state.hasLoaded && !state.isRefreshing) {
-                    viewModel.fetchModuleList()
-                }
-                if (Build.VERSION.SDK_INT >= 33) {
-                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
+            viewModel.refreshEnvironmentState()
+            viewModel.initializePreferences()
+            val state = viewModel.uiState.value
+            if ((!state.hasLoaded || viewModel.isNeedRefresh) && !state.isRefreshing) {
+                viewModel.fetchModuleList(
+                    checkUpdate = !state.hasLoaded || viewModel.isNeedRefresh,
+                    resort = !state.hasLoaded,
+                )
+            }
+            if (Build.VERSION.SDK_INT >= 33 && !hasRequestedPermission) {
+                hasRequestedPermission = true
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         } else if (!rawUiState.searchStatus.isCollapsed()) {
             viewModel.updateSearchStatus(rawUiState.searchStatus.copy(searchText = "", current = SearchStatus.Status.COLLAPSED))
