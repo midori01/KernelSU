@@ -50,6 +50,7 @@
     <string name="module_empty">查無已安裝的模組</string>
     <string name="module">模組</string>
     <string name="kernel_modules">核心模組</string>
+    <string name="kernel_modules_search">搜尋核心模組…</string>
     <string name="module_sort_action_first">執行優先</string>
     <string name="module_sort_enabled_first">啟用優先</string>
     <string name="module_repos">模組倉庫</string>
