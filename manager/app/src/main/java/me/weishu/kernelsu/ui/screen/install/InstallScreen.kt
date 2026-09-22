@@ -111,12 +111,14 @@ fun InstallScreen() {
     val selectFileTip = stringResource(id = R.string.select_file_tip, defaultPartition)
     val selectFileTipNoGki = stringResource(id = R.string.select_file_tip_nogki)
     val downloadFileMsg = stringResource(id = R.string.download_dialog_msg)
+    val backupBootSummary = stringResource(id = R.string.backup_boot_summary)
+    val flashBootImgSummary = stringResource(id = R.string.flash_boot_img_summary)
     val anyKernelSummary = stringResource(id = R.string.anykernel_install_summary)
 
     val installMethodOptions = remember(
         rootAvailable, isAbDevice, isGkiDevice,
         selectFileTip, selectFileTipNoGki, downloadFileMsg,
-        anyKernelSummary
+        backupBootSummary, flashBootImgSummary, anyKernelSummary
     ) {
         buildList {
             add(InstallMethod.SelectFile(summary = if (isGkiDevice) selectFileTip else selectFileTipNoGki))
@@ -127,6 +129,8 @@ fun InstallScreen() {
             }
             if (rootAvailable) {
                 add(InstallMethod.AnyKernel(summary = anyKernelSummary))
+                add(InstallMethod.BackupBoot(summary = backupBootSummary))
+                add(InstallMethod.FlashBootImg(summary = flashBootImgSummary))
             }
         }
     }
@@ -166,7 +170,7 @@ fun InstallScreen() {
     val onInstall = {
         installMethod?.let { method ->
             if (method is InstallMethod.AnyKernel) {
-                method.uri?.let { uri -> navigator.push(Route.Flash(FlashIt.FlashAnyKernel(uri))) }
+                method.uri?.let { uri -> navigator.push(Route.Flash(FlashIt.FlashAnyKernel(uri, slot = selectedSlot))) }
                 return@let
             }
             // Determine final LKM selection based on variant
@@ -297,12 +301,23 @@ fun InstallScreen() {
         }
     }
 
+    val selectBootImgLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            it.data?.data?.let { uri ->
+                val name = uri.getFileName(context) ?: uri.lastPathSegment
+                installMethod = InstallMethod.FlashBootImg(uri, summary = name)
+            }
+        }
+    }
+
     val showInstallOptions = installMethod is InstallMethod.SelectFile ||
         installMethod is InstallMethod.DownloadFile ||
         installMethod is InstallMethod.DirectInstall ||
         installMethod is InstallMethod.DirectInstallToInactiveSlot
 
-    val canSelectSlot = isAb && (installMethod is InstallMethod.AnyKernel)
+    val canSelectSlot = isAb && (installMethod is InstallMethod.FlashBootImg || installMethod is InstallMethod.AnyKernel)
 
     val isNextEnabled = when (val method = installMethod) {
         null -> false
@@ -311,7 +326,8 @@ fun InstallScreen() {
         is InstallMethod.DirectInstall -> true
         is InstallMethod.DirectInstallToInactiveSlot -> true
         is InstallMethod.AnyKernel -> method.uri != null
-        else -> false
+        is InstallMethod.FlashBootImg -> method.uri != null
+        is InstallMethod.BackupBoot -> true
     }
 
     val state = InstallUiState(
@@ -342,10 +358,22 @@ fun InstallScreen() {
     )
     val actions = InstallScreenActions(
         onBack = dropUnlessResumed { navigator.pop() },
-        onSelectMethod = { method -> installMethod = method },
         onDownloadFile = { downloadDialogShown = true },
         onSelectBootImage = {
             selectImageLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply { type = "application/octet-stream" })
+        },
+        onSelectMethod = { method ->
+            installMethod = method
+        },
+        onSelectBootImg = {
+            selectBootImgLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply {
+                type = "*/*"
+                putExtra(
+                    Intent.EXTRA_MIME_TYPES,
+                    arrayOf("application/octet-stream", "application/x-raw-disk-image", "application/x-disk-image", "*/*")
+                )
+                addCategory(Intent.CATEGORY_OPENABLE)
+            })
         },
         onSelectSlot = { index ->
             hasCustomSlotSelected = true
@@ -393,6 +421,14 @@ fun InstallScreen() {
         },
         onNext = {
             when (val method = installMethod) {
+                is InstallMethod.BackupBoot -> {
+                    navigator.push(Route.Flash(FlashIt.BackupBoot))
+                }
+                is InstallMethod.FlashBootImg -> {
+                    method.uri?.let { uri ->
+                        navigator.push(Route.Flash(FlashIt.FlashBootImg(uri, slot = selectedSlot)))
+                    }
+                }
                 is InstallMethod.AnyKernel -> {
                     method.uri?.let { uri ->
                         navigator.push(Route.Flash(FlashIt.FlashAnyKernel(uri, slot = selectedSlot)))
