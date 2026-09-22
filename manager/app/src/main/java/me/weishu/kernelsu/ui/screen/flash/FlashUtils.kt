@@ -95,7 +95,7 @@ sealed class FlashIt : Parcelable {
     data class FlashModules(val uris: List<Uri>) : FlashIt()
 
     @Parcelize
-    data class FlashAnyKernel(val uri: Uri) : FlashIt()
+    data class FlashAnyKernel(val uri: Uri, val slot: String = "") : FlashIt()
 
     @Parcelize
     data object FlashRestore : FlashIt()
@@ -153,7 +153,7 @@ fun flashIt(
         }
 
         is FlashIt.FlashAnyKernel -> {
-            flashAnyKernelZip(flashIt.uri, onStdout, onStderr)
+            flashAnyKernelZip(flashIt.uri, flashIt.slot, onStdout, onStderr)
         }
 
         FlashIt.FlashRestore -> restoreBoot(onStdout, onStderr)
@@ -190,6 +190,10 @@ fun FlashEffect(
                 }
                 logContent.append(it).append("\n")
             }, onStderr = {
+                currentText += "$it\n"
+                mainHandler.post {
+                    onTextUpdate(currentText)
+                }
                 logContent.append(it).append("\n")
             }).apply {
                 if (code != 0) {
