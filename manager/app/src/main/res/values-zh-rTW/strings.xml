@@ -325,6 +325,9 @@
     <string name="install_force_backup_summary">請確保你選擇的 boot 映像是原廠映像</string>
     <string name="module_shortcut_copy_scheme">複製 URL Scheme</string>
     <string name="module_shortcut_scheme_copied">已複製 URL Scheme</string>
+    <string name="kallsyms_title">核心符號表</string>
+    <string name="kallsyms_search">搜尋核心符號…</string>
+    <string name="share">分享</string>
     <string name="sulog_log_files">日誌檔案</string>
     <string name="sulog_failed_to_load">無法載入 sulog</string>
     <string name="sulog_disabled_title">SU 日誌未啟用</string>
