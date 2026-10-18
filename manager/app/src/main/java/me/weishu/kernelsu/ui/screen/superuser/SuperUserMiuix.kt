@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import me.weishu.kernelsu.ui.component.bottombar.RegisterTabReselect
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -630,6 +631,9 @@ fun SuperUserPagerMiuix(
     ) { innerPadding ->
         val layoutDirection = LocalLayoutDirection.current
         val lazyListState = rememberLazyListState()
+        RegisterTabReselect(1) {
+            lazyListState.animateScrollToItem(0)
+        }
         searchStatus.SearchBox {
             val refreshTick = remember { mutableIntStateOf(0) }
             val latestGroupedApps = rememberUpdatedState(uiState.groupedApps)
