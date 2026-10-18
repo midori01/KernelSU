@@ -27,6 +27,8 @@ val defaultManagerPackageName = if (isPrBuild) "me.weishu.kernelsu.pr" else "me.
 val defaultManagerName = if (isPrBuild) "KernelSU PR" else "KernelSU"
 val managerPackageName = project.findProperty("KSU_PACKAGE_NAME")?.toString() ?: defaultManagerPackageName
 val managerName = project.findProperty("KSU_NAME")?.toString() ?: defaultManagerName
+// Epoch seconds shared with the release tag by CI; 0 for local builds (version code compare only).
+val managerBuildTime = project.findProperty("BUILD_TIME")?.toString()?.toLongOrNull() ?: 0L
 
 apksign {
     storeFileProperty = "KEYSTORE_FILE"
@@ -148,6 +150,7 @@ android {
         applicationId = managerPackageName
 
         buildConfigField("boolean", "IS_PR_BUILD", isPrBuild.toString())
+        buildConfigField("long", "BUILD_TIME", "${managerBuildTime}L")
         resValue("string", "app_name", managerName)
 
         externalNativeBuild {
