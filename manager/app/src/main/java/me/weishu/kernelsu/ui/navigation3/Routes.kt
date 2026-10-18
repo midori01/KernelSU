@@ -89,4 +89,8 @@ sealed interface Route : NavKey, Parcelable {
     @Parcelize
     @Serializable
     data class ScriptRun(@Serializable(with = ScriptRunArgSerializer::class) val arg: ScriptRunArg) : Route
+
+    @Parcelize
+    @Serializable
+    data object Kallsyms : Route
 }

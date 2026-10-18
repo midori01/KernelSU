@@ -415,4 +415,7 @@
     <string name="script_param_below_min">Must be at least %d</string>
     <string name="script_param_above_max">Must be at most %d</string>
     <string name="script_param_invalid">Invalid value</string>
+    <string name="kallsyms_title">Kallsyms</string>
+    <string name="kallsyms_search">Search kallsyms…</string>
+    <string name="share">Share</string>
 </resources>
