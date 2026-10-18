@@ -1,6 +1,7 @@
 package me.weishu.kernelsu.ui.screen.home
 
 import androidx.compose.runtime.Immutable
+import me.weishu.kernelsu.BuildConfig
 import me.weishu.kernelsu.KernelVersion
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 import me.weishu.kernelsu.ui.screen.home.toRoman
@@ -33,6 +34,7 @@ data class HomeUiState(
     val checkUpdateEnabled: Boolean,
     val latestVersionInfo: LatestVersionInfo,
     val currentManagerVersionCode: Long,
+    val currentManagerBuildTime: Long = BuildConfig.BUILD_TIME,
     val superuserCount: Int,
     val moduleCount: Int,
     val kernelModuleCount: Int,
@@ -75,8 +77,22 @@ data class HomeUiState(
     val showKernelPrBuildWarning: Boolean
         get() = isManager && !isManagerPrBuild && isKernelPrBuild
 
+    // A rebuild can keep the same version code (same day, same commit count), so prefer the
+    // build time CI shares between BuildConfig and the release tag when both sides know it.
     val hasUpdate: Boolean
-        get() = latestVersionInfo.versionCode > currentManagerVersionCode
+        get() = if (latestVersionInfo.buildTime > 0 && currentManagerBuildTime > 0) {
+            latestVersionInfo.buildTime > currentManagerBuildTime
+        } else {
+            latestVersionInfo.versionCode > currentManagerVersionCode
+        }
+
+    // Add the tag when the code alone would not read as newer (rebuilt or history squashed).
+    val latestVersionLabel: String
+        get() = if (latestVersionInfo.versionCode.toLong() <= currentManagerVersionCode && latestVersionInfo.tagName.isNotEmpty()) {
+            "${latestVersionInfo.versionCode} (${latestVersionInfo.tagName})"
+        } else {
+            latestVersionInfo.versionCode.toString()
+        }
 
     val formattedManagerUAPIVersion: String
         get() = managerUAPIVersion.toRoman()
