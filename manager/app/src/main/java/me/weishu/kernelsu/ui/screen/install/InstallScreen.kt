@@ -38,6 +38,7 @@ import me.weishu.kernelsu.ui.util.LkmSelection
 import me.weishu.kernelsu.ui.util.getAvailablePartitions
 import me.weishu.kernelsu.ui.util.getCurrentKmi
 import me.weishu.kernelsu.ui.util.getDefaultPartition
+import me.weishu.kernelsu.ui.util.getFileName
 import me.weishu.kernelsu.ui.util.getLoadedBlockableModules
 import me.weishu.kernelsu.ui.util.isBlockModulesValid
 import me.weishu.kernelsu.ui.util.getSlotSuffix
@@ -97,11 +98,50 @@ fun InstallScreen() {
     val rootAvailable by produceState(initialValue = false) { value = rootAvailable() }
     val isAbDevice by produceState(initialValue = false) { value = isAbDevice() }
     val isGkiDevice by produceState(initialValue = false) { value = getKernelVersion().isGKI() }
+    val currentSlot by produceState(initialValue = "") { value = getSlotSuffix(false) }
+
+    var slotSelectionIndex by rememberSaveable { mutableIntStateOf(0) }
+    var hasCustomSlotSelected by rememberSaveable { mutableStateOf(false) }
+
+    val isSlotB = currentSlot.endsWith("b", ignoreCase = true)
+    val isSlotA = currentSlot.endsWith("a", ignoreCase = true) || (!isSlotB && currentSlot.isNotEmpty())
+    val defaultSlotIndex = remember(currentSlot) {
+        if (isSlotB) 1 else 0
+    }
+
+    LaunchedEffect(defaultSlotIndex, hasCustomSlotSelected) {
+        if (!hasCustomSlotSelected) {
+            slotSelectionIndex = defaultSlotIndex
+        }
+    }
+
+    val activeTag = stringResource(R.string.slot_active_tag)
+    val slotItems = remember(currentSlot, activeTag) {
+        listOf(
+            if (isSlotA) "Slot A (_a) ($activeTag)" else "Slot A (_a)",
+            if (isSlotB) "Slot B (_b) ($activeTag)" else "Slot B (_b)"
+        )
+    }
+
+    val isAb = isAbDevice || currentSlot.isNotBlank()
+    // Without an explicit choice, pass the detected active slot ("" while still loading or
+    // unknown) so the flasher resolves it itself instead of guessing _a.
+    val selectedSlot = when {
+        !isAb -> ""
+        hasCustomSlotSelected -> if (slotSelectionIndex == 1) "_b" else "_a"
+        else -> currentSlot
+    }
 
     val selectFileTip = stringResource(id = R.string.select_file_tip, defaultPartition)
     val selectFileTipNoGki = stringResource(id = R.string.select_file_tip_nogki)
     val downloadFileMsg = stringResource(id = R.string.download_dialog_msg)
-    val installMethodOptions = remember(rootAvailable, isAbDevice, isGkiDevice, selectFileTip, selectFileTipNoGki, downloadFileMsg) {
+    val anyKernelSummary = stringResource(id = R.string.anykernel_install_summary)
+
+    val installMethodOptions = remember(
+        rootAvailable, isAbDevice, isGkiDevice,
+        selectFileTip, selectFileTipNoGki, downloadFileMsg,
+        anyKernelSummary
+    ) {
         buildList {
             add(InstallMethod.SelectFile(summary = if (isGkiDevice) selectFileTip else selectFileTipNoGki))
             add(InstallMethod.DownloadFile(summary = downloadFileMsg))
@@ -109,7 +149,9 @@ fun InstallScreen() {
                 add(InstallMethod.DirectInstall)
                 if (isAbDevice) add(InstallMethod.DirectInstallToInactiveSlot)
             }
-            if (rootAvailable) add(InstallMethod.AnyKernel())
+            if (rootAvailable) {
+                add(InstallMethod.AnyKernel(summary = anyKernelSummary))
+            }
         }
     }
 
@@ -268,7 +310,8 @@ fun InstallScreen() {
     ) {
         if (it.resultCode == Activity.RESULT_OK) {
             it.data?.data?.let { uri ->
-                installMethod = InstallMethod.SelectFile(uri, summary = if (isGkiDevice) selectFileTip else selectFileTipNoGki)
+                val name = uri.getFileName(context) ?: uri.lastPathSegment
+                installMethod = InstallMethod.SelectFile(uri, summary = name)
             }
         }
     }
@@ -276,8 +319,28 @@ fun InstallScreen() {
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
         if (it.resultCode == Activity.RESULT_OK) {
-            it.data?.data?.let { uri -> installMethod = InstallMethod.AnyKernel(uri) }
+            it.data?.data?.let { uri ->
+                val name = uri.getFileName(context) ?: uri.lastPathSegment
+                installMethod = InstallMethod.AnyKernel(uri, summary = name)
+            }
         }
+    }
+
+    val showInstallOptions = installMethod is InstallMethod.SelectFile ||
+        installMethod is InstallMethod.DownloadFile ||
+        installMethod is InstallMethod.DirectInstall ||
+        installMethod is InstallMethod.DirectInstallToInactiveSlot
+
+    val canSelectSlot = isAb && (installMethod is InstallMethod.AnyKernel)
+
+    val isNextEnabled = when (val method = installMethod) {
+        null -> false
+        is InstallMethod.SelectFile -> method.uri != null
+        is InstallMethod.DownloadFile -> method.url != null
+        is InstallMethod.DirectInstall -> true
+        is InstallMethod.DirectInstallToInactiveSlot -> true
+        is InstallMethod.AnyKernel -> method.uri != null
+        else -> false
     }
 
     val state = InstallUiState(
@@ -294,7 +357,7 @@ fun InstallScreen() {
         canSelectPartition = installMethod is InstallMethod.DirectInstall ||
             installMethod is InstallMethod.DirectInstallToInactiveSlot ||
             installMethod is InstallMethod.DownloadFile,
-        showInstallOptions = installMethod != null && installMethod !is InstallMethod.AnyKernel,
+        showInstallOptions = showInstallOptions,
         advancedOptionsShown = advancedOptionsShown,
         allowShell = allowShell,
         enableAdb = enableAdb,
@@ -303,6 +366,11 @@ fun InstallScreen() {
         blockModulesEnabled = blockModulesEnabled,
         blockModules = blockModules,
         blockModulesValid = isBlockModulesValid(effectiveBlockModules),
+        isAbDevice = isAb,
+        canSelectSlot = canSelectSlot,
+        slotItems = slotItems,
+        slotSelectionIndex = slotSelectionIndex,
+        isNextEnabled = isNextEnabled,
     )
     val actions = InstallScreenActions(
         onBack = dropUnlessResumed { navigator.pop() },
@@ -311,12 +379,16 @@ fun InstallScreen() {
         onSelectBootImage = {
             selectImageLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply { type = "application/octet-stream" })
         },
+        onSelectSlot = { index ->
+            hasCustomSlotSelected = true
+            slotSelectionIndex = index
+        },
         onSelectAnyKernel = {
             selectAnyKernelLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply {
                 type = "application/zip"
                 putExtra(
                     Intent.EXTRA_MIME_TYPES,
-                    arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream")
+                    arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream", "*/*")
                 )
                 addCategory(Intent.CATEGORY_OPENABLE)
             })
@@ -352,24 +424,33 @@ fun InstallScreen() {
             }
         },
         onNext = {
-            val isLkmSelected = lkmSelection != LkmSelection.KmiNone || lkmVariant == LkmVariant.CUSTOM
-            val isKmiUnknown = currentKmi.isBlank()
-            val isKmiUnresolved = when (installMethod) {
-                // The download flow extracts the KMI itself; no manual
-                // selection needed.
-                is InstallMethod.DownloadFile -> false
-                is InstallMethod.AnyKernel -> false
-                is InstallMethod.SelectFile -> true
-                else -> isKmiUnknown
-            }
-            val needsXxKsuKmi = lkmVariant == LkmVariant.XXKSU &&
-                lkmSelection == LkmSelection.KmiNone &&
-                installMethod !is InstallMethod.DownloadFile &&
-                installMethod !is InstallMethod.AnyKernel
-            if ((!isLkmSelected && isKmiUnresolved) || needsXxKsuKmi) {
-                showChooseKmiDialog.value = true
-            } else {
-                onInstall()
+            when (val method = installMethod) {
+                is InstallMethod.AnyKernel -> {
+                    method.uri?.let { uri ->
+                        navigator.push(Route.Flash(FlashIt.FlashAnyKernel(uri, slot = selectedSlot)))
+                    }
+                }
+                else -> {
+                    val isLkmSelected = lkmSelection != LkmSelection.KmiNone || lkmVariant == LkmVariant.CUSTOM
+                    val isKmiUnknown = currentKmi.isBlank()
+                    val isKmiUnresolved = when (installMethod) {
+                        // The download flow extracts the KMI itself; no manual
+                        // selection needed.
+                        is InstallMethod.DownloadFile -> false
+                        is InstallMethod.AnyKernel -> false
+                        is InstallMethod.SelectFile -> true
+                        else -> isKmiUnknown
+                    }
+                    val needsXxKsuKmi = lkmVariant == LkmVariant.XXKSU &&
+                        lkmSelection == LkmSelection.KmiNone &&
+                        installMethod !is InstallMethod.DownloadFile &&
+                        installMethod !is InstallMethod.AnyKernel
+                    if ((!isLkmSelected && isKmiUnresolved) || needsXxKsuKmi) {
+                        showChooseKmiDialog.value = true
+                    } else {
+                        onInstall()
+                    }
+                }
             }
         },
         onAdvancedOptionsClicked = {
