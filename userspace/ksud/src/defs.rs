@@ -73,6 +73,9 @@ mod android {
     pub const KSU_BACKUP_FILE_PREFIX: &str = "ksu_backup_";
     pub const BACKUP_FILENAME: &str = "stock_image.sha1";
     pub const KSU_TEMP_BACKUP_DIR_NAME: &str = "boot_backup";
+    pub const KMOD_BLOCK_MODULES_PATH: &str = concatcp!(WORKING_DIR, "block_modules");
+    pub const KMOD_BLOCK_BOOT_BACKUP_PATH: &str =
+        concatcp!(WORKING_DIR, "kmod_block_boot_backup.img");
 
     pub const DEFAULT_PACKAGE_NAME: &str = env!("KSU_PACKAGE_NAME");
 }
