@@ -47,7 +47,7 @@ fun ColorPaletteScreen() {
         onSetColorMode = viewModel::setColorMode,
         onSetColorStyle = viewModel::setColorStyle,
         onSetColorSpec = viewModel::setColorSpec,
-        onSetEnableOfficialLauncher = viewModel::setEnableOfficialLauncher,
+        onSetAppIconMode = viewModel::setAppIconMode,
         onSetClassicUi = viewModel::setClassicUi,
         onSetShowSwitchIcon = viewModel::setShowSwitchIcon,
         onSetScrollAnimation = viewModel::setScrollAnimation,
