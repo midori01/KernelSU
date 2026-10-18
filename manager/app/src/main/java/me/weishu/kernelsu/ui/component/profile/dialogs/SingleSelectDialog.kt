@@ -22,6 +22,7 @@ fun <T> SingleSelectDialog(
     items: List<T>,
     selectedItem: T,
     itemTitle: (T) -> String,
+    itemLeadingIcon: (@Composable (T, Boolean) -> Unit)? = null,
     onConfirm: (T) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -35,9 +36,11 @@ fun <T> SingleSelectDialog(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 content = items.map { item ->
                     {
+                        val isSelected = selected == item
                         SegmentedRadioItem(
                             title = itemTitle(item),
-                            selected = selected == item,
+                            leadingIcon = itemLeadingIcon?.let { { it(item, isSelected) } },
+                            selected = isSelected,
                             onClick = { selected = item }
                         )
                     }
