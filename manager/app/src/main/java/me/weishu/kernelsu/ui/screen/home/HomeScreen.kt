@@ -69,6 +69,10 @@ fun HomePager(
         onModuleClick = { if (uiState.isFullFeatured) mainState.animateToPage(3) },
         onOpenUrl = uriHandler::openUri,
         onKernelModuleClick = { navigator.push(Route.KernelModule) },
+        onCrashLogClick = {
+            viewModel.markCrashLogAsRead()
+            navigator.push(Route.CrashLog)
+        },
         onJailbreakClick = {
             loadingDialog.showLoading()
             context.startService(Intent(context, MagicaService::class.java))
