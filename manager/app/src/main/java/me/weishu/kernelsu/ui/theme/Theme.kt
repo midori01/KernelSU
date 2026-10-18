@@ -166,6 +166,6 @@ val LocalEnableFloatingBottomBar = staticCompositionLocalOf { true }
 
 val LocalEnableFloatingBottomBarBlur = staticCompositionLocalOf { false }
 
-val LocalEnableNavigationBadge = staticCompositionLocalOf { true }
+val LocalEnableModuleUpdateBadge = staticCompositionLocalOf { true }
 
 val LocalModuleDescriptionMaxLines = staticCompositionLocalOf { 4 }
