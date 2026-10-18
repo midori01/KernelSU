@@ -4,6 +4,7 @@ interface SettingsRepository {
     var uiMode: String
     var checkUpdate: Boolean
     var checkModuleUpdate: Boolean
+    var checkKsuDriverUpdate: Boolean
     var themeMode: Int
     var miuixMonet: Boolean
     var keyColor: Int
