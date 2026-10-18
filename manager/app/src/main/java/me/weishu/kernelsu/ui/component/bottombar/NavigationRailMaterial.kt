@@ -138,9 +138,7 @@ fun NavigationRailMaterial(
                                 showToolSelectDialog = true
                             } else {
                                 up.consume()
-                                if (!selected) {
-                                    mainPagerState.animateToPage(index)
-                                }
+                                mainPagerState.animateToPage(index)
                             }
                         }
                     }
@@ -148,9 +146,7 @@ fun NavigationRailMaterial(
                 railExpanded = expanded,
                 selected = selected,
                 onClick = {
-                    if (!selected) {
-                        mainPagerState.animateToPage(index)
-                    }
+                    mainPagerState.animateToPage(index)
                 },
                 icon = {
                     NavigationIconWithBadge(
