@@ -157,7 +157,7 @@ val LocalClassicUi = staticCompositionLocalOf { false }
 
 val LocalEnableBlur = staticCompositionLocalOf { false }
 
-val LocalEnableFloatingBottomBar = staticCompositionLocalOf { false }
+val LocalEnableFloatingBottomBar = staticCompositionLocalOf { true }
 
 val LocalEnableFloatingBottomBarBlur = staticCompositionLocalOf { false }
 
