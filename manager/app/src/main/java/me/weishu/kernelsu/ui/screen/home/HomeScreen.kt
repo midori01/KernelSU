@@ -90,6 +90,7 @@ fun HomePager(
             actions = actions,
             bottomInnerPadding = bottomInnerPadding,
             navigator = navigator,
+            isCurrentPage = isCurrentPage,
         )
 
         UiMode.Material -> HomePagerMaterial(
@@ -97,6 +98,7 @@ fun HomePager(
             actions = actions,
             bottomInnerPadding = bottomInnerPadding,
             navigator = navigator,
+            isCurrentPage = isCurrentPage,
         )
     }
 }
