@@ -49,7 +49,7 @@ fun HomePager(
 
     var hasActivated by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(isCurrentPage) {
-        if (isCurrentPage && !hasActivated) {
+        if (isCurrentPage) {
             hasActivated = true
             viewModel.refresh()
         }
@@ -72,6 +72,9 @@ fun HomePager(
         onCrashLogClick = {
             viewModel.markCrashLogAsRead()
             navigator.push(Route.CrashLog)
+        },
+        onKernelToolClick = {
+            if (uiState.isFullFeatured) mainState.animateToPage(2)
         },
         onJailbreakClick = {
             loadingDialog.showLoading()
