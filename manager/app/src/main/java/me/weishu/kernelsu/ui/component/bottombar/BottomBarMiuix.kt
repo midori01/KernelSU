@@ -64,6 +64,8 @@ fun BottomBarMiuix(
     val enableFloatingBottomBarBlur = LocalEnableFloatingBottomBarBlur.current
     val currentKernelTool = LocalKernelTool.current
     val haptic = LocalHapticFeedback.current
+    val settingsRepo = remember { SettingsRepositoryImpl() }
+    var showTips by remember { mutableStateOf(!settingsRepo.bottomBarToolTipsShown) }
     var showToolSelectDialog by remember { mutableStateOf(false) }
 
     val items = BottomBarDestination.entries.mapIndexed { index, destination ->
@@ -95,6 +97,8 @@ fun BottomBarMiuix(
                                             detectTapGestures(
                                                 onLongPress = {
                                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    settingsRepo.bottomBarToolTipsShown = true
+                                                    showTips = false
                                                     showToolSelectDialog = true
                                                 },
                                                 onTap = {
@@ -110,7 +114,19 @@ fun BottomBarMiuix(
                             onClick = {
                                 mainState.animateToPage(index)
                             },
-                            badge = navigationBadgeFor(index, navigationBadge),
+                            badge = if (index == 2 && showTips) {
+                                {
+                                    navigationBadgeFor(index, navigationBadge)?.invoke()
+                                    KernelToolTipsMiuix(
+                                        onDismiss = {
+                                            showTips = false
+                                            settingsRepo.bottomBarToolTipsShown = true
+                                        }
+                                    )
+                                }
+                            } else {
+                                navigationBadgeFor(index, navigationBadge)
+                            },
                         )
                     }
                 }
@@ -145,6 +161,8 @@ fun BottomBarMiuix(
                                     detectTapGestures(
                                         onLongPress = {
                                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            settingsRepo.bottomBarToolTipsShown = true
+                                            showTips = false
                                             showToolSelectDialog = true
                                         },
                                         onTap = {
@@ -169,6 +187,14 @@ fun BottomBarMiuix(
                     } else {
                         icon()
                     }
+                    if (index == 2 && showTips) {
+                        KernelToolTipsMiuix(
+                            onDismiss = {
+                                showTips = false
+                                settingsRepo.bottomBarToolTipsShown = true
+                            }
+                        )
+                    }
                     Text(
                         text = item.label,
                         fontSize = 11.sp,
@@ -186,7 +212,9 @@ fun BottomBarMiuix(
         show = showToolSelectDialog,
         currentTool = currentKernelTool,
         onSelected = { tool ->
-            SettingsRepositoryImpl().bottomBarKernelTool = tool.id
+            settingsRepo.bottomBarKernelTool = tool.id
+            settingsRepo.bottomBarToolTipsShown = true
+            showTips = false
         },
         onDismissRequest = {
             showToolSelectDialog = false
