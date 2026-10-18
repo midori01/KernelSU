@@ -141,7 +141,7 @@ open class MainActivity : ComponentActivity() {
         }
 
         val isManager = Natives.isManager
-        if (isManager && Natives.kernelUAPIVersion == Natives.managerUAPIVersion) install()
+        if (isManager) install()
 
         if (savedInstanceState == null) intent?.let { intentChannel.trySend(it) }
 
