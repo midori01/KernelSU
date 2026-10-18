@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -16,7 +17,8 @@ fun StatusTagMaterial(
     label: String,
     modifier: Modifier = Modifier,
     backgroundColor: Color,
-    contentColor: Color
+    contentColor: Color,
+    fontSize: TextUnit = TextUnit.Unspecified
 ) {
     Box(
         modifier = modifier
@@ -29,7 +31,9 @@ fun StatusTagMaterial(
         Text(
             text = label,
             modifier = Modifier.padding(vertical = 2.dp, horizontal = 4.dp),
-            style = MaterialTheme.typography.labelSmallEmphasized,
+            style = MaterialTheme.typography.labelSmallEmphasized.let {
+                if (fontSize != TextUnit.Unspecified) it.copy(fontSize = fontSize) else it
+            },
             color = contentColor,
         )
     }
