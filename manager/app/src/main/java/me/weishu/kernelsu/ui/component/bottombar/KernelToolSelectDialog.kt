@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,10 +27,12 @@ import me.weishu.kernelsu.ui.LocalUiMode
 import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.profile.dialogs.SingleSelectDialog
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Icon as MiuixIcon
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import top.yukonga.miuix.kmp.preference.CheckboxLocation
 import top.yukonga.miuix.kmp.preference.CheckboxPreference
+import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 
 @Composable
 fun KernelToolSelectDialog(
@@ -54,6 +59,14 @@ fun KernelToolSelectDialog(
                 items = KernelTool.entries,
                 selectedItem = currentTool,
                 itemTitle = { context.getString(it.label) },
+                itemLeadingIcon = { tool, isSelected ->
+                    Icon(
+                        imageVector = tool.roundedIcon,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
                 onConfirm = onSelected,
                 onDismiss = onDismissRequest,
             )
@@ -79,8 +92,17 @@ private fun KernelToolSelectDialogMiuix(
             Column(modifier = Modifier.heightIn(max = 500.dp)) {
                 LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
                     items(KernelTool.entries) { tool ->
+                        val isSelected = selected.value == tool
                         CheckboxPreference(
                             title = stringResource(tool.label),
+                            startAction = {
+                                MiuixIcon(
+                                    imageVector = tool.outlinedIcon,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(end = 12.dp),
+                                    tint = if (isSelected) colorScheme.primary else colorScheme.onSurface
+                                )
+                            },
                             insideMargin = PaddingValues(horizontal = 30.dp, vertical = 16.dp),
                             checkboxLocation = CheckboxLocation.End,
                             checked = selected.value == tool,
