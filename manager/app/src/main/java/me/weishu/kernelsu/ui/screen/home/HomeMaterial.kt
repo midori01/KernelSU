@@ -45,6 +45,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import me.weishu.kernelsu.ui.component.bottombar.RegisterTabReselect
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -171,6 +172,10 @@ fun HomePagerMaterial(
     isCurrentPage: Boolean = true,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val scrollState = rememberScrollState()
+    RegisterTabReselect(0) {
+        scrollState.animateScrollTo(0)
+    }
     var edgeBumps by remember { mutableIntStateOf(0) }
     val edgeBumpConnection = rememberScrollEdgeBumpConnection { edgeBumps++ }
 
@@ -190,7 +195,7 @@ fun HomePagerMaterial(
                 .padding(innerPadding)
                 .nestedScroll(edgeBumpConnection)
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(13.dp)
         ) {
