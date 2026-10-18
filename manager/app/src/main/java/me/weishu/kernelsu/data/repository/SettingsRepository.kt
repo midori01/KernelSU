@@ -28,6 +28,7 @@ interface SettingsRepository {
     var moduleSortActionFirst: Boolean
     /** Name of the [me.weishu.kernelsu.ui.screen.modulerepo.RepoSort] entry. */
     var moduleRepoSortOrder: String
+    var dmesgSortOrder: Int
     var superuserShowSystemApps: Boolean
     var superuserShowOnlyPrimaryUserApps: Boolean
     var superuserSortOption: Int
