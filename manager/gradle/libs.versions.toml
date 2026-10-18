@@ -24,6 +24,7 @@ appiconloader = "1.5.0"
 protobuf = "4.36.1"
 commons-compress = "1.28.0"
 xz = "1.12"
+zstd-jni = "1.5.7-21"
 
 [plugins]
 agp-app = { id = "com.android.application", version.ref = "agp" }
@@ -93,3 +94,4 @@ protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", ve
 protobuf-protoc = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
 commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }
 xz = { module = "org.tukaani:xz", version.ref = "xz" }
+zstd-jni = { module = "com.github.luben:zstd-jni", version.ref = "zstd-jni" }
