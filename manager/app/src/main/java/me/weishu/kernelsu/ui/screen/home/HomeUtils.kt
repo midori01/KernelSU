@@ -1,8 +1,26 @@
 package me.weishu.kernelsu.ui.screen.home
 import me.weishu.kernelsu.R
 import android.content.Context
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.unit.Velocity
 import androidx.core.content.pm.PackageInfoCompat
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 @Immutable
 data class ManagerVersion(
@@ -65,6 +83,67 @@ fun Int.toRoman(): String {
             while (num >= values[i]) {
                 append(symbols[i])
                 num -= values[i]
+            }
+        }
+    }
+}
+
+suspend fun wobbleHomeIcon(
+    scale: Animatable<Float, AnimationVector1D>,
+    rotation: Animatable<Float, AnimationVector1D>,
+): Unit = coroutineScope {
+    // Playful wobble tilt
+    launch {
+        rotation.animateTo(-16f, tween(70, easing = FastOutLinearInEasing))
+        rotation.animateTo(12f, tween(90, easing = LinearOutSlowInEasing))
+        rotation.animateTo(
+            0f,
+            spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMedium
+            )
+        )
+    }
+    // Jelly squash & bouncy rebound
+    launch {
+        scale.animateTo(0.80f, tween(70, easing = FastOutLinearInEasing))
+        scale.animateTo(
+            1f,
+            spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
+            )
+        )
+    }
+}
+
+/**
+ * Calls [onBump] once when a drag or fling runs into the top or bottom edge, i.e. scroll
+ * delta is left over after the content and the top app bar consumed what they could.
+ * Re-arms once the content scrolls again or the gesture (including its fling) ends.
+ */
+@Composable
+fun rememberScrollEdgeBumpConnection(onBump: () -> Unit): NestedScrollConnection {
+    val currentOnBump by rememberUpdatedState(onBump)
+    return remember {
+        object : NestedScrollConnection {
+            private var armed = true
+
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                if (abs(available.y) > 0.5f) {
+                    if (armed) {
+                        armed = false
+                        currentOnBump()
+                    }
+                } else if (consumed.y != 0f) {
+                    armed = true
+                }
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                armed = true
+                return Velocity.Zero
             }
         }
     }
