@@ -33,7 +33,7 @@ mod android {
     use std::os::fd::AsRawFd;
     use std::os::unix::fs::PermissionsExt;
     use std::path::{Path, PathBuf};
-    use std::process::Command;
+    use std::process::{Command, Stdio};
 
     use crate::utils;
 
@@ -281,8 +281,18 @@ mod android {
     pub(super) fn post_ota() -> Result<()> {
         use crate::assets::BOOTCTL_PATH;
         use crate::defs::ADB_DIR;
-        let status = Command::new(BOOTCTL_PATH).arg("hal-info").status()?;
+        let status = Command::new(BOOTCTL_PATH)
+            .arg("hal-info")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()?;
         if !status.success() {
+            // The bundled bootctl only finds the legacy boot control HAL module. On AIDL-only
+            // devices (e.g. Pixel on Android 17) its "Error getting bootctrl v1.0 module."
+            // reads like a failed flash, so keep it quiet and say what happens instead.
+            println!(
+                "- Boot control HAL not supported by bundled bootctl, leaving slot switch to update_engine"
+            );
             return Ok(());
         }
 
@@ -819,7 +829,7 @@ pub fn patch(args: BootPatchArgs) -> Result<()> {
                 "Cannot work with Magisk patched image"
             );
 
-            println!("- Adding KernelSU LKM");
+            println!("- Adding MidoriSU LKM");
             let is_kernelsu_patched = cpio.exists("kernelsu.ko");
 
             if !is_kernelsu_patched && cpio.exists("init") {
@@ -1028,7 +1038,7 @@ pub fn restore(args: BootRestoreArgs) -> Result<()> {
 
     ensure!(
         cpio.exists("kernelsu.ko"),
-        "boot image is not patched by KernelSU"
+        "boot image is not patched by MidoriSU"
     );
 
     #[cfg(target_os = "android")]
@@ -1114,7 +1124,7 @@ fn rebuild_without_ksu(
     cpio: &mut Cpio,
     vendor_ramdisk_idx: Option<usize>,
 ) -> Result<Vec<u8>> {
-    println!("- Removing KernelSU from boot image");
+    println!("- Removing MidoriSU from boot image");
     cpio.rm("kernelsu.ko", false);
     if cpio.exists("init.real") {
         cpio.mv("init.real", "init")?;
