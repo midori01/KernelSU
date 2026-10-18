@@ -374,8 +374,8 @@
     <string name="sulog_clean_title">清空日志</string>
     <string name="nav_rail_expand">展开导航栏</string>
     <string name="nav_rail_collapse">收起导航栏</string>
-    <string name="settings_navigation_badge">导航栏角标</string>
-    <string name="settings_navigation_badge_summary">在导航栏显示已授权应用和已启用模块数量</string>
+    <string name="settings_module_update_badge">模块更新角标</string>
+    <string name="settings_module_update_badge_summary">当模块有更新时在导航栏显示可更新数量角标</string>
     <string name="module_repo_script_badge">脚本</string>
     <string name="script_run">运行</string>
     <string name="script_run_title">运行脚本</string>

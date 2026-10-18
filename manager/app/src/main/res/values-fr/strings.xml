@@ -253,4 +253,6 @@
     <string name="profile_flags_desc_no_new_privs">Empêche toute élévation de privilèges supplémentaire via KernelSU dans le contexte de ce profil root.</string>
     <string name="install_force_backup">Sauvegarder comme image d\'origine</string>
     <string name="install_force_backup_summary">Veuillez vous assurer que l\'image boot sélectionnée est l\'image d\'origine</string>
+    <string name="settings_module_update_badge">Badge de mise à jour des modules</string>
+    <string name="settings_module_update_badge_summary">Afficher un badge sur la barre de navigation lorsque des mises à jour sont disponibles</string>
 </resources>
