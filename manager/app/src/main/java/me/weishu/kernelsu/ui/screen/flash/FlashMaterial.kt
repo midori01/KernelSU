@@ -44,6 +44,7 @@ import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SnackBarHost
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
 import me.weishu.kernelsu.ui.component.material.expressiveTopAppBarColors
+import me.weishu.kernelsu.ui.component.modulepreflash.ModulePreflashDialog
 
 @Composable
 fun FlashScreenMaterial(
@@ -56,6 +57,16 @@ fun FlashScreenMaterial(
         JailbreakFlashWarningDialog(
             onConfirm = actions.onConfirmJailbreakWarning,
             onDismiss = actions.onDismissJailbreakWarning,
+        )
+    }
+
+    if (state.showPreflashDialog) {
+        ModulePreflashDialog(
+            show = true,
+            results = state.preflashResults,
+            isInspecting = state.isPreflashInspecting,
+            onConfirm = actions.onConfirmPreflash,
+            onDismiss = actions.onDismissPreflash,
         )
     }
 
