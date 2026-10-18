@@ -23,18 +23,26 @@ use crate::feature_id::{FeatureId, parse_feature_id};
 mod android {
     use super::Result;
     pub(super) use crate::defs::{BACKUP_FILENAME, KSU_BACKUP_DIR, KSU_BACKUP_FILE_PREFIX};
-    use crate::defs::{DEFAULT_PACKAGE_NAME, KSU_TEMP_BACKUP_DIR_NAME};
+    use crate::defs::{
+        DEFAULT_PACKAGE_NAME, KMOD_BLOCK_BOOT_BACKUP_PATH, KSU_TEMP_BACKUP_DIR_NAME, WORKING_DIR,
+    };
     use android_bootimg::cpio::{Cpio, CpioEntry};
+    use android_bootimg::parser::BootImage;
+    use android_bootimg::patcher::BootImagePatchOption;
     use anyhow::{Context, anyhow, bail, ensure};
     use regex_lite::Regex;
     use rustix::process::getuid;
     use std::fs::{File, OpenOptions};
-    use std::io::Write;
+    use std::io::{Cursor, Seek, SeekFrom, Write};
     use std::os::fd::AsRawFd;
     use std::os::unix::fs::PermissionsExt;
     use std::path::{Path, PathBuf};
     use std::process::{Command, Stdio};
 
+    use super::{
+        enforce_bootimage_version, extract_ramdisk, map_file, set_block_modules_config,
+        set_cmdline_block_modules,
+    };
     use crate::utils;
 
     pub(super) fn ensure_gki_kernel() -> Result<()> {
@@ -156,6 +164,17 @@ mod android {
         bail!("Both /data/adb/ksu and {backup_dir} are not accessible!")
     }
 
+    fn backup_paths(sha1: &str) -> [PathBuf; 2] {
+        let filename = format!("{KSU_BACKUP_FILE_PREFIX}{sha1}");
+        let user_id = getuid().as_raw() / 100_000;
+        [
+            Path::new(KSU_BACKUP_DIR).join(&filename),
+            PathBuf::from(format!(
+                "/data/user_de/{user_id}/{DEFAULT_PACKAGE_NAME}/{KSU_TEMP_BACKUP_DIR_NAME}/{filename}"
+            )),
+        ]
+    }
+
     pub(super) fn do_backup(cpio: &mut Cpio, image: &Path) -> Result<()> {
         let sha1 = calculate_sha1(image)?;
         let (mut target_file, target) = find_backup_location(&sha1)?;
@@ -176,6 +195,202 @@ mod android {
         println!("- Stock image has been backup to");
         println!("- {target}");
         Ok(())
+    }
+
+    fn backup_sha1(cpio: &Cpio) -> Option<&str> {
+        let backup = cpio.entry_by_name(BACKUP_FILENAME)?;
+        backup
+            .data()
+            .and_then(|data| std::str::from_utf8(data).ok())
+            .map(str::trim)
+            .filter(|sha1| !sha1.is_empty())
+    }
+
+    fn has_boot_backup(cpio: &Cpio) -> bool {
+        let Some(sha1) = backup_sha1(cpio) else {
+            return false;
+        };
+        backup_paths(sha1).iter().any(|path| path.is_file())
+    }
+
+    fn load_ksu_config(cpio: &Cpio) -> Result<Vec<String>> {
+        let Some(entry) = cpio.entry_by_name("ksu_config") else {
+            return Ok(Vec::new());
+        };
+        let data = entry.data().unwrap_or_default();
+        if data.is_empty() {
+            return Ok(Vec::new());
+        }
+        let config = std::str::from_utf8(data).context("ramdisk ksu_config is not valid UTF-8")?;
+        Ok(config.split(' ').map(ToOwned::to_owned).collect())
+    }
+
+    fn extract_lkm_ramdisk(boot_image: &BootImage<'_>) -> Result<(Cpio, Option<usize>)> {
+        let ramdisk = boot_image
+            .get_blocks()
+            .get_ramdisk()
+            .ok_or_else(|| anyhow!("no compatible ramdisk found"))?;
+        if ramdisk.is_vendor_ramdisk() {
+            for (index, fragment) in ramdisk.iter_vendor_ramdisk().enumerate() {
+                let mut content = Vec::new();
+                fragment.dump(&mut content, false)?;
+                let cpio = Cpio::load_from_data(&content)?;
+                if cpio.exists("kernelsu.ko") {
+                    return Ok((cpio, Some(index)));
+                }
+            }
+            bail!("vendor ramdisk does not contain kernelsu.ko");
+        }
+        let (cpio, vendor_ramdisk_idx) = extract_ramdisk(ramdisk)?;
+        ensure!(
+            cpio.exists("kernelsu.ko"),
+            "ramdisk does not contain kernelsu.ko"
+        );
+        Ok((cpio, vendor_ramdisk_idx))
+    }
+
+    fn ramdisk_contains_lkm(image: &Path) -> bool {
+        let Ok(data) = map_file(image) else {
+            return false;
+        };
+        let Ok(boot_image) = BootImage::parse(&data) else {
+            return false;
+        };
+        extract_lkm_ramdisk(&boot_image).is_ok()
+    }
+
+    pub fn apply_lkm_block_modules(modules: &[String]) -> Result<()> {
+        let kmi = get_current_kmi().unwrap_or_default();
+        let suffix = get_slot_suffix(false);
+        let mut candidates = vec![auto_boot_partition_path(&kmi, false, false, &None)];
+        candidates.extend(
+            ["init_boot", "boot", "vendor_boot"]
+                .into_iter()
+                .map(|name| PathBuf::from(format!("/dev/block/by-name/{name}{suffix}"))),
+        );
+        let mut seen = std::collections::BTreeSet::new();
+        let boot_image_file = candidates
+            .into_iter()
+            .filter(|path| path.exists() && seen.insert(path.clone()))
+            .find(|path| ramdisk_contains_lkm(path))
+            .ok_or_else(|| anyhow!("no candidate ramdisk contains kernelsu.ko"))?;
+        let boot_image_data = map_file(&boot_image_file)?;
+        let boot_image = BootImage::parse(&boot_image_data)?;
+        enforce_bootimage_version(&boot_image)?;
+
+        let (mut cpio, vendor_ramdisk_idx) = extract_lkm_ramdisk(&boot_image)?;
+
+        if !has_boot_backup(&cpio) {
+            do_backup(&mut cpio, &boot_image_file)?;
+        }
+
+        let mut config = load_ksu_config(&cpio)?;
+        set_block_modules_config(&mut config, modules);
+        if config.is_empty() {
+            cpio.rm("ksu_config", false);
+        } else {
+            let data = config.join(" ").into_bytes();
+            cpio.add("ksu_config", CpioEntry::regular(0o644, Box::new(data)))?;
+        }
+
+        let mut new_cpio = Vec::new();
+        cpio.dump(&mut new_cpio)?;
+
+        let mut patcher = BootImagePatchOption::new(&boot_image);
+        if let Some(index) = vendor_ramdisk_idx {
+            patcher.replace_vendor_ramdisk(index, Box::new(Cursor::new(new_cpio)), false);
+        } else {
+            patcher.replace_ramdisk(Box::new(Cursor::new(new_cpio)), false);
+        }
+        let mut output = Cursor::new(Vec::with_capacity(boot_image.get_size()));
+        patcher.patch(&mut output)?;
+        let new_boot_bytes = output.into_inner();
+
+        drop(boot_image);
+        drop(boot_image_data);
+
+        flash_partition(&boot_image_file.display().to_string(), &new_boot_bytes)
+    }
+
+    fn backup_builtin_boot(image: &Path) -> Result<()> {
+        let backup = Path::new(KMOD_BLOCK_BOOT_BACKUP_PATH);
+        let mut source = File::open(image).with_context(|| format!("open {}", image.display()))?;
+        let source_size = source.seek(SeekFrom::End(0))?;
+        source.rewind()?;
+        ensure!(source_size > 0, "source partition size is zero");
+        if backup.exists() {
+            let backup_size = std::fs::metadata(backup)?.len();
+            ensure!(
+                backup_size == source_size,
+                "existing backup size {backup_size} does not match source size {source_size}"
+            );
+            return Ok(());
+        }
+
+        std::fs::create_dir_all(WORKING_DIR)?;
+        let parent = backup
+            .parent()
+            .ok_or_else(|| anyhow!("invalid backup path"))?;
+        let mut temporary =
+            tempfile::NamedTempFile::new_in(parent).context("create temporary boot backup")?;
+        std::io::copy(&mut source, temporary.as_file_mut())
+            .with_context(|| format!("backup {}", image.display()))?;
+        temporary.as_file().sync_all()?;
+        let temporary_size = temporary.as_file().metadata()?.len();
+        ensure!(
+            temporary_size == source_size,
+            "temporary backup size {temporary_size} does not match source size {source_size}"
+        );
+        temporary
+            .persist(backup)
+            .map_err(|error| error.error)
+            .with_context(|| format!("rename temporary backup to {}", backup.display()))?;
+        Ok(())
+    }
+
+    pub fn apply_builtin_block_modules(modules: &[String]) -> Result<()> {
+        let boot_image_file =
+            PathBuf::from(format!("/dev/block/by-name/boot{}", get_slot_suffix(false)));
+        let boot_image_data = map_file(&boot_image_file)?;
+        let boot_image = BootImage::parse(&boot_image_data)?;
+        enforce_bootimage_version(&boot_image)?;
+
+        let raw_cmdline = boot_image.get_header().get_cmdline();
+        let end = raw_cmdline
+            .iter()
+            .position(|byte| *byte == 0)
+            .unwrap_or(raw_cmdline.len());
+        let cmdline = std::str::from_utf8(&raw_cmdline[..end])
+            .context("boot image cmdline is not valid UTF-8")?;
+        let new_cmdline = set_cmdline_block_modules(cmdline, modules);
+
+        let mut patcher = BootImagePatchOption::new(&boot_image);
+        patcher.override_cmdline(new_cmdline.as_bytes());
+        let mut output = Cursor::new(Vec::with_capacity(boot_image.get_size()));
+        patcher.patch(&mut output)?;
+        let new_boot_bytes = output.into_inner();
+
+        backup_builtin_boot(&boot_image_file)?;
+        drop(boot_image);
+        drop(boot_image_data);
+
+        flash_partition(&boot_image_file.display().to_string(), &new_boot_bytes)
+    }
+
+    #[cfg(test)]
+    mod backup_tests {
+        use super::*;
+
+        #[test]
+        fn trims_stock_image_sha1() {
+            let mut cpio = Cpio::new();
+            cpio.add(
+                BACKUP_FILENAME,
+                CpioEntry::regular(0o644, Box::new(" abc123\n")),
+            )
+            .unwrap();
+            assert_eq!(backup_sha1(&cpio), Some("abc123"));
+        }
     }
 
     pub(super) fn clean_backup(sha1: &str) -> Result<()> {
@@ -330,7 +545,7 @@ rm -f /data/adb/post-fs-data.d/post_ota.sh
 #[cfg(target_os = "android")]
 pub use android::*;
 
-fn map_file(file: &Path) -> Result<Mmap> {
+pub fn map_file(file: &Path) -> Result<Mmap> {
     let mut f = File::open(file).with_context(|| format!("open {}", file.display()))?;
     let len = f
         .seek(SeekFrom::End(0))
@@ -553,21 +768,14 @@ pub struct KsuConfigArgs {
 /// Max length of the `block_modules=` value. The kernel copies it into a
 /// 256-byte buffer, leaving 255 bytes for the value; anything longer is
 /// silently truncated there, so reject it on the host instead.
-const MAX_BLOCK_MODULES_LEN: usize = 255;
+pub const MAX_BLOCK_MODULES_LEN: usize = 255;
 
 impl KsuConfigArgs {
     /// Validate options whose full value is only known after joining. Call
     /// before `apply` so the user gets an error instead of the kernel silently
     /// truncating an over-long list (which would leave some modules unblocked).
     pub fn validate(&self) -> Result<()> {
-        if !self.block_module.is_empty() {
-            let len = self.block_module.join(",").len();
-            ensure!(
-                len <= MAX_BLOCK_MODULES_LEN,
-                "block-module list is too long ({len} bytes, max {MAX_BLOCK_MODULES_LEN}); block fewer modules"
-            );
-        }
-        Ok(())
+        validate_block_modules(&self.block_module)
     }
 
     /// Set the full state of these options in `config`, other entries are kept.
@@ -597,7 +805,7 @@ impl KsuConfigArgs {
 
 /// Validate a single module name for the `--block-module` option. The kernel
 /// `block_modules` buffer holds 255 bytes, so keep names well within that.
-fn parse_block_module(s: &str) -> Result<String> {
+pub fn parse_block_module(s: &str) -> Result<String> {
     ensure!(!s.is_empty(), "module name must not be empty");
     ensure!(
         s.len() <= 64,
@@ -608,6 +816,81 @@ fn parse_block_module(s: &str) -> Result<String> {
         "invalid module name '{s}': only letters, digits and '_' are allowed"
     );
     Ok(s.to_owned())
+}
+
+pub fn validate_block_modules(modules: &[String]) -> Result<()> {
+    let len = modules.join(",").len();
+    ensure!(
+        len <= MAX_BLOCK_MODULES_LEN,
+        "block-module list is too long ({len} bytes, max {MAX_BLOCK_MODULES_LEN}); block fewer modules"
+    );
+    Ok(())
+}
+
+fn set_block_modules_config(config: &mut Vec<String>, modules: &[String]) {
+    config.retain(|entry| !entry.starts_with("block_modules="));
+    if !modules.is_empty() {
+        config.push(format!("block_modules={}", modules.join(",")));
+    }
+}
+
+fn cmdline_pieces(cmdline: &str) -> (Vec<(&str, &str)>, &str) {
+    let bytes = cmdline.as_bytes();
+    let mut pieces = Vec::new();
+    let mut position = 0;
+    loop {
+        let gap_start = position;
+        while position < bytes.len() && bytes[position].is_ascii_whitespace() {
+            position += 1;
+        }
+        if position == bytes.len() {
+            return (pieces, &cmdline[gap_start..]);
+        }
+        let token_start = position;
+        while position < bytes.len() && !bytes[position].is_ascii_whitespace() {
+            position += 1;
+        }
+        pieces.push((
+            &cmdline[gap_start..token_start],
+            &cmdline[token_start..position],
+        ));
+    }
+}
+
+fn set_cmdline_block_modules(cmdline: &str, modules: &[String]) -> String {
+    let (pieces, tail) = cmdline_pieces(cmdline);
+    let is_block_modules = |token: &&str| token.starts_with("kernelsu.block_modules=");
+    let removed_any = pieces.iter().any(|(_, token)| is_block_modules(token));
+    let last_removed = pieces
+        .last()
+        .is_some_and(|(_, token)| is_block_modules(token));
+    let mut result = String::with_capacity(cmdline.len());
+    let mut removed_before = false;
+    let mut kept_any = false;
+
+    for (gap, token) in pieces {
+        if is_block_modules(&token) {
+            removed_before = true;
+            continue;
+        }
+        if kept_any || !removed_before {
+            result.push_str(gap);
+        }
+        result.push_str(token);
+        kept_any = true;
+    }
+
+    if (kept_any && !last_removed) || !removed_any {
+        result.push_str(tail);
+    }
+    if !modules.is_empty() {
+        if !result.is_empty() {
+            result.push(' ');
+        }
+        result.push_str("kernelsu.block_modules=");
+        result.push_str(&modules.join(","));
+    }
+    result
 }
 
 fn set_config_flag(config: &mut Vec<String>, name: &str, value: &str, add: bool) {
@@ -1216,6 +1499,60 @@ mod block_modules_tests {
         args.apply(&mut config);
         assert!(config.contains(&"block_modules_foo=1".to_owned()));
         assert!(config.contains(&"block_modules=vr".to_owned()));
+    }
+
+    #[test]
+    fn set_block_modules_keeps_unrelated_config_entries() {
+        let mut config = vec![
+            "allow_shell=1".to_owned(),
+            "block_modules=old".to_owned(),
+            "block_modules_extra=1".to_owned(),
+        ];
+        let modules = vec!["vr".to_owned(), "vklp".to_owned()];
+
+        set_block_modules_config(&mut config, &modules);
+
+        assert_eq!(
+            config,
+            vec![
+                "allow_shell=1".to_owned(),
+                "block_modules_extra=1".to_owned(),
+                "block_modules=vr,vklp".to_owned(),
+            ]
+        );
+    }
+
+    #[test]
+    fn cmdline_updates_only_block_modules_token() {
+        let modules = vec!["vr".to_owned(), "vklp".to_owned()];
+        let updated = set_cmdline_block_modules(
+            "console=ttynull kernelsu.block_modules=old androidboot.slot=_a",
+            &modules,
+        );
+        assert_eq!(
+            updated,
+            "console=ttynull androidboot.slot=_a kernelsu.block_modules=vr,vklp"
+        );
+
+        let appended = set_cmdline_block_modules("console=ttynull", &modules);
+        assert_eq!(appended, "console=ttynull kernelsu.block_modules=vr,vklp");
+
+        let cleared =
+            set_cmdline_block_modules("console=ttynull kernelsu.block_modules=vr,vklp quiet", &[]);
+        assert_eq!(cleared, "console=ttynull quiet");
+
+        let quoted = r#"console=ttynull  dyndbg="func a  b"   kernelsu.block_modules=old  quiet"#;
+        assert_eq!(
+            set_cmdline_block_modules(quoted, &modules),
+            r#"console=ttynull  dyndbg="func a  b"  quiet kernelsu.block_modules=vr,vklp"#
+        );
+        assert_eq!(
+            set_cmdline_block_modules(quoted, &[]),
+            r#"console=ttynull  dyndbg="func a  b"  quiet"#
+        );
+
+        let only = set_cmdline_block_modules("kernelsu.block_modules=old", &modules);
+        assert_eq!(only, "kernelsu.block_modules=vr,vklp");
     }
 
     #[test]
