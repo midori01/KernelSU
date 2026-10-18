@@ -24,6 +24,7 @@ data class ColorPaletteScreenActions(
     val onSetColorStyle: (String) -> Unit,
     val onSetColorSpec: (String) -> Unit,
     val onSetAppIconMode: (Int) -> Unit,
+    val onSetModernBento: (Boolean) -> Unit,
     val onSetClassicUi: (Boolean) -> Unit,
     val onSetShowSwitchIcon: (Boolean) -> Unit,
     val onSetScrollAnimation: (Boolean) -> Unit,
