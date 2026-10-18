@@ -279,6 +279,7 @@ fun ModulePagerMiuix(
     }
 
     val listState = rememberLazyListState()
+    val searchListState = rememberLazyListState()
     val refreshTick = remember { mutableIntStateOf(0) }
 
     val backdrop = rememberBlurBackdrop(enableBlur)
@@ -446,12 +447,35 @@ fun ModulePagerMiuix(
             }
         },
         popupHost = {
+            val imeBottomPadding = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
             searchStatus.SearchPager(
                 onSearchStatusChange = actions.onSearchStatusChange,
-                defaultResult = {},
+                defaultResult = {
+                    ModuleList(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .overScrollVertical(),
+                        modules = modules,
+                        updateInfoMap = uiState.updateInfo,
+                        actions = actions,
+                        onModuleAddShortcut = ::onModuleAddShortcut,
+                        onExportModule = onExportModuleClicked,
+                        contentPadding = PaddingValues(
+                            top = 6.dp,
+                            start = 0.dp,
+                            end = 0.dp,
+                            bottom = maxOf(bottomInnerPadding, imeBottomPadding),
+                        ),
+                        listState = searchListState,
+                    )
+                },
                 searchBarTopPadding = dynamicTopPadding,
             ) {
-                val imeBottomPadding = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+                val latestSearchResults = rememberUpdatedState(uiState.searchResults)
+                ScrollToTopOnChange(
+                    searchListState,
+                    searchStatus.searchText,
+                ) { latestSearchResults.value }
                 ModuleList(
                     modifier = Modifier
                         .fillMaxSize()
@@ -467,6 +491,7 @@ fun ModulePagerMiuix(
                         end = 0.dp,
                         bottom = maxOf(bottomInnerPadding, imeBottomPadding),
                     ),
+                    listState = searchListState,
                 )
             }
         },
