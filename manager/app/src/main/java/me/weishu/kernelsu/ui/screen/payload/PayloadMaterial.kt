@@ -81,7 +81,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.bottombar.KernelTool
-import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolTitleDropdownMaterial
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
@@ -218,14 +219,18 @@ fun PayloadMaterial(
             } else {
                 LargeFlexibleTopAppBar(
                     title = {
-                        Text(
-                            text = stringResource(R.string.payload_extract_title),
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        if (isRootTab) {
+                            KernelToolTitleDropdownMaterial(KernelTool.Payload, navigator)
+                        } else {
+                            Text(
+                                text = stringResource(R.string.payload_extract_title),
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     },
                     navigationIcon = {
                         if (isRootTab) {
-                            KernelToolNavigationIconsMaterial(KernelTool.Payload, navigator)
+                            KernelToolNavigationIconMaterial(KernelTool.Payload)
                         } else {
                             TopBarBackButton(onClick = { navigator.pop() })
                         }
