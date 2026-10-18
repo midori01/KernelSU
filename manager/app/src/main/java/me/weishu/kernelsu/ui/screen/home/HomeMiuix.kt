@@ -49,6 +49,8 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import me.weishu.kernelsu.ui.component.bottombar.RegisterTabReselect
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.DeveloperBoard
@@ -167,6 +169,10 @@ fun HomePagerMiuix(
     val scrollBehavior = MiuixScrollBehavior()
     val enableBlur = LocalEnableBlur.current
     val backdrop = rememberBlurBackdrop(enableBlur)
+    val listState = rememberLazyListState()
+    RegisterTabReselect(0) {
+        listState.animateScrollToItem(0)
+    }
     var edgeBumps by remember { mutableIntStateOf(0) }
     val edgeBumpConnection = rememberScrollEdgeBumpConnection { edgeBumps++ }
     Scaffold(
@@ -184,6 +190,7 @@ fun HomePagerMiuix(
     ) { innerPadding ->
         Box(modifier = if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier) {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxHeight()
                     .scrollEndHaptic()
