@@ -8,6 +8,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -136,6 +142,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val viewModel = viewModel<MainActivityViewModel>()
+            val superUserViewModel = viewModel<SuperUserViewModel>()
+            val moduleViewModel = viewModel<ModuleViewModel>()
+
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val selectedMainPage by viewModel.selectedMainPage.collectAsStateWithLifecycle()
             val appSettings = uiState.appSettings
@@ -485,7 +494,6 @@ fun MainScreen(
         }
     }
 }
-
 
 @Composable
 private fun MainScreenBackHandler(
