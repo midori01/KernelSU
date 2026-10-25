@@ -108,6 +108,18 @@ sealed interface Route : NavKey, Parcelable {
 
     @Parcelize
     @Serializable
+    data object Susfs : Route
+
+    @Parcelize
+    @Serializable
+    data class SusfsRules(val kind: String) : Route
+
+    @Parcelize
+    @Serializable
+    data object SusfsAppFilter : Route
+
+    @Parcelize
+    @Serializable
     data object CrashLog : Route
 
     @Parcelize
