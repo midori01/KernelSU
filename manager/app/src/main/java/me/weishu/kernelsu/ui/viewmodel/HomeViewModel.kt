@@ -15,11 +15,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import me.weishu.kernelsu.BuildConfig
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.data.repository.SettingsRepository
 import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
+import me.weishu.kernelsu.data.repository.SusfsRepositoryImpl
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.getKernelVersion
 import me.weishu.kernelsu.ksuApp
@@ -386,7 +388,18 @@ class HomeViewModel(
                 seccompStatus = runCatching {
                     Os.prctl(21 /* PR_GET_SECCOMP */, 0, 0, 0, 0)
                 }.getOrDefault(-1),
-                susfsVersion = if (isManager && ksuVersion != null) Natives.getSusFSVersion() else "",
+                susfsVersion = if (isManager && ksuVersion != null) {
+                    val nativeVer = Natives.getSusFSVersion()
+                    if (nativeVer.isBlank() && checkShell) {
+                        runCatching {
+                            runBlocking(Dispatchers.IO) {
+                                SusfsRepositoryImpl().getStatus().version
+                            }
+                        }.getOrDefault("")
+                    } else {
+                        nativeVer
+                    }
+                } else "",
                 droidspacesVersion = "",
                 rekernelVersion = "",
                 rekernelLabel = ksuApp.getString(R.string.home_rekernel_version),

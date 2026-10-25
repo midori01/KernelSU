@@ -97,6 +97,8 @@ pub fn on_post_fs_data() -> Result<()> {
         warn!("init features failed: {e}");
     }
 
+    crate::susfs::boot::on_post_fs_data_early();
+
     // execute metamodule post-fs-data script first (priority)
     if let Err(e) = metamodule::exec_stage_script("post-fs-data", wait) {
         warn!("exec metamodule post-fs-data script failed: {e}");
@@ -106,6 +108,8 @@ pub fn on_post_fs_data() -> Result<()> {
     if let Err(e) = crate::module::exec_stage_script("post-fs-data", wait) {
         warn!("exec post-fs-data scripts failed: {e}");
     }
+
+    crate::susfs::boot::on_post_fs_data_late();
 
     // load system.prop
     if let Err(e) = crate::module::load_system_prop() {
@@ -184,6 +188,8 @@ pub fn on_boot_completed() {
     info!("on_boot_completed triggered!");
 
     crate::preinit::on_boot_completed();
+
+    crate::susfs::boot::on_boot_completed();
 
     run_stage("boot-completed", ScriptWait::NoWait);
 }

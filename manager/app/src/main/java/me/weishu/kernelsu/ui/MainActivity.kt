@@ -93,6 +93,10 @@ import me.weishu.kernelsu.ui.component.bottombar.KernelTool
 import me.weishu.kernelsu.ui.screen.kconfig.KconfigScreen
 import me.weishu.kernelsu.ui.screen.kallsyms.KallsymsScreen
 import me.weishu.kernelsu.ui.screen.kernelmodule.KernelModuleScreen
+import me.weishu.kernelsu.ui.screen.susfs.SusfsAppFilterScreen
+import me.weishu.kernelsu.ui.screen.susfs.SusfsRuleKind
+import me.weishu.kernelsu.ui.screen.susfs.SusfsRulesScreen
+import me.weishu.kernelsu.ui.screen.susfs.SusfsScreen
 import me.weishu.kernelsu.ui.screen.crashlog.CrashLogScreen
 import me.weishu.kernelsu.ui.screen.payload.PayloadScreen
 import me.weishu.kernelsu.ui.theme.KernelSUTheme
@@ -257,6 +261,12 @@ open class MainActivity : ComponentActivity() {
                             entry<Route.Dmesg>(swipeDismiss = swipeDismiss) { DmesgScreen() }
                             entry<Route.Kconfig>(swipeDismiss = swipeDismiss) { KconfigScreen() }
                             entry<Route.KernelModule>(swipeDismiss = swipeDismiss) { KernelModuleScreen() }
+                            entry<Route.Susfs>(swipeDismiss = swipeDismiss) { SusfsScreen() }
+                            entry<Route.SusfsRules>(swipeDismiss = swipeDismiss) { key ->
+                                val kind = runCatching { SusfsRuleKind.valueOf(key.kind) }.getOrDefault(SusfsRuleKind.Path)
+                                SusfsRulesScreen(kind)
+                            }
+                            entry<Route.SusfsAppFilter>(swipeDismiss = swipeDismiss) { SusfsAppFilterScreen() }
                             entry<Route.CrashLog>(swipeDismiss = swipeDismiss) { CrashLogScreen() }
                             entry<Route.PayloadExtract>(swipeDismiss = swipeDismiss) { PayloadScreen() }
                             entry<Route.ColorPalette>(swipeDismiss = swipeDismiss) { ColorPaletteScreen() }
@@ -562,6 +572,7 @@ fun MainPage(
             KernelTool.CrashLog -> CrashLogScreen(isRootTab = true)
             KernelTool.Kallsyms -> KallsymsScreen(isRootTab = true)
             KernelTool.KernelModule -> KernelModuleScreen(isRootTab = true)
+            KernelTool.Susfs -> SusfsScreen(isRootTab = true, bottomInnerPadding = bottomInnerPadding)
         }
         3 -> ModulePager(bottomInnerPadding, isCurrentPage)
         4 -> SettingPager(navigator, bottomInnerPadding, isCurrentPage)
