@@ -28,6 +28,25 @@ mod android {
         let _ = std::fs::remove_file(resetprop_link);
         std::os::unix::fs::symlink("/data/adb/ksud", resetprop_link)?;
 
+        // Ensure ksu_susfs symlink to /data/adb/ksud (never fail ensure_binaries because of it)
+        let ksu_susfs_path = std::path::Path::new(BINARY_DIR).join("ksu_susfs");
+        let ksud_target = "/data/adb/ksud";
+        let should_symlink = match std::fs::symlink_metadata(&ksu_susfs_path) {
+            Ok(meta) => {
+                meta.file_type().is_symlink()
+                    && std::fs::read_link(&ksu_susfs_path)
+                        .is_ok_and(|t| t == std::path::Path::new(ksud_target))
+            }
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => true,
+            _ => false,
+        };
+        if should_symlink {
+            let _ = std::fs::remove_file(&ksu_susfs_path);
+            if let Err(e) = std::os::unix::fs::symlink(ksud_target, &ksu_susfs_path) {
+                log::warn!("failed to symlink ksu_susfs to {ksud_target}: {e}");
+            }
+        }
+
         Ok(())
     }
 }
