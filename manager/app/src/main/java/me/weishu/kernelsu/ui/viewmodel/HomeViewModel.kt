@@ -35,10 +35,12 @@ import me.weishu.kernelsu.ui.util.checkNewVersion
 import me.weishu.kernelsu.ui.util.getModuleCount
 import me.weishu.kernelsu.ui.util.getSELinuxStatusRaw
 import me.weishu.kernelsu.ui.util.getSuperuserCount
+import me.weishu.kernelsu.ui.util.listModules
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 import me.weishu.kernelsu.ui.util.resolveDeviceName
 import me.weishu.kernelsu.ui.util.rootAvailable
 import me.weishu.kernelsu.ui.util.CrashLogHelper
+import me.weishu.kernelsu.ui.util.PendingRebootHelper
 import me.weishu.kernelsu.ui.util.createRootShell
 import me.weishu.kernelsu.ui.util.getRootShell
 
@@ -330,6 +332,8 @@ class HomeViewModel(
             else -> ""
         }
 
+        val modulesJson = if (checkShell) listModules() else "[]"
+
         return HomeUiState(
             appName = appName,
             modernBento = modernBento,
@@ -353,7 +357,8 @@ class HomeViewModel(
             latestVersionInfo = LatestVersionInfo(),
             currentManagerVersionCode = managerVersion.versionCode,
             superuserCount = getSuperuserCount(),
-            moduleCount = if (checkShell) getModuleCount() else 0,
+            moduleCount = if (checkShell) getModuleCount(modulesJson) else 0,
+            pendingReboot = if (checkShell) PendingRebootHelper.compute(ksuApp, modulesJson) else emptyList(),
             kernelModuleCount = if (checkShell && isManager && ksuVersion != null) {
                 runCatching {
                     com.topjohnwu.superuser.ShellUtils.fastCmd(

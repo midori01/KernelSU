@@ -597,6 +597,16 @@
     <string name="bento_no_crashes">無未讀崩潰</string>
     <string name="bento_crash_detected">偵測到崩潰</string>
     <string name="bento_view_panic">點擊查看堆疊分析</string>
+    <string name="bento_pending_reboot_title">等待重新啟動</string>
+    <string name="bento_pending_reboot_desc">點擊查看並重新啟動</string>
+    <string name="bento_pending_reboot_unit">項待生效</string>
+    <string name="pending_reboot_card_title">%d 項模組變更需重新啟動後生效</string>
+    <string name="pending_reboot_dialog_title">以下變更將在重新啟動後生效</string>
+    <string name="pending_reboot_install">安裝</string>
+    <string name="pending_reboot_update">更新</string>
+    <string name="pending_reboot_remove">解除安裝</string>
+    <string name="pending_reboot_enable">啟用</string>
+    <string name="pending_reboot_disable">停用</string>
     <string name="bento_device_specs">硬件與系統環境</string>
     <string name="bento_manage_install">安裝 / 管理</string>
     <string name="bento_copy_report">複製診斷報告</string>
