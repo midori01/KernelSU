@@ -154,10 +154,9 @@ fun listModules(): String {
     return out.joinToString("\n").ifBlank { "[]" }
 }
 
-fun getModuleCount(): Int {
-    val result = listModules()
+fun getModuleCount(modulesJson: String = listModules()): Int {
     runCatching {
-        val array = JSONArray(result)
+        val array = JSONArray(modulesJson)
         var count = 0
         for (i in 0 until array.length()) {
             val obj = array.optJSONObject(i) ?: continue
