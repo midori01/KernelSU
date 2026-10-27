@@ -660,6 +660,16 @@
     <string name="bento_no_crashes">无未读崩溃</string>
     <string name="bento_crash_detected">检测到崩溃</string>
     <string name="bento_view_panic">点击查看堆栈分析</string>
+    <string name="bento_pending_reboot_title">等待重启</string>
+    <string name="bento_pending_reboot_desc">点击查看并重启</string>
+    <string name="bento_pending_reboot_unit">项待生效</string>
+    <string name="pending_reboot_card_title">%d 项模块改动需重启后生效</string>
+    <string name="pending_reboot_dialog_title">以下改动将在重启后生效</string>
+    <string name="pending_reboot_install">安装</string>
+    <string name="pending_reboot_update">更新</string>
+    <string name="pending_reboot_remove">卸载</string>
+    <string name="pending_reboot_enable">启用</string>
+    <string name="pending_reboot_disable">禁用</string>
     <string name="bento_device_specs">硬件与系统环境</string>
     <string name="bento_manage_install">安装 / 管理</string>
     <string name="bento_copy_report">复制诊断报告</string>

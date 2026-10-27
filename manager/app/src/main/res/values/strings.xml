@@ -666,6 +666,16 @@
     <string name="bento_no_crashes">No unread panic</string>
     <string name="bento_crash_detected">Panic Detected</string>
     <string name="bento_view_panic">Tap to inspect panic trace</string>
+    <string name="bento_pending_reboot_title">Reboot Pending</string>
+    <string name="bento_pending_reboot_desc">Tap to review and reboot</string>
+    <string name="bento_pending_reboot_unit">pending</string>
+    <string name="pending_reboot_card_title">Module changes pending reboot: %d</string>
+    <string name="pending_reboot_dialog_title">Changes Pending Reboot</string>
+    <string name="pending_reboot_install">Install</string>
+    <string name="pending_reboot_update">Update</string>
+    <string name="pending_reboot_remove">Uninstall</string>
+    <string name="pending_reboot_enable">Enable</string>
+    <string name="pending_reboot_disable">Disable</string>
     <string name="bento_device_specs">Hardware &amp; System Specs</string>
     <string name="bento_manage_install">Install / Manage</string>
     <string name="bento_copy_report">Copy Report</string>

@@ -1,8 +1,15 @@
 package me.weishu.kernelsu.ui.screen.home
 import me.weishu.kernelsu.R
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.pm.PackageInfoCompat
+import me.weishu.kernelsu.data.repository.isSoftRebootPreferred
+import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
+import me.weishu.kernelsu.ui.util.PendingChange
+import me.weishu.kernelsu.ui.util.reboot
 
 @Immutable
 data class ManagerVersion(
@@ -116,5 +123,28 @@ fun generateDiagnosticReport(context: Context, systemInfo: SystemInfo): String {
         if (systemInfo.oemUnlock.isNotEmpty()) {
             appendLine("- **OEM Unlock**: ${systemInfo.oemUnlock}")
         }
+    }
+}
+
+@Composable
+fun rememberPendingRebootDialog(changes: List<PendingChange>): () -> Unit {
+    val context = LocalContext.current
+    val title = stringResource(R.string.pending_reboot_dialog_title)
+    val confirm = stringResource(if (isSoftRebootPreferred()) R.string.reboot_soft else R.string.reboot)
+    val dismiss = stringResource(android.R.string.cancel)
+    val confirmDialog = rememberConfirmDialog(onConfirm = {
+        reboot(if (isSoftRebootPreferred()) "soft_reboot" else "")
+    })
+    return {
+        val content = changes.joinToString("\n") {
+            "- **${it.name}** · ${context.getString(it.type.labelRes)}"
+        }
+        confirmDialog.showConfirm(
+            title = title,
+            content = content,
+            markdown = true,
+            confirm = confirm,
+            dismiss = dismiss,
+        )
     }
 }

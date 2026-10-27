@@ -96,6 +96,7 @@ import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.LockOpen
+import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Smartphone
 import androidx.compose.material.icons.rounded.SystemUpdate
@@ -235,6 +236,14 @@ fun HomePagerMaterial(
                         message = stringResource(id = R.string.crash_home_card_title),
                         color = MaterialTheme.colorScheme.errorContainer,
                         onClick = actions.onCrashLogClick
+                    )
+                }
+                if (state.pendingReboot.isNotEmpty()) {
+                    val showPendingRebootDialog = rememberPendingRebootDialog(state.pendingReboot)
+                    WarningCard(
+                        message = stringResource(id = R.string.pending_reboot_card_title, state.pendingReboot.size),
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        onClick = showPendingRebootDialog
                     )
                 }
                 InfoCard(
@@ -915,6 +924,9 @@ private fun BentoTilesGrid(
             }
 
             val hasCrash = state.hasCrashLog
+            val pending = state.pendingReboot
+            val hasPending = !hasCrash && pending.isNotEmpty()
+            val showPendingRebootDialog = rememberPendingRebootDialog(pending)
             TonalCard(
                 modifier = Modifier
                     .weight(1f)
@@ -925,7 +937,11 @@ private fun BentoTilesGrid(
                     else MaterialTheme.colorScheme.surfaceBright,
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
-                    actions.onCrashLogClick()
+                    if (hasPending) {
+                        showPendingRebootDialog()
+                    } else {
+                        actions.onCrashLogClick()
+                    }
                 }
             ) {
                 Column(
@@ -943,17 +959,28 @@ private fun BentoTilesGrid(
                             modifier = Modifier
                                 .size(38.dp)
                                 .background(
-                                    color = if (hasCrash) MaterialTheme.colorScheme.errorContainer
-                                        else MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    color = when {
+                                        hasCrash -> MaterialTheme.colorScheme.errorContainer
+                                        hasPending -> MaterialTheme.colorScheme.primary
+                                        else -> MaterialTheme.colorScheme.surfaceContainerHigh
+                                    },
                                     shape = CircleShape
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = if (hasCrash) Icons.Rounded.BugReport else Icons.Rounded.CheckCircle,
+                                imageVector = when {
+                                    hasCrash -> Icons.Rounded.BugReport
+                                    hasPending -> Icons.Rounded.RestartAlt
+                                    else -> Icons.Rounded.CheckCircle
+                                },
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp),
-                                tint = if (hasCrash) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                                tint = when {
+                                    hasCrash -> MaterialTheme.colorScheme.error
+                                    hasPending -> MaterialTheme.colorScheme.onPrimary
+                                    else -> MaterialTheme.colorScheme.primary
+                                }
                             )
                         }
 
@@ -970,6 +997,13 @@ private fun BentoTilesGrid(
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                 )
                             }
+                        } else if (hasPending) {
+                            Text(
+                                text = pending.size.toString(),
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         } else {
                             Box(
                                 modifier = Modifier
@@ -992,7 +1026,11 @@ private fun BentoTilesGrid(
 
                     Column {
                         Text(
-                            text = stringResource(if (hasCrash) R.string.bento_crash_detected else R.string.bento_system_healthy),
+                            text = when {
+                                hasCrash -> stringResource(R.string.bento_crash_detected)
+                                hasPending -> stringResource(R.string.bento_pending_reboot_title)
+                                else -> stringResource(R.string.bento_system_healthy)
+                            },
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = if (hasCrash) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface,
@@ -1001,9 +1039,17 @@ private fun BentoTilesGrid(
                         )
                         Spacer(Modifier.height(1.dp))
                         Text(
-                            text = stringResource(if (hasCrash) R.string.bento_view_panic else R.string.bento_no_crashes),
+                            text = when {
+                                hasCrash -> stringResource(R.string.bento_view_panic)
+                                hasPending -> stringResource(R.string.bento_pending_reboot_desc)
+                                else -> stringResource(R.string.bento_no_crashes)
+                            },
                             style = MaterialTheme.typography.bodySmall,
-                            color = if (hasCrash) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = when {
+                                hasCrash -> MaterialTheme.colorScheme.error
+                                hasPending -> MaterialTheme.colorScheme.primary
+                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )

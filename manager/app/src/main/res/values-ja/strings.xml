@@ -582,6 +582,16 @@
     <string name="bento_no_crashes">未読のパニックはありません</string>
     <string name="bento_crash_detected">カーネルパニックを検出</string>
     <string name="bento_view_panic">タップしてパニックログを確認</string>
+    <string name="bento_pending_reboot_title">再起動待ち</string>
+    <string name="bento_pending_reboot_desc">タップして確認・再起動</string>
+    <string name="bento_pending_reboot_unit">件が保留中</string>
+    <string name="pending_reboot_card_title">%d 件のモジュール変更は再起動後に反映されます</string>
+    <string name="pending_reboot_dialog_title">再起動後に反映される変更</string>
+    <string name="pending_reboot_install">インストール</string>
+    <string name="pending_reboot_update">更新</string>
+    <string name="pending_reboot_remove">アンインストール</string>
+    <string name="pending_reboot_enable">有効化</string>
+    <string name="pending_reboot_disable">無効化</string>
     <string name="bento_device_specs">ハードウェア・システム情報</string>
     <string name="bento_manage_install">インストール / 管理</string>
     <string name="bento_copy_report">診断レポートをコピー</string>

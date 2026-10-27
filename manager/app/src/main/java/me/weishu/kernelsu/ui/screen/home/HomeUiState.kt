@@ -2,6 +2,7 @@ package me.weishu.kernelsu.ui.screen.home
 
 import androidx.compose.runtime.Immutable
 import me.weishu.kernelsu.KernelVersion
+import me.weishu.kernelsu.ui.util.PendingChange
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 import me.weishu.kernelsu.ui.screen.home.toRoman
 
@@ -42,6 +43,7 @@ data class HomeUiState(
     val localVersion: String,
     val latestKsuDriverInfo: LatestKsuDriverInfo = LatestKsuDriverInfo(),
     val hasCrashLog: Boolean = false,
+    val pendingReboot: List<PendingChange> = emptyList(),
 ) {
     val isSELinuxPermissive: Boolean
         get() = systemInfo.selinuxStatus == "Permissive"
