@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.rounded.Rule
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.rounded.AdminPanelSettings
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Description
@@ -184,6 +185,20 @@ fun SettingPagerMiuix(
                                 },
                                 checked = uiState.modulePreflashInspection,
                                 onCheckedChange = actions.onSetModulePreflashInspection
+                            )
+                            SwitchPreference(
+                                title = stringResource(R.string.settings_module_auto_hot_install),
+                                summary = stringResource(R.string.settings_module_auto_hot_install_summary),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.Bolt,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(R.string.settings_module_auto_hot_install),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                checked = uiState.moduleAutoHotInstall,
+                                onCheckedChange = actions.onSetModuleAutoHotInstall
                             )
                         }
                     }

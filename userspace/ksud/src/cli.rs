@@ -292,6 +292,10 @@ enum Module {
     Install {
         /// module zip file path
         zip: String,
+
+        /// Apply the module without a reboot when nothing in it waits for boot
+        #[arg(long)]
+        auto_hot_install: bool,
     },
 
     /// Undo module uninstall mark <id>
@@ -552,7 +556,10 @@ pub fn run() -> Result<()> {
         Commands::Module { command } => {
             utils::switch_mnt_ns(1)?;
             match command {
-                Module::Install { zip } => module::install_module(&zip),
+                Module::Install {
+                    zip,
+                    auto_hot_install,
+                } => module::install_module(&zip, auto_hot_install),
                 Module::UndoUninstall { id } => module::undo_uninstall_module(&id),
                 Module::Uninstall { id } => module::uninstall_module(&id),
                 Module::Enable { id } => module::enable_module(&id),

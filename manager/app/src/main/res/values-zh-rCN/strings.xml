@@ -555,6 +555,8 @@
     <string name="exporting_module">正在导出模块 %s…</string>
     <string name="settings_module_preflash">模块安装前体检</string>
     <string name="settings_module_preflash_summary">在刷入模块前分析脚本与文件，预警高危指令与潜在冲突</string>
+    <string name="settings_module_auto_hot_install">兼容模块免重启生效</string>
+    <string name="settings_module_auto_hot_install_summary">模块中没有需要开机才能生效的内容时，安装后立即生效，无需模块作者适配</string>
     <string name="module_preflash_title">模块安装前体检</string>
     <string name="module_preflash_scanning">正在分析模块安装包…</string>
     <string name="module_preflash_safe_title">安全</string>

@@ -561,6 +561,8 @@
     <string name="exporting_module">Exporting module %s…</string>
     <string name="settings_module_preflash">Module pre-flash inspection</string>
     <string name="settings_module_preflash_summary">Scan scripts and files before flashing to identify high-risk commands and potential conflicts</string>
+    <string name="settings_module_auto_hot_install">Apply compatible modules instantly</string>
+    <string name="settings_module_auto_hot_install_summary">Modules with nothing that waits for boot take effect right after installing, no developer changes needed</string>
     <string name="module_preflash_title">Module Pre-flash Inspection</string>
     <string name="module_preflash_scanning">Inspecting module package…</string>
     <string name="module_preflash_safe_title">Safe</string>

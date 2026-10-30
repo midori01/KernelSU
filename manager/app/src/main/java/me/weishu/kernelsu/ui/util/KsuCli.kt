@@ -26,6 +26,7 @@ import me.weishu.kernelsu.core.utils.DataSourceChannel
 import me.weishu.kernelsu.data.registry.DownloadVerificationException
 import me.weishu.kernelsu.data.registry.RegistryDownloadStore
 import me.weishu.kernelsu.data.registry.copyForInstall
+import me.weishu.kernelsu.data.repository.isModuleAutoHotInstallEnabled
 import me.weishu.kernelsu.ksuApp
 import okhttp3.OkHttpClient
 import org.json.JSONArray
@@ -294,7 +295,11 @@ fun flashModule(
             onStderr(message)
             return FlashResult(1, message, false)
         }
-        val cmd = "module install ${file.absolutePath}"
+        val cmd = if (isModuleAutoHotInstallEnabled()) {
+            "module install --auto-hot-install ${file.absolutePath}"
+        } else {
+            "module install ${file.absolutePath}"
+        }
         val result = flashWithIO("${getKsuDaemonPath()} $cmd", onStdout, onStderr)
         Log.i("KernelSU", "install module $uri result: $result")
         return FlashResult(result, result.isSuccess && moduleNeedsReboot(file))

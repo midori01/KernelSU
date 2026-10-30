@@ -477,6 +477,8 @@
     <string name="exporting_module">モジュール %s をエクスポート中…</string>
     <string name="settings_module_preflash">モジュールフラッシュ前の安全検査</string>
     <string name="settings_module_preflash_summary">フラッシュ前にスクリプトやファイルをスキャンし、高リスクなコマンドや潜在的な競合を検出します</string>
+    <string name="settings_module_auto_hot_install">対応モジュールを再起動なしで適用</string>
+    <string name="settings_module_auto_hot_install_summary">起動時にのみ反映される内容がないモジュールは、開発者の対応なしでインストール直後に有効になります</string>
     <string name="module_preflash_title">モジュールフラッシュ前の安全検査</string>
     <string name="module_preflash_scanning">モジュールパッケージを検査中…</string>
     <string name="module_preflash_safe_title">安全</string>

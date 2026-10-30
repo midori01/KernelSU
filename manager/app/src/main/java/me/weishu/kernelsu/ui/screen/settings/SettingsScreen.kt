@@ -58,6 +58,7 @@ fun SettingPager(
         onSetCheckModuleUpdate = viewModel::setCheckModuleUpdate,
         onSetCheckKsuDriverUpdate = viewModel::setCheckKsuDriverUpdate,
         onSetModulePreflashInspection = viewModel::setModulePreflashInspection,
+        onSetModuleAutoHotInstall = viewModel::setModuleAutoHotInstall,
         onOpenTheme = { navigator.push(Route.ColorPalette) },
         onSetUiModeIndex = { index ->
             viewModel.setUiMode(if (index == 0) UiMode.Miuix.value else UiMode.Material.value)

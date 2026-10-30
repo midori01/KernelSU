@@ -24,6 +24,7 @@ import java.security.SecureRandom
 private const val SETTINGS_PREFS = "settings"
 private const val KEY_USE_SOFT_REBOOT = "soft_reboot"
 private const val KEY_MODULE_PREFLASH = "module_preflash"
+private const val KEY_MODULE_AUTO_HOT_INSTALL = "module_auto_hot_install"
 
 /** Prefer soft reboot: always in jailbreak mode, or when the setting is enabled. */
 fun isSoftRebootPreferred(): Boolean =
@@ -34,6 +35,11 @@ fun isSoftRebootPreferred(): Boolean =
 fun isModulePreflashEnabled(): Boolean =
     ksuApp.getSharedPreferences(SETTINGS_PREFS, Context.MODE_PRIVATE)
         .getBoolean(KEY_MODULE_PREFLASH, true)
+
+/** Check whether compatible modules are applied without a reboot. Default true. */
+fun isModuleAutoHotInstallEnabled(): Boolean =
+    ksuApp.getSharedPreferences(SETTINGS_PREFS, Context.MODE_PRIVATE)
+        .getBoolean(KEY_MODULE_AUTO_HOT_INSTALL, true)
 
 class SettingsRepositoryImpl : SettingsRepository {
 
@@ -217,6 +223,10 @@ class SettingsRepositoryImpl : SettingsRepository {
     override var modulePreflashInspection: Boolean
         get() = prefs.getBoolean(KEY_MODULE_PREFLASH, true)
         set(value) = prefs.edit { putBoolean(KEY_MODULE_PREFLASH, value) }
+
+    override var moduleAutoHotInstall: Boolean
+        get() = prefs.getBoolean(KEY_MODULE_AUTO_HOT_INSTALL, true)
+        set(value) = prefs.edit { putBoolean(KEY_MODULE_AUTO_HOT_INSTALL, value) }
 
     override var bottomBarKernelTool: String
         get() = prefs.getString(KernelTool.PREF_KEY, KernelTool.Payload.id) ?: KernelTool.Payload.id

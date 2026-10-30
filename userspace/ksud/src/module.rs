@@ -160,7 +160,7 @@ pub fn foreach_module(
     Ok(())
 }
 
-fn foreach_active_module(f: impl FnMut(&Path) -> Result<()>) -> Result<()> {
+pub fn foreach_active_module(f: impl FnMut(&Path) -> Result<()>) -> Result<()> {
     foreach_module(Active, f)
 }
 
@@ -684,7 +684,7 @@ pub fn handle_updated_modules() -> Result<()> {
     Ok(())
 }
 
-fn install_module_to_system(zip: &str) -> Result<String> {
+fn install_module_to_system(zip: &str, auto_hot_install: bool) -> Result<String> {
     ensure_boot_completed()?;
 
     // print banner
@@ -808,12 +808,26 @@ fn install_module_to_system(zip: &str) -> Result<String> {
     }
 
     // Execute install script
+    let boot_state_before = auto_hot_install.then(|| hot_install::boot_state(module_id));
     println!("- Running module installer");
     exec_install_script(zip, is_metamodule, module_id)?;
 
-    if let Some(request) = hot_install::take_request(&updated_dir)
-        && hot_install::apply(module_id, is_metamodule, &request)
-    {
+    // A module that asks for a hot install always gets its own; the automatic one only covers
+    // modules that did not ask
+    let hot_installed = hot_install::take_request(&updated_dir).map_or_else(
+        || {
+            if !hot_install::is_staged(module_id) {
+                // A metamodule hot installed it by itself; what its script started is unknown
+                hot_install::mark_unknown(module_id);
+                return false;
+            }
+            boot_state_before.is_some_and(|before| {
+                hot_install::apply_auto(module_id, is_metamodule, &zip_path, &before)
+            })
+        },
+        |request| hot_install::apply(module_id, is_metamodule, &request),
+    );
+    if hot_installed {
         println!("- Module installed successfully, no reboot required!");
         info!("Module {module_id} installed successfully!");
         return Ok(module_id.to_owned());
@@ -841,10 +855,11 @@ fn install_module_to_system(zip: &str) -> Result<String> {
     Ok(module_id.to_owned())
 }
 
-pub fn install_module(zip: &str) -> Result<()> {
+pub fn install_module(zip: &str, auto_hot_install: bool) -> Result<()> {
     ksucalls::ensure_uapi_version_matched()?;
 
-    let module_id = install_module_to_system(zip).inspect_err(|e| println!("- Error: {e}"))?;
+    let module_id = install_module_to_system(zip, auto_hot_install)
+        .inspect_err(|e| println!("- Error: {e}"))?;
     if let Err(e) = regenerate_preinit() {
         warn!("regenerate preinit failed: {e:#}");
     }
@@ -900,6 +915,8 @@ pub fn run_action(id: &str) -> Result<()> {
     validate_module_id(id)?;
     ksucalls::ensure_uapi_version_matched()?;
 
+    // Whatever the action starts is not known to the automatic hot install
+    hot_install::mark_unknown(id);
     let action_script_path = format!("/data/adb/modules/{id}/action.sh");
     exec_script(&action_script_path, ScriptWait::Forever)
 }

@@ -477,6 +477,8 @@
     <string name="exporting_module">%s 모듈 내보내는 중…</string>
     <string name="settings_module_preflash">모듈 플래싱 전 안전 검사</string>
     <string name="settings_module_preflash_summary">플래싱 전에 스크립트와 파일을 검사하여 고위험 명령어와 잠재적 충돌을 감지합니다</string>
+    <string name="settings_module_auto_hot_install">호환 모듈 재부팅 없이 적용</string>
+    <string name="settings_module_auto_hot_install_summary">부팅 시에만 적용되는 내용이 없는 모듈은 개발자 대응 없이 설치 직후 적용됩니다</string>
     <string name="module_preflash_title">모듈 플래싱 전 안전 검사</string>
     <string name="module_preflash_scanning">모듈 패키지 검사 중…</string>
     <string name="module_preflash_safe_title">안전</string>

@@ -483,6 +483,8 @@
     <string name="exporting_module">正在匯出模組 %s…</string>
     <string name="settings_module_preflash">模組安裝前體檢</string>
     <string name="settings_module_preflash_summary">在刷入模組前分析指令碼與檔案，預警高危指令與潛在衝突</string>
+    <string name="settings_module_auto_hot_install">相容模組免重新啟動生效</string>
+    <string name="settings_module_auto_hot_install_summary">模組中沒有需要開機才能生效的內容時，安裝後立即生效，無需模組作者適配</string>
     <string name="module_preflash_title">模組安裝前體檢</string>
     <string name="module_preflash_scanning">正在分析模組安裝包…</string>
     <string name="module_preflash_safe_title">安全</string>
