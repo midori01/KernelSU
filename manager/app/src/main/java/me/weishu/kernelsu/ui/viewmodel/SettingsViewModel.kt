@@ -116,6 +116,7 @@ class SettingsViewModel(
                     checkModuleUpdate = checkModuleUpdate,
                     checkKsuDriverUpdate = checkKsuDriverUpdate,
                     modulePreflashInspection = repo.modulePreflashInspection,
+                    moduleAutoHotInstall = repo.moduleAutoHotInstall,
                     themeMode = themeMode,
                     miuixMonet = miuixMonet,
                     keyColor = keyColor,
@@ -212,6 +213,11 @@ class SettingsViewModel(
     fun setModulePreflashInspection(enabled: Boolean) {
         repo.modulePreflashInspection = enabled
         _uiState.update { it.copy(modulePreflashInspection = enabled) }
+    }
+
+    fun setModuleAutoHotInstall(enabled: Boolean) {
+        repo.moduleAutoHotInstall = enabled
+        _uiState.update { it.copy(moduleAutoHotInstall = enabled) }
     }
 
     fun setThemeMode(mode: Int) {
