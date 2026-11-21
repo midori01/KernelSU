@@ -223,6 +223,7 @@ internal fun InstallScreenMiuix(
                                 val summaryText = when (uiState.lkmVariant) {
                                     LkmVariant.KOWSU -> stringResource(id = R.string.install_lkm_kowsu)
                                     LkmVariant.XXKSU -> stringResource(id = R.string.install_lkm_xxksu)
+                                    LkmVariant.NEXTKSU -> stringResource(id = R.string.install_lkm_nextksu)
                                     LkmVariant.CUSTOM -> {
                                         (uiState.lkmSelection as? LkmSelection.LkmUri)?.let {
                                             stringResource(id = R.string.selected_lkm, it.uri.lastPathSegment ?: "(file)")

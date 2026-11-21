@@ -46,6 +46,13 @@ fun SelectLkmDialog(
                         },
                         {
                             SegmentedRadioItem(
+                                title = stringResource(R.string.install_lkm_nextksu),
+                                selected = currentVariant == LkmVariant.NEXTKSU,
+                                onClick = { onSelectVariant(LkmVariant.NEXTKSU) }
+                            )
+                        },
+                        {
+                            SegmentedRadioItem(
                                 title = stringResource(R.string.install_upload_lkm_file),
                                 selected = currentVariant == LkmVariant.CUSTOM,
                                 onClick = { onSelectVariant(LkmVariant.CUSTOM) }

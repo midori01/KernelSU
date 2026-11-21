@@ -37,6 +37,7 @@ jobs:
       run: |
         cp aarch64-android*-lkm/*_kernelsu.ko ./userspace/ksud/bin/aarch64/
         cp xx-android*-lkm/*_kernelsu.ko ./userspace/ksud/bin/aarch64/
+        cp next-android*-lkm/*_kernelsu.ko ./userspace/ksud/bin/aarch64/
     
     - name: Prepare ksuinit
       if: ${{ inputs.pack_ksuinit }}
