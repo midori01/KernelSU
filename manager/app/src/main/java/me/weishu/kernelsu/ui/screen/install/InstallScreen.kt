@@ -188,6 +188,14 @@ fun InstallScreen() {
                         else -> currentSelection
                     }
                 }
+                LkmVariant.NEXTKSU -> {
+                    // Convert current selection to Next variant
+                    val currentSelection = lkmSelection
+                    when (currentSelection) {
+                        is LkmSelection.KmiString -> LkmSelection.KmiStringNext(currentSelection.value)
+                        else -> currentSelection
+                    }
+                }
                 LkmVariant.CUSTOM -> lkmSelection
             }
             navigator.push(
@@ -224,6 +232,7 @@ fun InstallScreen() {
                 lkmSelection = when (lkmVariant) {
                     LkmVariant.KOWSU -> LkmSelection.KmiString(it)
                     LkmVariant.XXKSU -> LkmSelection.KmiStringXX(it)
+                    LkmVariant.NEXTKSU -> LkmSelection.KmiStringNext(it)
                     LkmVariant.CUSTOM -> LkmSelection.KmiString(it)
                 }
                 onInstall()
@@ -403,7 +412,7 @@ fun InstallScreen() {
         onSelectLkmVariant = { variant ->
             lkmVariant = variant
             when (variant) {
-                LkmVariant.KOWSU, LkmVariant.XXKSU -> {
+                LkmVariant.KOWSU, LkmVariant.XXKSU, LkmVariant.NEXTKSU -> {
                     lkmSelection = LkmSelection.KmiNone
                     showLkmDialog.value = false
                 }
@@ -453,7 +462,11 @@ fun InstallScreen() {
                         lkmSelection == LkmSelection.KmiNone &&
                         installMethod !is InstallMethod.DownloadFile &&
                         installMethod !is InstallMethod.AnyKernel
-                    if ((!isLkmSelected && isKmiUnresolved) || needsXxKsuKmi) {
+                    val needsNextKsuKmi = lkmVariant == LkmVariant.NEXTKSU &&
+                        lkmSelection == LkmSelection.KmiNone &&
+                        installMethod !is InstallMethod.DownloadFile &&
+                        installMethod !is InstallMethod.AnyKernel
+                    if ((!isLkmSelected && isKmiUnresolved) || needsXxKsuKmi || needsNextKsuKmi) {
                         showChooseKmiDialog.value = true
                     } else {
                         onInstall()

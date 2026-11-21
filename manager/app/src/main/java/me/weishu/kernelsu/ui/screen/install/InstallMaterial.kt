@@ -158,6 +158,7 @@ internal fun InstallScreenMaterial(
                         val summaryText = when (uiState.lkmVariant) {
                             LkmVariant.KOWSU -> stringResource(R.string.install_lkm_kowsu)
                             LkmVariant.XXKSU -> stringResource(R.string.install_lkm_xxksu)
+                            LkmVariant.NEXTKSU -> stringResource(R.string.install_lkm_nextksu)
                             LkmVariant.CUSTOM -> {
                                 (uiState.lkmSelection as? LkmSelection.LkmUri)?.let {
                                     stringResource(

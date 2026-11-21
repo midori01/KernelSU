@@ -415,6 +415,9 @@ sealed class LkmSelection : Parcelable {
     data class KmiStringXX(val value: String) : LkmSelection()
 
     @Parcelize
+    data class KmiStringNext(val value: String) : LkmSelection()
+
+    @Parcelize
     data object KmiNone : LkmSelection()
 }
 
@@ -482,6 +485,7 @@ fun installBoot(
         when (lkm) {
             is LkmSelection.KmiString -> cmd += " --kmi ${lkm.value}"
             is LkmSelection.KmiStringXX -> cmd += " --kmi xx-${lkm.value}"
+            is LkmSelection.KmiStringNext -> cmd += " --kmi next-${lkm.value}"
             LkmSelection.KmiNone, is LkmSelection.LkmUri -> Unit
         }
     }
@@ -749,7 +753,7 @@ suspend fun getSupportedKmis(): List<String> = withContext(Dispatchers.IO) {
     val shell = getRootShell()
     val cmd = "boot-info supported-kmis"
     val out = shell.newJob().add("${getKsuDaemonPath()} $cmd").to(ArrayList(), null).exec().out
-    out.filter { it.isNotBlank() }.map { it.trim() }.filter { !it.startsWith("xx-") }
+    out.filter { it.isNotBlank() }.map { it.trim() }.filter { !it.startsWith("xx-") }.filter { !it.startsWith("next-") }
 }
 
 suspend fun isAbDevice(): Boolean = withContext(Dispatchers.IO) {
