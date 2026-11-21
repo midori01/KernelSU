@@ -340,8 +340,8 @@
     <string name="module_shortcut_scheme_copied">Esquema de URL copiado</string>
     <string name="nav_rail_expand">Expandir barra de navegação</string>
     <string name="nav_rail_collapse">Recolher barra de navegação</string>
-    <string name="settings_navigation_badge">Selo de navegação</string>
-    <string name="settings_navigation_badge_summary">Mostra a contagem de apps autorizados e módulos ativados na barra de navegação</string>
+    <string name="settings_module_update_badge">Selo de atualização de módulos</string>
+    <string name="settings_module_update_badge_summary">Mostrar selo na barra de navegação quando houver atualizações de módulos</string>
     <string name="module_repo_script_badge">Script</string>
     <string name="script_run">Executar</string>
     <string name="script_run_title">Executar script</string>
