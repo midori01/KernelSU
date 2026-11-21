@@ -72,6 +72,7 @@ import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.SearchStatus
 import me.weishu.kernelsu.ui.component.bottombar.KernelTool
 import me.weishu.kernelsu.ui.component.bottombar.KernelToolTopAppBarMiuix
+import me.weishu.kernelsu.ui.component.bottombar.RegisterTabReselect
 import me.weishu.kernelsu.ui.component.miuix.SearchBarFake
 import me.weishu.kernelsu.ui.component.miuix.SearchBox
 import me.weishu.kernelsu.ui.component.miuix.SearchPager
@@ -129,6 +130,12 @@ fun PayloadMiuix(
     val listState = rememberLazyListState()
     val searchListState = rememberLazyListState()
     var searchStatus by remember { mutableStateOf(SearchStatus(context.getString(R.string.payload_search_partitions))) }
+    if (isRootTab) {
+        RegisterTabReselect(2) {
+            val target = if (searchStatus.isExpanded()) searchListState else listState
+            target.animateScrollToItem(0)
+        }
+    }
 
     LaunchedEffect(uiState.searchQuery) {
         searchStatus = searchStatus.copy(
