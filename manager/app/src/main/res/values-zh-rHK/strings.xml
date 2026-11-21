@@ -417,6 +417,47 @@
     <string name="kconfig_search">搜尋核心配置…</string>
 
     <!-- SUSFS -->
+    <string name="tcp_title">TCP 調校</string>
+    <string name="tcp_scope">僅影響新建立的連線與發送方向</string>
+    <string name="tcp_state_applied">已套用</string>
+    <string name="tcp_state_system">跟隨系統</string>
+    <string name="tcp_state_mismatch">與所選設定不符</string>
+    <string name="tcp_state_unavailable">無法使用</string>
+    <string name="tcp_state_module">由模組管理</string>
+    <string name="tcp_conflict_title">擁塞控制由模組管理</string>
+    <string name="tcp_conflict_body">tcp_congestion 模組在開機時控制擁塞控制演算法。若可用，可匯入其設定以在此管理擁塞控制。</string>
+    <string name="tcp_import_module">匯入 &amp; 停用模組</string>
+    <string name="tcp_congestion">擁塞控制</string>
+    <string name="tcp_follow_system">跟隨系統 (%1$s)</string>
+    <string name="tcp_cubic">透過丟包情況調整發送速率。</string>
+    <string name="tcp_bbr">估算頻寬與延遲以控制出站流量節奏。</string>
+    <string name="tcp_bbr3">結合丟包與擁塞訊號進一步最佳化 BBR 的發送節奏。</string>
+    <string name="tcp_reno">逐步增大發送視窗，並在發生丟包後減小視窗。</string>
+    <string name="tcp_transfer">傳輸</string>
+    <string name="tcp_slow_start">空閒後慢啟動</string>
+    <string name="tcp_slow_start_summary">關閉後，擁塞視窗不會在閒置後縮小，有助提升突發傳輸的長連線吞吐量。</string>
+    <string name="tcp_on">開啟</string>
+    <string name="tcp_saved_value_status">已儲存：%1$s · %2$s</string>
+    <string name="tcp_mtu">MTU 探測</string>
+    <string name="tcp_mtu_summary">有助於改善丟棄大型網絡封包的 VPN 和隧道。</string>
+    <string name="tcp_advanced">進階</string>
+    <string name="tcp_ecn">顯式擁塞通知</string>
+    <string name="tcp_ecn_warning">主動 ECN 會在出站連線上請求擁塞訊號。部分網絡對此類請求的處理較差。</string>
+    <string name="tcp_ecn_off">關閉</string>
+    <string name="tcp_ecn_passive">被動</string>
+    <string name="tcp_ecn_active">主動</string>
+    <string name="tcp_reset_one">已修改。將 %1$s 還原為系統值</string>
+    <string name="tcp_restore_all">還原所有系統值</string>
+    <string name="tcp_restore_confirm">清除所有已儲存的 TCP 設定？在基準值可用時，仍與您所選內容相符的設定將還原為其系統值。</string>
+    <string name="tcp_boot_errors">開機錯誤 (%1$d)</string>
+    <string name="tcp_root_title">Root 無法使用</string>
+    <string name="tcp_root_body">讀取及變更 TCP 設定需要 Root 權限。</string>
+    <string name="tcp_empty_body">目前核心未提供任何受支援的 TCP 設定。</string>
+    <string name="tcp_error_title">無法讀取 TCP 設定</string>
+    <string name="tcp_retry">重試</string>
+    <string name="tcp_more">更多選項</string>
+    <string name="tcp_command_failed">TCP 命令執行失敗 (結束代碼 %1$d)。</string>
+
     <string name="susfs_title">SUSFS</string>
     <string name="susfs_unsupported_title">未偵測到 SUSFS</string>
     <string name="susfs_unsupported_body">目前核心未內建 SUSFS，亦未載入 SUSFS LKM。請使用包含 SUSFS 的核心或載入 susfs4ksu-lkm，然後再返回此處。</string>

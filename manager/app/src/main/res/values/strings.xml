@@ -504,6 +504,47 @@
     <string name="kconfig_search">Search kernel config…</string>
 
     <!-- SUSFS -->
+    <string name="tcp_title">TCP Tuning</string>
+    <string name="tcp_scope">Only affects new connections, sending direction</string>
+    <string name="tcp_state_applied">Applied</string>
+    <string name="tcp_state_system">Follow system</string>
+    <string name="tcp_state_mismatch">Does not match selection</string>
+    <string name="tcp_state_unavailable">Unavailable</string>
+    <string name="tcp_state_module">Managed by module</string>
+    <string name="tcp_conflict_title">Module manages congestion control</string>
+    <string name="tcp_conflict_body">The tcp_congestion module controls the algorithm at boot. Import its selection, if available, to manage congestion control here.</string>
+    <string name="tcp_import_module">Import &amp; disable module</string>
+    <string name="tcp_congestion">Congestion control</string>
+    <string name="tcp_follow_system">Follow system (%1$s)</string>
+    <string name="tcp_cubic">Uses packet loss to adjust the sending rate.</string>
+    <string name="tcp_bbr">Estimates bandwidth and delay to pace outgoing traffic.</string>
+    <string name="tcp_bbr3">Refines BBR pacing with packet loss and congestion signals.</string>
+    <string name="tcp_reno">Grows the sending window gradually and cuts it after packet loss.</string>
+    <string name="tcp_transfer">Transfer</string>
+    <string name="tcp_slow_start">Slow start after idle</string>
+    <string name="tcp_slow_start_summary">Turn off to keep the congestion window from shrinking after idle. This can improve throughput for long-lived connections that send in bursts.</string>
+    <string name="tcp_on">On</string>
+    <string name="tcp_saved_value_status">Saved: %1$s · %2$s</string>
+    <string name="tcp_mtu">MTU probing</string>
+    <string name="tcp_mtu_summary">Helps VPNs and tunnels that drop large packets.</string>
+    <string name="tcp_advanced">Advanced</string>
+    <string name="tcp_ecn">Explicit congestion notification</string>
+    <string name="tcp_ecn_warning">Active ECN requests congestion signals on outgoing connections. Some networks handle these requests poorly.</string>
+    <string name="tcp_ecn_off">Off</string>
+    <string name="tcp_ecn_passive">Passive</string>
+    <string name="tcp_ecn_active">Active</string>
+    <string name="tcp_reset_one">Modified. Restore %1$s to its system value</string>
+    <string name="tcp_restore_all">Restore all system values</string>
+    <string name="tcp_restore_confirm">Clear all saved TCP settings? Values that still match your selections return to their system values when a baseline is available.</string>
+    <string name="tcp_boot_errors">Boot errors (%1$d)</string>
+    <string name="tcp_root_title">Root unavailable</string>
+    <string name="tcp_root_body">Root access is required to read and change TCP settings.</string>
+    <string name="tcp_empty_body">This kernel exposes none of the supported TCP settings.</string>
+    <string name="tcp_error_title">Could not read TCP settings</string>
+    <string name="tcp_retry">Try again</string>
+    <string name="tcp_more">More options</string>
+    <string name="tcp_command_failed">TCP command failed (exit %1$d).</string>
+
     <string name="susfs_title">SUSFS</string>
     <string name="susfs_unsupported_title">SUSFS not detected</string>
     <string name="susfs_unsupported_body">This kernel has no built-in SUSFS and no SUSFS LKM is loaded. Use a kernel built with SUSFS or load susfs4ksu-lkm, then come back here.</string>

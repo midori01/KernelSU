@@ -409,6 +409,47 @@
     <string name="kconfig_search">커널 설정 검색…</string>
 
     <!-- SUSFS -->
+    <string name="tcp_title">TCP 튜닝</string>
+    <string name="tcp_scope">새로운 연결 및 전송 방향에만 영향을 미칩니다</string>
+    <string name="tcp_state_applied">적용됨</string>
+    <string name="tcp_state_system">시스템 따름</string>
+    <string name="tcp_state_mismatch">선택 항목과 일치하지 않음</string>
+    <string name="tcp_state_unavailable">사용할 수 없음</string>
+    <string name="tcp_state_module">모듈에서 관리됨</string>
+    <string name="tcp_conflict_title">모듈이 혼잡 제어를 관리함</string>
+    <string name="tcp_conflict_body">tcp_congestion 모듈이 부팅 시 알고리즘을 제어합니다. 가능한 경우 설정을 가져와 여기서 혼잡 제어를 관리하세요.</string>
+    <string name="tcp_import_module">가져오기 &amp; 모듈 비활성화</string>
+    <string name="tcp_congestion">혼잡 제어</string>
+    <string name="tcp_follow_system">시스템 따름 (%1$s)</string>
+    <string name="tcp_cubic">패킷 손실을 사용하여 전송 속도를 조절합니다.</string>
+    <string name="tcp_bbr">대역폭과 지연 시간을 추정하여 발신 트래픽 속도를 조절합니다.</string>
+    <string name="tcp_bbr3">패킷 손실 및 혼잡 신호로 BBR 페이싱을 세밀하게 조정합니다.</string>
+    <string name="tcp_reno">전송 윈도우를 점진적으로 늘리고 패킷 손실 후 줄입니다.</string>
+    <string name="tcp_transfer">전송</string>
+    <string name="tcp_slow_start">유휴 후 슬로우 스타트</string>
+    <string name="tcp_slow_start_summary">끄면 유휴 상태 이후에도 혼잡 윈도우가 줄어들지 않아, 데이터를 한꺼번에 전송하는 장기 연결의 처리량이 향상될 수 있습니다.</string>
+    <string name="tcp_on">켜짐</string>
+    <string name="tcp_saved_value_status">저장된 값: %1$s · %2$s</string>
+    <string name="tcp_mtu">MTU 검색</string>
+    <string name="tcp_mtu_summary">크기가 큰 패킷이 손실되는 VPN이나 터널에서 도움이 됩니다.</string>
+    <string name="tcp_advanced">고급</string>
+    <string name="tcp_ecn">명시적 혼잡 알림</string>
+    <string name="tcp_ecn_warning">활성 ECN은 발신 연결에서 혼잡 신호를 요청합니다. 일부 네트워크에서는 이러한 요청을 제대로 처리하지 못할 수 있습니다.</string>
+    <string name="tcp_ecn_off">꺼짐</string>
+    <string name="tcp_ecn_passive">수동</string>
+    <string name="tcp_ecn_active">능동</string>
+    <string name="tcp_reset_one">수정됨. %1$s을(를) 시스템 값으로 복원</string>
+    <string name="tcp_restore_all">모든 시스템 값 복원</string>
+    <string name="tcp_restore_confirm">저장된 모든 TCP 설정을 지우시겠습니까? 기준 값을 사용할 수 있는 경우 선택 항목과 계속 일치하는 값은 시스템 값으로 돌아갑니다.</string>
+    <string name="tcp_boot_errors">부팅 오류 (%1$d)</string>
+    <string name="tcp_root_title">Root 권한을 사용할 수 없음</string>
+    <string name="tcp_root_body">TCP 설정을 읽고 변경하려면 Root 권한이 필요합니다.</string>
+    <string name="tcp_empty_body">이 커널은 지원되는 TCP 설정을 제공하지 않습니다.</string>
+    <string name="tcp_error_title">TCP 설정을 읽을 수 없습니다</string>
+    <string name="tcp_retry">재시도</string>
+    <string name="tcp_more">더 많은 옵션</string>
+    <string name="tcp_command_failed">TCP 명령이 실패했습니다 (종료 코드 %1$d)。</string>
+
     <string name="susfs_title">SUSFS</string>
     <string name="susfs_unsupported_title">SUSFS 감지되지 않음</string>
     <string name="susfs_unsupported_body">이 커널에는 내장 SUSFS가 없으며 SUSFS LKM이 로드되지 않았습니다. SUSFS가 포함된 커널을 사용하거나 susfs4ksu-lkm을 로드한 후 다시 돌아오세요.</string>
