@@ -1,5 +1,8 @@
 package me.weishu.kernelsu.ui.component.bottombar
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -31,15 +34,25 @@ import androidx.compose.material3.WideNavigationRailValue
 import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
+import me.weishu.kernelsu.ui.LocalKernelTool
 import me.weishu.kernelsu.ui.LocalMainPagerState
 
 @Composable
@@ -51,13 +64,19 @@ fun NavigationRailMaterial(
     if (!fullFeatured) return
 
     val mainPagerState = LocalMainPagerState.current
+    val currentKernelTool = LocalKernelTool.current
+    val haptic = LocalHapticFeedback.current
+    var showToolSelectDialog by remember { mutableStateOf(false) }
 
     val items = listOf(
         Triple(R.string.home, Icons.Filled.Home, Icons.Outlined.Home),
         Triple(R.string.superuser, Icons.Filled.Shield, Icons.Outlined.Shield),
+        Triple(currentKernelTool.label, currentKernelTool.filledIcon, currentKernelTool.outlinedIcon),
         Triple(R.string.module, Icons.Filled.Extension, Icons.Outlined.Extension),
         Triple(R.string.settings, Icons.Filled.Settings, Icons.Outlined.Settings)
     )
+
+    val longPressTimeout = LocalViewConfiguration.current.longPressTimeoutMillis
 
     val settingsRepo = remember { SettingsRepositoryImpl() }
     val state = rememberWideNavigationRailState(
@@ -106,6 +125,26 @@ fun NavigationRailMaterial(
         items.forEachIndexed { index, (label, selectedIcon, unselectedIcon) ->
             val selected = mainPagerState.selectedPage == index
             WideNavigationRailItem(
+                modifier = if (index == 2) {
+                    Modifier.pointerInput(longPressTimeout) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown(pass = PointerEventPass.Initial)
+                            down.consume()
+                            val up = withTimeoutOrNull(longPressTimeout) {
+                                waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                            }
+                            if (up == null) {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                showToolSelectDialog = true
+                            } else {
+                                up.consume()
+                                if (!selected) {
+                                    mainPagerState.animateToPage(index)
+                                }
+                            }
+                        }
+                    }
+                } else Modifier,
                 railExpanded = expanded,
                 selected = selected,
                 onClick = {
@@ -124,4 +163,15 @@ fun NavigationRailMaterial(
             )
         }
     }
+
+    KernelToolSelectDialog(
+        show = showToolSelectDialog,
+        currentTool = currentKernelTool,
+        onSelected = { tool ->
+            SettingsRepositoryImpl().bottomBarKernelTool = tool.id
+        },
+        onDismissRequest = {
+            showToolSelectDialog = false
+        }
+    )
 }
