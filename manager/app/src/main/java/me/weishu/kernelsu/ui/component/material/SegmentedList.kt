@@ -431,6 +431,7 @@ fun SegmentedDropdownItem(
     onClick: (() -> Unit)? = null,
     selectedIndex: Int,
     onItemSelected: (Int) -> Unit,
+    trailingIcon: (@Composable () -> Unit)? = null,
 ) {
     val haptic = LocalHapticFeedback.current
     var expanded by remember { mutableStateOf(false) }
@@ -458,12 +459,15 @@ fun SegmentedDropdownItem(
             headlineContent = { Text(text = title) },
             supportingContent = summary?.let { { Text(it) } },
             trailingContent = {
-                Text(
-                    text = if (hasItems && safeIndex >= 0) items[safeIndex] else "",
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.fillMaxWidth(0.3f),
-                    color = if (enabled) colorScheme.primary else colorScheme.onSurfaceVariant
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = if (hasItems && safeIndex >= 0) items[safeIndex] else "",
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.fillMaxWidth(0.3f),
+                        color = if (enabled) colorScheme.primary else colorScheme.onSurfaceVariant
+                    )
+                    trailingIcon?.invoke()
+                }
             }
         )
         OffsetAnchoredExpressiveMenu(
