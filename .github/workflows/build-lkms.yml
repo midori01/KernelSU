@@ -1,4 +1,4 @@
-name: Build KowSU and xx LKMs
+name: Build LKMs
 on:
   workflow_call:
     inputs:
@@ -53,8 +53,11 @@ jobs:
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
         echo "KSU_VERSION=$(expr 30999 + $(git rev-list --count HEAD))" >> $GITHUB_OUTPUT
         cp -r .github/xx-lkm /tmp/xx-lkm
-        git fetch origin +refs/heads/xx:refs/remotes/origin/xx
-        [ "$(git log -1 --format=%s origin/xx~1)" = extra ] || { echo "xx~1 is not the extra commit"; exit 1; }
+        git fetch origin +refs/heads/xx:refs/remotes/origin/xx +refs/heads/next:refs/remotes/origin/next \
+          +refs/heads/official:refs/remotes/origin/official +refs/heads/resuki:refs/remotes/origin/resuki
+        for b in xx next official resuki; do
+          [ "$(git log -1 --format=%s origin/$b~1)" = extra ] || { echo "$b~1 is not the extra commit"; exit 1; }
+        done
         [ "$(git log -1 --format=%s origin/xx~2)" = lkm ] || { echo "xx~2 is not the lkm commit"; exit 1; }
         mkdir -p /github/workspace/out/aarch64
 
@@ -81,6 +84,39 @@ jobs:
           KSU_EXPECTED_HASH="${EXPECTED_HASH:-484fcba6e6c43b1fb09700633bf2fb4758f13cb0b2f4457b80d075084b26c588}"
         cp kernelsu.ko "/github/workspace/out/xx-${KMI}_kernelsu.ko"
 
+    - name: Build KernelSU-Next
+      run: |
+        git clean -fdxq kernel && git checkout -qf --detach origin/next~1
+        sed -i "s|^ccflags-y += -DKSU_VERSION=.*|ccflags-y += -DKSU_VERSION=${{ steps.prep.outputs.KSU_VERSION }}|" kernel/Kbuild
+        cd kernel
+        CONFIG_KSU=m CC=clang make \
+          KSU_MANAGER_PACKAGE="${PACKAGE_NAME:-com.midori.supermanager}" \
+          KSU_NEXT_MANAGER_SIZE="${EXPECTED_SIZE:-0x0368}" \
+          KSU_NEXT_MANAGER_HASH="${EXPECTED_HASH:-b9ee6759de4794f954883458b722b97ae6527cb7709a051db9a2348c0eea1e42}"
+        cp kernelsu.ko "/github/workspace/out/next-${KMI}_kernelsu.ko"
+
+    - name: Build KernelSU-Official
+      run: |
+        git clean -fdxq kernel && git checkout -qf --detach origin/official~1
+        sed -i "s|^ccflags-y += -DKSU_VERSION=.*|ccflags-y += -DKSU_VERSION=${{ steps.prep.outputs.KSU_VERSION }}|" kernel/Kbuild
+        cd kernel
+        CONFIG_KSU=m CC=clang make \
+          KSU_PACKAGE_NAME="${PACKAGE_NAME:-com.midori.supermanager}" \
+          KSU_EXPECTED_SIZE="${EXPECTED_SIZE:-0x0368}" \
+          KSU_EXPECTED_HASH="${EXPECTED_HASH:-b9ee6759de4794f954883458b722b97ae6527cb7709a051db9a2348c0eea1e42}"
+        cp kernelsu.ko "/github/workspace/out/official-${KMI}_kernelsu.ko"
+
+    - name: Build BakaSU
+      run: |
+        git clean -fdxq kernel && git checkout -qf --detach origin/resuki~1
+        sed -i "s|^ccflags-y += -DKSU_VERSION=.*|ccflags-y += -DKSU_VERSION=${{ steps.prep.outputs.KSU_VERSION }}|" kernel/Kbuild
+        cd kernel
+        CONFIG_KSU=m CONFIG_KSU_TRACEPOINT_HOOK=y CONFIG_KSU_MULTI_MANAGER_SUPPORT=y CC=clang make \
+          KSU_MANAGER_PACKAGE="${PACKAGE_NAME:-com.midori.supermanager}" \
+          KSU_EXPECTED_SIZE="${EXPECTED_SIZE:-0x0368}" \
+          KSU_EXPECTED_HASH="${EXPECTED_HASH:-b9ee6759de4794f954883458b722b97ae6527cb7709a051db9a2348c0eea1e42}"
+        cp kernelsu.ko "/github/workspace/out/baka-${KMI}_kernelsu.ko"
+
     - name: Strip
       run: |
         cd /github/workspace/out
@@ -99,3 +135,20 @@ jobs:
         name: xx-${{ matrix.kmi }}-lkm
         path: /github/workspace/out/xx-${{ matrix.kmi }}_kernelsu.ko
 
+    - name: Upload KernelSU-Next artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: next-${{ matrix.kmi }}-lkm
+        path: /github/workspace/out/next-${{ matrix.kmi }}_kernelsu.ko
+
+    - name: Upload KernelSU-Official artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: official-${{ matrix.kmi }}-lkm
+        path: /github/workspace/out/official-${{ matrix.kmi }}_kernelsu.ko
+
+    - name: Upload BakaSU artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: baka-${{ matrix.kmi }}-lkm
+        path: /github/workspace/out/baka-${{ matrix.kmi }}_kernelsu.ko

@@ -309,6 +309,9 @@
     <string name="install_select_lkm_variant">Select LKM variant</string>
     <string name="install_lkm_kowsu">KowSU</string>
     <string name="install_lkm_xxksu">xxKSU</string>
+    <string name="install_lkm_nextksu">KernelSU-Next</string>
+    <string name="install_lkm_official" translatable="false">KernelSU-Official</string>
+    <string name="install_lkm_bakasu" translatable="false">BakaSU</string>
     <string name="install_force_backup">Backup as stock image</string>
     <string name="install_force_backup_summary">Please make sure your selected boot image is a stock image</string>
     <string name="install_only_support_ko_file">Only .ko files are supported</string>
