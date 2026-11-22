@@ -33,6 +33,8 @@ mod android {
     pub const METAMODULE_DIR: &str = concatcp!(ADB_DIR, "metamodule/");
     // Replaced module dirs are parked here until the next boot
     pub const HOT_INSTALL_TRASH_DIR: &str = concatcp!(WORKING_DIR, "hot_install_trash/");
+    // boot_id followed by the modules whose boot stages ran in the current session
+    pub const ACTIVE_MODULES_FILE: &str = concatcp!(WORKING_DIR, ".active_modules");
 
     // Preferred first: /metadata/vold (root:root 0700) hides best and does not
     // bump /metadata's nlink; else /metadata/watchdog (like Magisk); else /metadata.

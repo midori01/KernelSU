@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Rule
 import androidx.compose.material.icons.filled.Adb
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.ContactPage
@@ -149,6 +150,15 @@ fun SettingPagerMaterial(
                                 summary = stringResource(R.string.settings_module_preflash_summary),
                                 checked = uiState.modulePreflashInspection,
                                 onCheckedChange = actions.onSetModulePreflashInspection
+                            )
+                        },
+                        {
+                            SegmentedSwitchItem(
+                                icon = Icons.Filled.Bolt,
+                                title = stringResource(R.string.settings_module_auto_hot_install),
+                                summary = stringResource(R.string.settings_module_auto_hot_install_summary),
+                                checked = uiState.moduleAutoHotInstall,
+                                onCheckedChange = actions.onSetModuleAutoHotInstall
                             )
                         }
                     )
