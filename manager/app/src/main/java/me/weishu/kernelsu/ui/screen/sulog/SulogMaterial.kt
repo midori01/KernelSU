@@ -63,6 +63,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
@@ -108,6 +109,30 @@ fun SulogScreenMaterial(
 
     ExpressiveScaffold(
         topBar = {
+            val searchListContent: @Composable (Dp) -> Unit = { bottomPadding ->
+                val latestVisibleEntries = rememberUpdatedState(state.visibleEntries)
+                ScrollToTopOnChange(
+                    searchListState,
+                    state.searchText,
+                ) { latestVisibleEntries.value }
+                LazyColumn(
+                    state = searchListState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .nestedScroll(scrollBehavior.nestedScrollConnection),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 16.dp + bottomPadding,
+                    ),
+                ) {
+                    sulogEntriesSection(
+                        entries = state.visibleEntries,
+                        errorMessage = state.errorMessage,
+                        onEntryClick = { selectedEntry = it },
+                    )
+                }
+            }
             SearchAppBar(
                 snackbarHostState = snackbarHostState,
                 title = { Text(stringResource(R.string.settings_sulog)) },
@@ -164,29 +189,11 @@ fun SulogScreenMaterial(
                     }
                 },
                 scrollBehavior = scrollBehavior,
+                defaultContent = { bottomPadding, _ ->
+                    searchListContent(bottomPadding)
+                },
                 searchContent = { bottomPadding, _ ->
-                    val latestVisibleEntries = rememberUpdatedState(state.visibleEntries)
-                    ScrollToTopOnChange(
-                        searchListState,
-                        state.searchText,
-                    ) { latestVisibleEntries.value }
-                    LazyColumn(
-                        state = searchListState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .nestedScroll(scrollBehavior.nestedScrollConnection),
-                        contentPadding = PaddingValues(
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = 16.dp + bottomPadding,
-                        ),
-                    ) {
-                        sulogEntriesSection(
-                            entries = state.visibleEntries,
-                            errorMessage = state.errorMessage,
-                            onEntryClick = { selectedEntry = it },
-                        )
-                    }
+                    searchListContent(bottomPadding)
                 },
             )
         },
