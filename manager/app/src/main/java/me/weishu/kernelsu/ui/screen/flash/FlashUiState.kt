@@ -2,6 +2,7 @@ package me.weishu.kernelsu.ui.screen.flash
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
+import me.weishu.kernelsu.ui.util.ModulePreflashResult
 
 @Immutable
 data class FlashUiState(
@@ -11,6 +12,9 @@ data class FlashUiState(
     val showJailbreakWarning: Boolean,
     @param:StringRes val rebootLabelRes: Int,
     val actionInProgress: Boolean = false,
+    val showPreflashDialog: Boolean = false,
+    val preflashResults: List<ModulePreflashResult> = emptyList(),
+    val isPreflashInspecting: Boolean = false,
 )
 
 @Immutable
@@ -21,4 +25,6 @@ data class FlashScreenActions(
     val onClose: () -> Unit = {},
     val onConfirmJailbreakWarning: () -> Unit,
     val onDismissJailbreakWarning: () -> Unit,
+    val onConfirmPreflash: () -> Unit = {},
+    val onDismissPreflash: () -> Unit = {},
 )

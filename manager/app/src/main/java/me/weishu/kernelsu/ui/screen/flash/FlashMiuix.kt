@@ -57,6 +57,7 @@ import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Share
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.scrollEndHaptic
+import me.weishu.kernelsu.ui.component.modulepreflash.ModulePreflashDialog
 
 /**
  * @author weishu
@@ -80,6 +81,16 @@ fun FlashScreenMiuix(
         JailbreakFlashWarningDialog(
             onConfirm = actions.onConfirmJailbreakWarning,
             onDismiss = actions.onDismissJailbreakWarning,
+        )
+    }
+
+    if (state.showPreflashDialog) {
+        ModulePreflashDialog(
+            show = true,
+            results = state.preflashResults,
+            isInspecting = state.isPreflashInspecting,
+            onConfirm = actions.onConfirmPreflash,
+            onDismiss = actions.onDismissPreflash,
         )
     }
 
