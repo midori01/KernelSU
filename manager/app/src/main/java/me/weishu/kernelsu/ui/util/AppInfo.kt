@@ -4,24 +4,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import me.weishu.kernelsu.R
-import me.weishu.kernelsu.ui.theme.LocalEnableOfficialLauncher
+import me.weishu.kernelsu.ui.theme.LocalAppIconMode
 
 object AppInfo {
     @Composable
     fun appName(): String {
-        return if (LocalEnableOfficialLauncher.current) {
-            stringResource(R.string.app_name_official)
-        } else {
-            stringResource(R.string.app_name)
+        return when (LocalAppIconMode.current) {
+            0 -> stringResource(R.string.app_name_midorisu)
+            1 -> stringResource(R.string.app_name_kowsu)
+            2 -> stringResource(R.string.app_name_official)
+            else -> stringResource(R.string.app_name_midorisu)
         }
     }
 
     @Composable
     fun appIconRes(): Int {
-        return if (LocalEnableOfficialLauncher.current) {
-            R.drawable.ic_launcher_foreground
-        } else {
-            R.drawable.ic_launcher_kowsu
+        return when (LocalAppIconMode.current) {
+            0 -> R.drawable.ic_launcher_midorisu
+            1 -> R.drawable.ic_launcher_kowsu
+            2 -> R.drawable.ic_launcher_foreground
+            else -> R.drawable.ic_launcher_midorisu
         }
     }
 
@@ -30,10 +32,11 @@ object AppInfo {
 
     @Composable
     fun appIconMonochrome() = painterResource(
-        id = if (LocalEnableOfficialLauncher.current) {
-            R.drawable.ic_launcher_monochrome
-        } else {
-            R.drawable.ic_launcher_kowsu
+        id = when (LocalAppIconMode.current) {
+            0 -> R.drawable.ic_launcher_midorisu
+            1 -> R.drawable.ic_launcher_kowsu
+            2 -> R.drawable.ic_launcher_monochrome
+            else -> R.drawable.ic_launcher_midorisu
         }
     )
 }
