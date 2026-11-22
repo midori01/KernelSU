@@ -18,6 +18,7 @@ data class SettingsUiState(
     val colorStyle: String = PaletteStyle.TonalSpot.name,
     val colorSpec: String = ColorSpec.SpecVersion.Default.name,
     val appIconMode: Int = 0,
+    val modernBento: Boolean = true,
     val classicUi: Boolean = false,
     val showSwitchIcon: Boolean = false,
     val scrollAnimation: Boolean = false,
