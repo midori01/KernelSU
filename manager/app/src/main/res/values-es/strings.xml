@@ -338,8 +338,8 @@
     <string name="module_shortcut_scheme_copied">Esquema de URL copiado</string>
     <string name="nav_rail_expand">Expandir la barra de navegación lateral</string>
     <string name="nav_rail_collapse">Contraer la barra de navegación lateral</string>
-    <string name="settings_navigation_badge">Insignias de navegación</string>
-    <string name="settings_navigation_badge_summary">Muestra en la barra de navegación el número de aplicaciones con acceso concedido y de módulos activados</string>
+    <string name="settings_module_update_badge">Insignia de actualización de módulos</string>
+    <string name="settings_module_update_badge_summary">Mostrar insignia en la barra de navegación cuando haya actualizaciones de módulos</string>
     <string name="module_repo_script_badge">Script</string>
     <string name="script_run">Ejecutar</string>
     <string name="script_run_title">Ejecutar script</string>
