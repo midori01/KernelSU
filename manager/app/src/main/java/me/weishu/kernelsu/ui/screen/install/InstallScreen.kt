@@ -188,6 +188,28 @@ fun InstallScreen() {
                         else -> currentSelection
                     }
                 }
+                LkmVariant.NEXTKSU -> {
+                    // Convert current selection to Next variant
+                    val currentSelection = lkmSelection
+                    when (currentSelection) {
+                        is LkmSelection.KmiString -> LkmSelection.KmiStringNext(currentSelection.value)
+                        else -> currentSelection
+                    }
+                }
+                LkmVariant.OFFICIAL -> {
+                    val currentSelection = lkmSelection
+                    when (currentSelection) {
+                        is LkmSelection.KmiString -> LkmSelection.KmiStringOfficial(currentSelection.value)
+                        else -> currentSelection
+                    }
+                }
+                LkmVariant.BAKASU -> {
+                    val currentSelection = lkmSelection
+                    when (currentSelection) {
+                        is LkmSelection.KmiString -> LkmSelection.KmiStringBaka(currentSelection.value)
+                        else -> currentSelection
+                    }
+                }
                 LkmVariant.CUSTOM -> lkmSelection
             }
             navigator.push(
@@ -224,6 +246,9 @@ fun InstallScreen() {
                 lkmSelection = when (lkmVariant) {
                     LkmVariant.KOWSU -> LkmSelection.KmiString(it)
                     LkmVariant.XXKSU -> LkmSelection.KmiStringXX(it)
+                    LkmVariant.NEXTKSU -> LkmSelection.KmiStringNext(it)
+                    LkmVariant.OFFICIAL -> LkmSelection.KmiStringOfficial(it)
+                    LkmVariant.BAKASU -> LkmSelection.KmiStringBaka(it)
                     LkmVariant.CUSTOM -> LkmSelection.KmiString(it)
                 }
                 onInstall()
@@ -403,7 +428,8 @@ fun InstallScreen() {
         onSelectLkmVariant = { variant ->
             lkmVariant = variant
             when (variant) {
-                LkmVariant.KOWSU, LkmVariant.XXKSU -> {
+                LkmVariant.KOWSU, LkmVariant.XXKSU, LkmVariant.NEXTKSU,
+                LkmVariant.OFFICIAL, LkmVariant.BAKASU -> {
                     lkmSelection = LkmSelection.KmiNone
                     showLkmDialog.value = false
                 }
@@ -453,7 +479,12 @@ fun InstallScreen() {
                         lkmSelection == LkmSelection.KmiNone &&
                         installMethod !is InstallMethod.DownloadFile &&
                         installMethod !is InstallMethod.AnyKernel
-                    if ((!isLkmSelected && isKmiUnresolved) || needsXxKsuKmi) {
+                    val needsVariantKmi = (lkmVariant == LkmVariant.NEXTKSU ||
+                        lkmVariant == LkmVariant.OFFICIAL || lkmVariant == LkmVariant.BAKASU) &&
+                        lkmSelection == LkmSelection.KmiNone &&
+                        installMethod !is InstallMethod.DownloadFile &&
+                        installMethod !is InstallMethod.AnyKernel
+                    if ((!isLkmSelected && isKmiUnresolved) || needsXxKsuKmi || needsVariantKmi) {
                         showChooseKmiDialog.value = true
                     } else {
                         onInstall()
