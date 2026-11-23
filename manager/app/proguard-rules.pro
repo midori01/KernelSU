@@ -2,4 +2,4 @@
 -shrinkunusedprotofields
 
 # Commons-compress
--dontwarn com.github.luben.zstd.**
+-keep class com.github.luben.zstd.** { *; }
