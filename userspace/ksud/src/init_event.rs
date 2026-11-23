@@ -68,6 +68,9 @@ pub fn on_post_fs_data() -> Result<()> {
         warn!("prune modules failed: {e}");
     }
 
+    // The modules whose boot stages run from here on, for automatic hot installs
+    crate::hot_install::record_active_modules();
+
     // Refresh /metadata/watchdog/ksu/{modules.rc,preinit/} so the next boot's kernel hook sees the
     // current module set. Acts as a safety net when state was changed outside
     // of ksud's normal mutation commands.
