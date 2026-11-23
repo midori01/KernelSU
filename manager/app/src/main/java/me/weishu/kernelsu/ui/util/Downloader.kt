@@ -9,6 +9,9 @@ import me.weishu.kernelsu.data.registry.ExpectedFile
 import me.weishu.kernelsu.ksuApp
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 import okhttp3.Request
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /**
  * @author weishu
@@ -53,7 +56,7 @@ internal suspend fun isDownloadAvailable(uri: Uri): Boolean = withContext(Dispat
 
 fun checkNewVersion(): LatestVersionInfo {
     if (!isNetworkAvailable(ksuApp)) return LatestVersionInfo()
-    val url = "https://api.github.com/repos/tiann/KernelSU/releases/latest"
+    val url = "https://api.github.com/repos/midori01/KernelSU/releases/latest"
     // default null value if failed
     val defaultValue = LatestVersionInfo()
     runCatching {
@@ -65,6 +68,7 @@ fun checkNewVersion(): LatestVersionInfo {
                 val body = response.body.string()
                 val json = org.json.JSONObject(body)
                 val changelog = json.optString("body")
+                val tagName = json.optString("tag_name")
 
                 val assets = json.getJSONArray("assets")
                 for (i in 0 until assets.length()) {
@@ -74,16 +78,17 @@ fun checkNewVersion(): LatestVersionInfo {
                         continue
                     }
 
-                    val regex = Regex("v(.+?)_(\\d+)-")
+                    val regex = Regex("MidoriSU_(.+?)_(\\d+)-")
                     val matchResult = regex.find(name) ?: continue
-                    matchResult.groupValues[1]
                     val versionCode = matchResult.groupValues[2].toInt()
                     val downloadUrl = asset.getString("browser_download_url")
 
                     return LatestVersionInfo(
                         versionCode,
                         downloadUrl,
-                        changelog
+                        changelog,
+                        tagName,
+                        parseReleaseTagTime(tagName)
                     )
                 }
 
@@ -91,3 +96,10 @@ fun checkNewVersion(): LatestVersionInfo {
     }
     return defaultValue
 }
+
+// CI tags releases with the manager's BUILD_TIME in Asia/Tokyo, e.g. 2026.10.30-081500
+private fun parseReleaseTagTime(tag: String): Long = runCatching {
+    LocalDateTime.parse(tag, DateTimeFormatter.ofPattern("uuuu.MM.dd-HHmmss"))
+        .atZone(ZoneId.of("Asia/Tokyo"))
+        .toEpochSecond()
+}.getOrDefault(0L)
