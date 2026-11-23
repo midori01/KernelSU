@@ -154,6 +154,12 @@ enum Commands {
         command: crate::susfs::cli::SusfsCommands,
     },
 
+    /// Manage TCP tuning
+    Tcp {
+        #[command(subcommand)]
+        command: crate::tcp::cli::TcpCommands,
+    },
+
     /// Manage the kernel module blocklist
     KmodBlock {
         #[command(subcommand)]
@@ -841,6 +847,7 @@ pub fn run() -> Result<()> {
             crate::resetprop::resetprop_main(&full_args)
         }
         Commands::Susfs { command } => crate::susfs::cli::run_susfs(command),
+        Commands::Tcp { command } => crate::tcp::cli::run_tcp(command),
         Commands::KmodBlock { command } => crate::kmod_block::run(command),
 
         Commands::Kernel { command } => match command {

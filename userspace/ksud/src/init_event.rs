@@ -113,6 +113,7 @@ pub fn on_post_fs_data() -> Result<()> {
     }
 
     crate::susfs::boot::on_post_fs_data_late();
+    crate::tcp::boot::on_post_fs_data();
 
     // load system.prop
     if let Err(e) = crate::module::load_system_prop() {

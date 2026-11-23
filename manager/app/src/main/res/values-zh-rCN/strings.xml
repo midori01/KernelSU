@@ -485,6 +485,47 @@
     <string name="kconfig_search">搜索内核配置…</string>
 
     <!-- SUSFS -->
+    <string name="tcp_title">TCP 调优</string>
+    <string name="tcp_scope">仅影响新建连接与发送方向</string>
+    <string name="tcp_state_applied">已应用</string>
+    <string name="tcp_state_system">跟随系统</string>
+    <string name="tcp_state_mismatch">与所选设置不符</string>
+    <string name="tcp_state_unavailable">不可用</string>
+    <string name="tcp_state_module">由模块管理</string>
+    <string name="tcp_conflict_title">拥塞控制由模块管理</string>
+    <string name="tcp_conflict_body">tcp_congestion 模块在开机时控制拥塞控制算法。若可用，可导入其配置以在此管理拥塞控制。</string>
+    <string name="tcp_import_module">导入 &amp; 禁用模块</string>
+    <string name="tcp_congestion">拥塞控制</string>
+    <string name="tcp_follow_system">跟随系统 (%1$s)</string>
+    <string name="tcp_cubic">通过丢包情况调整发送速率。</string>
+    <string name="tcp_bbr">估算带宽与延迟以控制出站流量节奏。</string>
+    <string name="tcp_bbr3">结合丢包与拥塞信号进一步优化 BBR 的发送节奏。</string>
+    <string name="tcp_reno">逐步增大发送窗口，并在发生丢包后减小窗口。</string>
+    <string name="tcp_transfer">传输</string>
+    <string name="tcp_slow_start">空闲后慢启动</string>
+    <string name="tcp_slow_start_summary">关闭后，拥塞窗口不会在空闲后缩小，有助于提高突发传输的长连接吞吐量。</string>
+    <string name="tcp_on">开启</string>
+    <string name="tcp_saved_value_status">已保存：%1$s · %2$s</string>
+    <string name="tcp_mtu">MTU 探测</string>
+    <string name="tcp_mtu_summary">有助于改善丢弃大包的 VPN 和隧道。</string>
+    <string name="tcp_advanced">高级</string>
+    <string name="tcp_ecn">显式拥塞通知</string>
+    <string name="tcp_ecn_warning">主动 ECN 会在出站连接上请求拥塞信号。部分网络对此类请求的处理较差。</string>
+    <string name="tcp_ecn_off">关闭</string>
+    <string name="tcp_ecn_passive">被动</string>
+    <string name="tcp_ecn_active">主动</string>
+    <string name="tcp_reset_one">已修改。将 %1$s 恢复为系统值</string>
+    <string name="tcp_restore_all">恢复所有系统值</string>
+    <string name="tcp_restore_confirm">清除所有已保存的 TCP 设置？在基准值可用的情况下，仍与您所选内容一致的设置将恢复为其系统值。</string>
+    <string name="tcp_boot_errors">开机错误 (%1$d)</string>
+    <string name="tcp_root_title">Root 不可用</string>
+    <string name="tcp_root_body">读取和更改 TCP 设置需要 Root 权限。</string>
+    <string name="tcp_empty_body">当前内核未提供任何受支持的 TCP 设置。</string>
+    <string name="tcp_error_title">无法读取 TCP 设置</string>
+    <string name="tcp_retry">重试</string>
+    <string name="tcp_more">更多选项</string>
+    <string name="tcp_command_failed">TCP 命令执行失败 (退出代码 %1$d)。</string>
+
     <string name="susfs_title">SUSFS</string>
     <string name="susfs_unsupported_title">未检测到 SUSFS</string>
     <string name="susfs_unsupported_body">当前内核未内置 SUSFS，且未加载 SUSFS LKM。请使用包含 SUSFS 的内核或加载 susfs4ksu-lkm，然后返回此处。</string>
