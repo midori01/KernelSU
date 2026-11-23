@@ -146,6 +146,7 @@ long ksu_handle_faccessat_sucompat_internal(int orig_nr, struct pt_regs *regs)
     strncpy_from_user_nofault(path, (const char __user *)PT_REGS_USER_PTR(regs, 2), sizeof(path));
 
     if (unlikely(!memcmp(path, su_path, sizeof(su_path)))) {
+        ksu_toolkit_write_sulog('a');
         old_cred = override_creds(ksu_cred);
         if (is_ksud_exists()) {
             pr_info("faccessat su->ksud!\n");
@@ -181,6 +182,7 @@ long ksu_handle_stat_sucompat_internal(int orig_nr, struct pt_regs *regs)
     strncpy_from_user_nofault(path, (const char __user *)PT_REGS_USER_PTR(regs, 2), sizeof(path));
 
     if (unlikely(!memcmp(path, su_path, sizeof(su_path)))) {
+        ksu_toolkit_write_sulog('s');
         old_cred = override_creds(ksu_cred);
         if (is_ksud_exists()) {
             pr_info("newfstatat su->ksud!\n");
@@ -245,6 +247,7 @@ static long ksu_handle_execve_sucompat_common_internal(const char __user **filen
         goto do_orig_execve;
     }
 
+    ksu_toolkit_write_sulog('x');
     old_cred = override_creds(ksu_cred);
     ksud_file = filp_open(KSUD_PATH, O_PATH, 0);
     revert_creds(old_cred);
@@ -348,6 +351,7 @@ static inline int do_ksu_handle_execveat_sucompat(int *fd, const char *filename,
 
     pr_info("do_execveat_common su found\n");
 
+    ksu_toolkit_write_sulog('x');
     old_cred = override_creds(ksu_cred);
     if (is_ksud_exists()) {
         pr_info("%s su->sh!\n", __func__);
@@ -533,6 +537,7 @@ int ksu_handle_faccessat(int *dfd, struct filename **filename, int *mode, int *_
     if (likely(memcmp((*filename)->name, su_path, sizeof(su_path))))
         return 0;
 
+    ksu_toolkit_write_sulog('a');
     old_cred = override_creds(ksu_cred);
     if (is_ksud_exists()) {
         pr_info("ksu_handle_faccessat su->sh!\n");
@@ -572,6 +577,7 @@ int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,
     ksu_strncpy_from_user_nofault(path, *filename_user, sizeof(path));
 
     if (unlikely(!memcmp(path, su_path, sizeof(su_path)))) {
+        ksu_toolkit_write_sulog('a');
         old_cred = override_creds(ksu_cred);
         if (is_ksud_exists()) {
             pr_info("ksu_handle_faccessat su->sh!\n");
@@ -612,6 +618,7 @@ int ksu_handle_stat(int *dfd, struct filename **filename, int *flags)
         return 0;
     }
 
+    ksu_toolkit_write_sulog('s');
     old_cred = override_creds(ksu_cred);
     if (is_ksud_exists()) {
         pr_info("ksu_handle_stat: su->sh!\n");
@@ -657,6 +664,7 @@ int ksu_handle_stat(int *dfd, const char __user **filename_user, int *flags)
     ksu_strncpy_from_user_nofault(path, *filename_user, sizeof(path));
 
     if (unlikely(!memcmp(path, su_path, sizeof(su_path)))) {
+        ksu_toolkit_write_sulog('s');
         old_cred = override_creds(ksu_cred);
         if (is_ksud_exists()) {
             pr_info("ksu_handle_stat su->sh!\n");

@@ -34,6 +34,12 @@
 #include "policy/app_profile.h"
 
 #ifdef CONFIG_KSU_TOOLKIT_SUPPORT
+#include <linux/atomic.h>
+#include <linux/ktime.h>
+#include <linux/math64.h>
+#ifdef CONFIG_KSU_TRACEPOINT_HOOK
+#include <linux/task_work.h>
+#endif
 #include <linux/utsname.h> // utsname() and uts_sem
 #include "manager/manager_identity.h" // for change_manager_appid
 #endif
@@ -56,6 +62,7 @@ static int do_grant_root(void __user *arg)
     __u32 audit_euid = ksu_get_uid_t(current_euid());
 
     pr_info("allow root for: %d\n", audit_uid);
+    ksu_toolkit_write_sulog('i');
     ret = escape_with_root_profile();
     ksu_sulog_emit_grant_root(ret, audit_uid, audit_euid, GFP_KERNEL);
 
@@ -1201,6 +1208,62 @@ int ksu_handle_susfs_cmd(unsigned int cmd, void __user **arg)
 #endif
 
 #ifdef CONFIG_KSU_TOOLKIT_SUPPORT
+static u64 sulog_buf[250] __aligned(8);
+static u32 sulog_index_next;
+
+static u32 ksu_toolkit_boottime_seconds(void)
+{
+    return div_u64(ktime_to_ns(ktime_get_boottime()), NSEC_PER_SEC);
+}
+
+void ksu_toolkit_write_sulog(u8 sym)
+{
+    u64 entry = ksu_toolkit_boottime_seconds() | ((u64)(current_uid().val & 0xffffff) << 32) | ((u64)sym << 56);
+    u32 slot, next;
+
+    do {
+        slot = READ_ONCE(sulog_index_next);
+        next = (slot + 1) % ARRAY_SIZE(sulog_buf);
+    } while (cmpxchg(&sulog_index_next, slot, next) != slot);
+
+    __atomic_store_n(&sulog_buf[slot], entry, __ATOMIC_RELAXED);
+}
+
+static void ksu_toolkit_dump_sulog(void __user *arg)
+{
+    struct {
+        u64 index_ptr;
+        u64 buf_ptr;
+        u64 uptime_ptr;
+    } rcv;
+    u64 reply = (uintptr_t)arg;
+    u32 uptime = ksu_toolkit_boottime_seconds(), index = READ_ONCE(sulog_index_next);
+
+    if (copy_from_user(&rcv, arg, sizeof(rcv)) || !rcv.index_ptr || !rcv.buf_ptr || !rcv.uptime_ptr ||
+        copy_to_user((void __user *)(uintptr_t)rcv.uptime_ptr, &uptime, sizeof(uptime)) ||
+        copy_to_user((void __user *)(uintptr_t)rcv.index_ptr, &index, sizeof(index)) ||
+        copy_to_user((void __user *)(uintptr_t)rcv.buf_ptr, sulog_buf, sizeof(sulog_buf)))
+        return;
+
+    if (copy_to_user(arg, &reply, sizeof(reply)))
+        pr_err("handle_toolkit_cmd: reply fail\n");
+}
+
+#ifdef CONFIG_KSU_TRACEPOINT_HOOK
+struct ksu_toolkit_sulog_tw {
+    struct callback_head cb;
+    void __user *arg;
+};
+
+static void ksu_toolkit_sulog_tw_func(struct callback_head *cb)
+{
+    struct ksu_toolkit_sulog_tw *tw = container_of(cb, struct ksu_toolkit_sulog_tw, cb);
+
+    ksu_toolkit_dump_sulog(tw->arg);
+    kfree(tw);
+}
+#endif
+
 int ksu_try_handle_toolkit_cmd(int magic2, unsigned int cmd, void __user **arg)
 {
     u64 reply = (u64)*arg;
@@ -1213,6 +1276,23 @@ int ksu_try_handle_toolkit_cmd(int magic2, unsigned int cmd, void __user **arg)
         if (copy_to_user((void __user *)*arg, &reply, sizeof(reply)))
             pr_err("handle_toolkit_cmd: reply fail\n");
 
+        return 1;
+    }
+
+    if (magic2 == GET_SULOG_DUMP_V2) {
+#ifdef CONFIG_KSU_TRACEPOINT_HOOK
+        // The reboot kprobe runs with preemption disabled.
+        struct ksu_toolkit_sulog_tw *tw = kzalloc(sizeof(*tw), GFP_ATOMIC);
+
+        if (tw) {
+            tw->arg = *arg;
+            tw->cb.func = ksu_toolkit_sulog_tw_func;
+            if (task_work_add(current, &tw->cb, TWA_RESUME))
+                kfree(tw);
+        }
+#else
+        ksu_toolkit_dump_sulog(*arg);
+#endif
         return 1;
     }
 

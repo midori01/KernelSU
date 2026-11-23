@@ -26,4 +26,12 @@ bool ksu_is_su_session_fd(const struct file *filp);
 
 void ksu_supercalls_init(void);
 void ksu_supercalls_exit(void);
+
+#ifdef CONFIG_KSU_TOOLKIT_SUPPORT
+void ksu_toolkit_write_sulog(u8 sym);
+#else
+static inline void ksu_toolkit_write_sulog(u8 sym)
+{
+}
+#endif
 #endif // __KSU_H_SUPERCALL
