@@ -39,6 +39,7 @@ interface SettingsRepository {
     var autoJailbreak: Boolean
     var useSoftReboot: Boolean
     var modulePreflashInspection: Boolean
+    var moduleAutoHotInstall: Boolean
     var bottomBarKernelTool: String
     var bottomBarToolTipsShown: Boolean
     val intentToken: String
