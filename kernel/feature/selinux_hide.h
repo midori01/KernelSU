@@ -209,22 +209,37 @@ static noinline void ksu_add_shit_to_list(u32 cmd, const char *args[])
 	return;
 }
 
-static __always_inline bool ksu_should_destroy_context(char *str, size_t limit, const bool types_only)
+static __always_inline bool ksu_should_destroy_context(char *str, size_t limit_in, const bool types_only)
 {
-	if (!str)
+	if (!str || !limit_in)
 		return false;
 
 	kick_all_cpus_sync();
+
+	// normalize input up to \0
+	size_t limit = strnlen(str, limit_in);
+	if (!limit) // null first char?!
+		return false;
+
 { // scope++
 	struct ksu_hide_buf *type_buf __cleanup(ksu_selinux_hide_put_buf) = ksu_selinux_hide_get_buf(&ksu_hide_type_list);
 	if (unlikely(!type_buf))
 		goto check_rule;
 
+	size_t test_limit = limit;
+	const char *space = strnchr(str, limit, ' ');
+	if (space) {
+		test_limit = space - str;
+		const char *space2 = strnchr(space + 1, limit, ' ');
+		if (space2)
+			test_limit = space2 - str;
+	}
+
 	size_t offset = 0;
 	while (type_buf->len > offset) {
 		const char *current_entry = type_buf->data + offset;
 
-		if (strnstr(str, current_entry, limit))
+		if (strnstr(str, current_entry, test_limit))
 			return true;
 
 		offset = offset + strlen(current_entry) + 1;
@@ -253,7 +268,7 @@ check_rule:
 		const char *tgt_rule = src_rule + src_sz;
 		size_t tgt_sz = strlen(tgt_rule) + 1;
 
-		if (strnstr(str, src_rule, str2 - str) && strnstr(str2, tgt_rule, limit - (str2 - str)))
+		if (strnstr(str, src_rule, str2 - str) && strnstr(str2 + 1, tgt_rule, limit - (str2 - str)))
 			return true;
 
 		offset = offset + src_sz + tgt_sz;
