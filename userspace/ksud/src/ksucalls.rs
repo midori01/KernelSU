@@ -32,6 +32,11 @@ fn take_sigsys_occurred() -> bool {
     SIGSYS_OCCURRED.with(|occurred| occurred.replace(false))
 }
 
+pub fn with_toolkit_svc_call(call: impl FnOnce()) {
+    with_svc_call(call);
+    let _ = take_sigsys_occurred();
+}
+
 extern "C" fn sigsys_handler(
     _sig: libc::c_int,
     info: *mut libc::siginfo_t,
@@ -141,7 +146,8 @@ fn init_driver_fd() -> Option<RawFd> {
 }
 
 // ioctl wrapper using libc
-fn ksuctl<T>(request: u32, arg: *mut T) -> Result<i32> {
+#[allow(clippy::redundant_pub_crate)]
+pub(crate) fn ksuctl<T>(request: u32, arg: *mut T) -> Result<i32> {
     let fd = *DRIVER_FD.get_or_init(|| init_driver_fd().unwrap_or(-1));
     if fd < 0 {
         bail!("could not retrieve kernelsu driver fd")
@@ -155,6 +161,19 @@ fn ksuctl<T>(request: u32, arg: *mut T) -> Result<i32> {
     }
 }
 
+#[allow(clippy::redundant_pub_crate)]
+pub(crate) fn ksuctl_io<T>(request: u32, arg: *mut T) -> io::Result<i32> {
+    let fd = *DRIVER_FD.get_or_init(|| init_driver_fd().unwrap_or(-1));
+    if fd < 0 {
+        return Err(io::Error::from_raw_os_error(libc::ENODEV));
+    }
+    let ret = unsafe { libc::ioctl(fd, request as i32, arg) };
+    if ret < 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(ret)
+}
+
 // API implementations
 pub fn get_info() -> ksu_uapi::ksu_get_info_cmd {
     *INFO_CACHE.get_or_init(|| {
@@ -164,8 +183,18 @@ pub fn get_info() -> ksu_uapi::ksu_get_info_cmd {
             features: 0,
             uapi_version: 0,
         };
+        let mut live = false;
+        let mut ksuctl = |request, arg| {
+            let result = self::ksuctl(request, arg);
+            live |= result.is_ok();
+            result
+        };
         if ksuctl(ksu_uapi::KSU_IOCTL_GET_INFO, &raw mut cmd).is_err() {
             let _ = ksuctl(ksu_uapi::KSU_IOCTL_GET_INFO_LEGACY, &raw mut cmd);
+        }
+        if live && let Some(real) = crate::toolkit::real::load() {
+            cmd.version = real.version;
+            cmd.flags = real.flags;
         }
         cmd
     })
@@ -173,6 +202,18 @@ pub fn get_info() -> ksu_uapi::ksu_get_info_cmd {
 
 pub fn get_version() -> i32 {
     get_info().version as i32
+}
+
+pub fn get_info_fresh() -> Result<ksu_uapi::ksu_get_info_cmd> {
+    let mut cmd = ksu_uapi::ksu_get_info_cmd {
+        version: 0,
+        flags: 0,
+        features: 0,
+        uapi_version: 0,
+    };
+    ksuctl(ksu_uapi::KSU_IOCTL_GET_INFO, &raw mut cmd)
+        .or_else(|_| ksuctl(ksu_uapi::KSU_IOCTL_GET_INFO_LEGACY, &raw mut cmd))?;
+    Ok(cmd)
 }
 
 pub fn is_late_load() -> bool {

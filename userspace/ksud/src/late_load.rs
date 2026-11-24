@@ -132,9 +132,11 @@ pub fn run(package_name: &String, kmi: Option<String>, allow_shell: bool) -> Res
     init_event::run_stage("post-mount", wait);
 
     // 12. Execute service stage scripts (non-blocking)
+    crate::toolkit::boot::on_late_load_services();
     init_event::run_stage("service", ScriptWait::NoWait);
 
     // 13. Execute boot-completed stage scripts (non-blocking)
+    crate::toolkit::boot::on_boot_completed();
     init_event::run_stage("boot-completed", ScriptWait::NoWait);
 
     // 14. Restart Manager so it gets a fresh ksu fd from the newly loaded kernel module

@@ -112,6 +112,22 @@ sealed interface Route : NavKey, Parcelable {
 
     @Parcelize
     @Serializable
+    data object Toolkit : Route
+
+    @Parcelize
+    @Serializable
+    data object ToolkitUmount : Route
+
+    @Parcelize
+    @Serializable
+    data object ToolkitSulog : Route
+
+    @Parcelize
+    @Serializable
+    data object ToolkitBench : Route
+
+    @Parcelize
+    @Serializable
     data object Susfs : Route
 
     @Parcelize

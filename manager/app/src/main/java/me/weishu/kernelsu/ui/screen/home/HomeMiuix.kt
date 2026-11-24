@@ -130,6 +130,7 @@ import me.weishu.kernelsu.ui.component.miuix.WarningCard
 import me.weishu.kernelsu.ui.component.rebootlistpopup.RebootListPopupMiuix
 import me.weishu.kernelsu.ui.component.statustag.StatusTag
 import me.weishu.kernelsu.ui.navigation3.Navigator
+import me.weishu.kernelsu.ui.screen.toolkit.ToolkitRecoveryCard
 import me.weishu.kernelsu.ui.theme.LocalAppIconMode
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.theme.isInDarkTheme
@@ -208,6 +209,7 @@ fun HomePagerMiuix(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
+                        if (state.isRootAvailable) ToolkitRecoveryCard()
                         if (state.modernBento) {
                             BentoSmartPill(state = state, actions = actions)
                             BentoHeroCard(

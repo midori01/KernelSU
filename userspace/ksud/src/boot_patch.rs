@@ -55,6 +55,8 @@ mod android {
     pub fn get_kernel_version() -> Result<(i32, i32, i32)> {
         let uname = rustix::system::uname();
         let version = uname.release().to_string_lossy();
+        let version = crate::toolkit::real::load()
+            .map_or(version, |real| std::borrow::Cow::Owned(real.release));
         let re = Regex::new(r"(\d+)\.(\d+)\.(\d+)")?;
         if let Some(captures) = re.captures(&version) {
             let major = captures
@@ -86,6 +88,9 @@ mod android {
     }
 
     fn parse_kmi_from_uname() -> Result<String> {
+        if let Some(real) = crate::toolkit::real::load() {
+            return parse_kmi(&real.release);
+        }
         let uname = rustix::system::uname();
         let version = uname.release().to_string_lossy();
         parse_kmi(&version)

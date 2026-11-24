@@ -18,6 +18,7 @@ mod android {
     pub const SULOGD_LOCK_PATH: &str = concatcp!(WORKING_DIR, "sulogd.lock");
     pub const SUSFS_DIR: &str = concatcp!(WORKING_DIR, "susfs/");
     pub const TCP_DIR: &str = concatcp!(WORKING_DIR, "tcp/");
+    pub const TOOLKIT_DIR: &str = concatcp!(WORKING_DIR, "toolkit/");
 
     pub const PROFILE_DIR: &str = concatcp!(WORKING_DIR, "profile/");
     pub const PROFILE_SELINUX_DIR: &str = concatcp!(PROFILE_DIR, "selinux/");

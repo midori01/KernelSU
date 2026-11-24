@@ -47,6 +47,13 @@ mod android {
             }
         }
 
+        let toolkit_path = std::path::Path::new(BINARY_DIR).join("toolkit");
+        match std::os::unix::fs::symlink(ksud_target, &toolkit_path) {
+            Ok(()) => {}
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {}
+            Err(e) => log::warn!("failed to symlink toolkit to {ksud_target}: {e}"),
+        }
+
         Ok(())
     }
 }
