@@ -240,6 +240,7 @@ fun SearchBar(
     searchStatus: SearchStatus,
     onSearchStatusChange: (SearchStatus) -> Unit,
     searchBarTopPadding: Dp = 12.dp,
+    trailing: @Composable (() -> Unit)? = null,
 ) {
     val focusRequester = remember { FocusRequester() }
     var textFieldValue by remember { mutableStateOf(TextFieldValue(searchStatus.searchText)) }
@@ -292,21 +293,24 @@ fun SearchBar(
                     enter = fadeIn() + scaleIn(),
                     exit = fadeOut() + scaleOut(),
                 ) {
-                    Icon(
-                        imageVector = MiuixIcons.Basic.SearchCleanup,
-                        tint = colorScheme.onSurface,
-                        contentDescription = "Clean",
-                        modifier = Modifier
-                            .size(44.dp)
-                            .padding(start = 8.dp, end = 16.dp)
-                            .clickable(
-                                interactionSource = null,
-                                indication = null
-                            ) {
-                                textFieldValue = TextFieldValue("")
-                                onSearchStatusChange(searchStatus.copy(searchText = ""))
-                            },
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (searchStatus.searchText.isNotBlank()) trailing?.invoke()
+                        Icon(
+                            imageVector = MiuixIcons.Basic.SearchCleanup,
+                            tint = colorScheme.onSurface,
+                            contentDescription = "Clean",
+                            modifier = Modifier
+                                .size(44.dp)
+                                .padding(start = 8.dp, end = 16.dp)
+                                .clickable(
+                                    interactionSource = null,
+                                    indication = null
+                                ) {
+                                    textFieldValue = TextFieldValue("")
+                                    onSearchStatusChange(searchStatus.copy(searchText = ""))
+                                },
+                        )
+                    }
                 }
             }
         }

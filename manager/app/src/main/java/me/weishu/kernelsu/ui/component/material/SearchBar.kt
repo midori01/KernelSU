@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -66,6 +67,7 @@ fun SearchAppBar(
     snackbarHostState: SnackbarHostState,
     navigationIcon: @Composable (() -> Unit)? = null,
     actions: @Composable (() -> Unit)? = null,
+    searchActions: @Composable (() -> Unit)? = null,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     defaultContent: @Composable BoxScope.(bottomPadding: Dp, closeSearch: () -> Unit) -> Unit = { _, _ -> },
     searchContent: @Composable BoxScope.(bottomPadding: Dp, closeSearch: () -> Unit) -> Unit = { _, _ -> }
@@ -169,10 +171,13 @@ fun SearchAppBar(
                 },
                 trailingIcon = {
                     if (isSearchExpanded && currentQuery.isNotEmpty()) {
-                        IconButton(
-                            onClick = { clearSearchText() },
-                            content = { Icon(Icons.Filled.Close, null) }
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (currentQuery.isNotBlank()) searchActions?.invoke()
+                            IconButton(
+                                onClick = { clearSearchText() },
+                                content = { Icon(Icons.Filled.Close, null) }
+                            )
+                        }
                     }
                 },
                 interactionSource = interactionSource
