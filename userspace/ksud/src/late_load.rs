@@ -92,6 +92,9 @@ pub fn run(package_name: &String, kmi: Option<String>, allow_shell: bool) -> Res
         warn!("prune modules failed: {e}");
     }
 
+    // The modules whose boot stages run from here on, for automatic hot installs
+    crate::hot_install::record_active_modules();
+
     if let Err(e) = restorecon::restorecon() {
         warn!("restorecon failed: {e}");
     }
