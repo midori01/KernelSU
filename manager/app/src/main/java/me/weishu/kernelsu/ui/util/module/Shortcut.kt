@@ -20,8 +20,7 @@ import androidx.core.graphics.scale
 import androidx.core.net.toUri
 import com.topjohnwu.superuser.io.SuFile
 import com.topjohnwu.superuser.io.SuFileInputStream
-import me.weishu.kernelsu.MainActivityKowsu
-import me.weishu.kernelsu.MainActivityOfficial
+import me.weishu.kernelsu.ui.MainActivity
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
 import me.weishu.kernelsu.ui.screen.module.ShortcutType
@@ -58,7 +57,7 @@ object Shortcut {
     ) {
         val shortcutId = "module_action_$moduleId"
         val shortcutIntent = Intent().apply {
-            component = getLauncherComponent(context)
+            component = ComponentName(context, MainActivity::class.java)
             action = Intent.ACTION_VIEW
             data = buildShortcutUri(moduleId, ShortcutType.Action)
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -82,7 +81,7 @@ object Shortcut {
     ) {
         val shortcutId = "module_webui_$moduleId"
         val shortcutIntent = Intent().apply {
-            component = getLauncherComponent(context)
+            component = ComponentName(context, MainActivity::class.java)
             action = Intent.ACTION_VIEW
             data = buildShortcutUri(moduleId, ShortcutType.WebUI)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -298,19 +297,13 @@ object Shortcut {
 
     fun getDefaultIconBitmap(context: Context): Bitmap? {
         val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val isOfficial = prefs.getBoolean("enable_official_launcher", false)
-        val resId = if (isOfficial) R.mipmap.ic_launcher_official else R.mipmap.ic_launcher_kowsu
-        return getBitmapFromVectorDrawable(context, resId)
-    }
-
-    fun getLauncherComponent(context: Context): ComponentName {
-        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val isOfficial = prefs.getBoolean("enable_official_launcher", false)
-        return if (isOfficial) {
-            ComponentName(context, MainActivityOfficial::class.java)
-        } else {
-            ComponentName(context, MainActivityKowsu::class.java)
+        val appIconMode = prefs.getInt("app_icon_mode", 0)
+        val resId = when (appIconMode) {
+            1 -> R.mipmap.ic_launcher_kowsu
+            2 -> R.mipmap.ic_launcher_official
+            else -> R.mipmap.ic_launcher_midorisu
         }
+        return getBitmapFromVectorDrawable(context, resId)
     }
 
     private fun getBitmapFromVectorDrawable(context: Context, drawableId: Int): Bitmap? {
