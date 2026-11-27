@@ -1,8 +1,6 @@
 package me.weishu.kernelsu.ui.screen.colorpalette
 
 import android.annotation.SuppressLint
-import android.content.ComponentName
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -77,9 +75,8 @@ import androidx.compose.ui.unit.sp
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
+import me.weishu.kernelsu.KernelSUApplication
 import me.weishu.kernelsu.R
-import me.weishu.kernelsu.MainActivityKowsu
-import me.weishu.kernelsu.MainActivityOfficial
 import me.weishu.kernelsu.ui.component.bottombar.useNavigationRail
 import me.weishu.kernelsu.ui.component.miuix.ScaleDialog
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
@@ -174,7 +171,7 @@ fun ColorPaletteScreenMiuix(
                         enableFloatingBottomBarBlur = uiState.enableFloatingBottomBarBlur,
                         paletteStyle = state.currentPaletteStyle,
                         colorSpec = state.currentColorSpec,
-                        officialIcon = uiState.enableOfficialLauncher,
+                        appIconMode = uiState.appIconMode,
                     )
                     Spacer(modifier = Modifier.height(72.dp))
 
@@ -302,30 +299,36 @@ fun ColorPaletteScreenMiuix(
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
                     ) {
-                        SwitchPreference(
-                            title = stringResource(id = R.string.settings_official_icon),
+                        val iconModes = listOf(
+                            stringResource(R.string.app_name_midorisu),
+                            stringResource(R.string.app_name_kowsu),
+                            stringResource(R.string.app_name_official),
+                        )
+                        OverlayDropdownPreference(
+                            title = stringResource(id = R.string.settings_app_icon),
+                            items = iconModes,
                             startAction = {
+                                val iconRes = when (uiState.appIconMode) {
+                                    0 -> R.drawable.ic_launcher_midorisu
+                                    1 -> R.drawable.ic_launcher_kowsu
+                                    2 -> R.drawable.ic_launcher_monochrome
+                                    else -> R.drawable.ic_launcher_midorisu
+                                }
                                 Icon(
-                                    painter = painterResource(R.drawable.ic_launcher_monochrome),
-                                    contentDescription = stringResource(id = R.string.settings_official_icon),
+                                    painter = painterResource(iconRes),
                                     modifier = Modifier
                                         .padding(end = 6.dp)
                                         .size(24.dp)
                                         .wrapContentSize(unbounded = true)
                                         .requiredSize(48.dp),
+                                    contentDescription = stringResource(id = R.string.settings_app_icon),
                                     tint = colorScheme.onBackground
                                 )
                             },
-                            checked = uiState.enableOfficialLauncher,
-                            onCheckedChange = { enabled ->
-                                actions.onSetEnableOfficialLauncher(enabled)
-                                val pm = context.packageManager
-                                val kowsuComponent = ComponentName(context, MainActivityKowsu::class.java)
-                                val officialComponent = ComponentName(context, MainActivityOfficial::class.java)
-                                val (enableComp, disableComp) = if (enabled) officialComponent to kowsuComponent else kowsuComponent to officialComponent
-
-                                pm.setComponentEnabledSetting(enableComp, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-                                pm.setComponentEnabledSetting(disableComp, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+                            selectedIndex = uiState.appIconMode,
+                            onSelectedIndexChange = { mode ->
+                                actions.onSetAppIconMode(mode)
+                                KernelSUApplication.applyLauncherIconMode(context, mode)
                             }
                         )
 
@@ -590,7 +593,7 @@ private fun ThemePreviewCardMiuix(
     enableFloatingBottomBarBlur: Boolean = false,
     paletteStyle: PaletteStyle = PaletteStyle.TonalSpot,
     colorSpec: ColorSpec.SpecVersion = ColorSpec.SpecVersion.SPEC_2021,
-    officialIcon: Boolean = false,
+    appIconMode: Int = 0,
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.toFloat()
@@ -645,7 +648,12 @@ private fun ThemePreviewCardMiuix(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (officialIcon) stringResource(R.string.app_name_official) else stringResource(R.string.app_name),
+                            text = when (appIconMode) {
+                            0 -> stringResource(R.string.app_name_midorisu)
+                            1 -> stringResource(R.string.app_name_kowsu)
+                            2 -> stringResource(R.string.app_name_official)
+                            else -> stringResource(R.string.app_name_midorisu)
+                        },
                             fontSize = 12.sp,
                             color = textColor
                         )

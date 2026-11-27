@@ -1,8 +1,6 @@
 package me.weishu.kernelsu.ui.screen.colorpalette
 
 import android.annotation.SuppressLint
-import android.content.ComponentName
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -72,6 +70,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSliderState
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -92,12 +91,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
+import me.weishu.kernelsu.KernelSUApplication
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.bottombar.useNavigationRail
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.ExpressiveToggleButton
-import me.weishu.kernelsu.MainActivityKowsu
-import me.weishu.kernelsu.MainActivityOfficial
 import me.weishu.kernelsu.ui.component.material.SegmentedColumn
 import me.weishu.kernelsu.ui.component.material.SegmentedDropdownItem
 import me.weishu.kernelsu.ui.component.material.SegmentedSwitchItem
@@ -156,7 +154,7 @@ fun ColorPaletteScreenMaterial(
                     isAmoled = isAmoled,
                     paletteStyle = colorStyle,
                     colorSpec = colorSpec,
-                    officialIcon = uiState.enableOfficialLauncher,
+                    appIconMode = uiState.appIconMode,
                     classicUi = uiState.classicUi,
                 )
             }
@@ -258,21 +256,15 @@ fun ColorPaletteScreenMaterial(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
                 ) {
-                    val launcherOptions = listOf(false, true)
-                    launcherOptions.forEachIndexed { index, isOfficial ->
+                    val launcherOptions = listOf(0, 1, 2)
+                    launcherOptions.forEachIndexed { index, mode ->
                         ExpressiveToggleButton(
-                            checked = uiState.enableOfficialLauncher == isOfficial,
+                            checked = uiState.appIconMode == mode,
                             onCheckedChange = { enabled ->
                                 if (enabled) {
-                                    actions.onSetEnableOfficialLauncher(isOfficial)
-                                    val pm = context.packageManager
-                                    val kowsuComponent = ComponentName(context, MainActivityKowsu::class.java)
-                                    val officialComponent = ComponentName(context, MainActivityOfficial::class.java)
-                                    val (enableComp, disableComp) = if (isOfficial) officialComponent to kowsuComponent else kowsuComponent to officialComponent
-
+                                    actions.onSetAppIconMode(mode)
+                                    KernelSUApplication.applyLauncherIconMode(context, mode)
                                     haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
-                                    pm.setComponentEnabledSetting(enableComp, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-                                    pm.setComponentEnabledSetting(disableComp, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
                                 }
                             },
                             modifier = Modifier
@@ -280,7 +272,7 @@ fun ColorPaletteScreenMaterial(
                                 .semantics { role = Role.RadioButton },
                             shapes = when (index) {
                                 0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                                1 -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                2 -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                                 else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                             },
                         ) {
@@ -289,14 +281,28 @@ fun ColorPaletteScreenMaterial(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    painter = painterResource(id = if (isOfficial) R.drawable.ic_launcher_monochrome else R.drawable.ic_launcher_kowsu),
+                                    painter = painterResource(
+                                        id = when (mode) {
+                                            0 -> R.drawable.ic_launcher_midorisu
+                                            1 -> R.drawable.ic_launcher_kowsu
+                                            2 -> R.drawable.ic_launcher_monochrome
+                                            else -> R.drawable.ic_launcher_midorisu
+                                        }
+                                    ),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(24.dp)
                                         .wrapContentSize(unbounded = true)
                                         .requiredSize(48.dp)
                                 )
-                                Text(if (isOfficial) stringResource(R.string.app_name_official) else stringResource(R.string.app_name))
+                                Text(
+                                    when (mode) {
+                                        0 -> stringResource(R.string.app_name_midorisu)
+                                        1 -> stringResource(R.string.app_name_kowsu)
+                                        2 -> stringResource(R.string.app_name_official)
+                                        else -> stringResource(R.string.app_name_midorisu)
+                                    }
+                                )
                             }
                         }
                     }
@@ -559,7 +565,7 @@ private fun ThemePreviewCard(
     isAmoled: Boolean = false,
     paletteStyle: PaletteStyle = PaletteStyle.TonalSpot,
     colorSpec: ColorSpec.SpecVersion = ColorSpec.SpecVersion.SPEC_2025,
-    officialIcon: Boolean = false,
+    appIconMode: Int = 0,
     classicUi: Boolean = false,
 ) {
     val configuration = LocalConfiguration.current
@@ -600,7 +606,12 @@ private fun ThemePreviewCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (officialIcon) stringResource(R.string.app_name_official) else stringResource(R.string.app_name),
+                            text = when (appIconMode) {
+                                0 -> stringResource(R.string.app_name_midorisu)
+                                1 -> stringResource(R.string.app_name_kowsu)
+                                2 -> stringResource(R.string.app_name_official)
+                                else -> stringResource(R.string.app_name_midorisu)
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             color = colorScheme.onSurface
                         )

@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -30,7 +31,7 @@ import me.weishu.kernelsu.data.registry.RegistryDownloadStore
 import me.weishu.kernelsu.data.registry.RegistryUrls
 import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
 import me.weishu.kernelsu.ksuApp
-import me.weishu.kernelsu.ui.util.module.Shortcut
+import me.weishu.kernelsu.ui.MainActivity
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -372,7 +373,7 @@ class DownloadService : Service() {
         val primaryPendingIntent = when (completionAction) {
             DownloadCompletionAction.INSTALL_MODULE -> PendingIntent.getActivity(
                 this, id, Intent().apply {
-                    component = Shortcut.getLauncherComponent(this@DownloadService)
+                    component = ComponentName(this@DownloadService, MainActivity::class.java)
                     action = ACTION_INSTALL_MODULE
                     putExtra(EXTRA_MODULE_URI, uri.toString())
                     putExtra(EXTRA_DOWNLOAD_ID, id)
