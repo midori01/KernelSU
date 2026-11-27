@@ -24,6 +24,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -111,6 +112,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.FixedScale
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -760,6 +763,32 @@ private fun ModuleItem(
     val canOpenWebUi = module.hasWebUi && !module.remove && module.enabled
     val cardInteractionSource = remember { MutableInteractionSource() }
     val descriptionInteractionSource = remember { MutableInteractionSource() }
+    val forwardPress = canOpenWebUi && hasDescription
+    val pressCoords = remember { arrayOfNulls<LayoutCoordinates>(2) }
+
+    if (forwardPress) {
+        LaunchedEffect(descriptionInteractionSource) {
+            val forwarded = mutableMapOf<PressInteraction.Press, PressInteraction.Press>()
+            try {
+                descriptionInteractionSource.interactions.collect { interaction ->
+                    when (interaction) {
+                        is PressInteraction.Press -> {
+                            val (card, description) = pressCoords
+                            if (card != null && description != null && card.isAttached && description.isAttached) {
+                                val press = PressInteraction.Press(card.localPositionOf(description, interaction.pressPosition))
+                                forwarded[interaction] = press
+                                cardInteractionSource.emit(press)
+                            }
+                        }
+                        is PressInteraction.Release -> forwarded.remove(interaction.press)?.let { cardInteractionSource.emit(PressInteraction.Release(it)) }
+                        is PressInteraction.Cancel -> forwarded.remove(interaction.press)?.let { cardInteractionSource.emit(PressInteraction.Cancel(it)) }
+                    }
+                }
+            } finally {
+                forwarded.values.forEach { cardInteractionSource.tryEmit(PressInteraction.Cancel(it)) }
+            }
+        }
+    }
 
     TonalCard(
         modifier = Modifier.fillMaxWidth(),
@@ -777,7 +806,9 @@ private fun ModuleItem(
         val textDecoration = if (!module.remove) null else TextDecoration.LineThrough
 
         Column(
-            modifier = Modifier.padding(16.dp, 14.dp, 16.dp, 10.dp)
+            modifier = Modifier
+                .then(if (forwardPress) Modifier.onPlaced { pressCoords[0] = it } else Modifier)
+                .padding(16.dp, 14.dp, 16.dp, 10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -840,7 +871,7 @@ private fun ModuleItem(
                         .fillMaxWidth()
                         .then(
                             if (canOpenWebUi) {
-                                Modifier.clickable(
+                                Modifier.onPlaced { pressCoords[1] = it }.clickable(
                                     interactionSource = descriptionInteractionSource,
                                     indication = null
                                 ) {
