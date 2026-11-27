@@ -28,6 +28,7 @@ import me.weishu.kernelsu.data.registry.RegistryDownloadStore
 import me.weishu.kernelsu.data.registry.copyForInstall
 import me.weishu.kernelsu.data.repository.isModuleAutoHotInstallEnabled
 import me.weishu.kernelsu.ksuApp
+import me.weishu.kernelsu.ui.screen.install.LkmVariant
 import okhttp3.OkHttpClient
 import org.json.JSONArray
 import java.io.File
@@ -415,6 +416,15 @@ sealed class LkmSelection : Parcelable {
     data class KmiStringXX(val value: String) : LkmSelection()
 
     @Parcelize
+    data class KmiStringNext(val value: String) : LkmSelection()
+
+    @Parcelize
+    data class KmiStringOfficial(val value: String) : LkmSelection()
+
+    @Parcelize
+    data class KmiStringBaka(val value: String) : LkmSelection()
+
+    @Parcelize
     data object KmiNone : LkmSelection()
 }
 
@@ -482,6 +492,9 @@ fun installBoot(
         when (lkm) {
             is LkmSelection.KmiString -> cmd += " --kmi ${lkm.value}"
             is LkmSelection.KmiStringXX -> cmd += " --kmi xx-${lkm.value}"
+            is LkmSelection.KmiStringNext -> cmd += " --kmi next-${lkm.value}"
+            is LkmSelection.KmiStringOfficial -> cmd += " --kmi official-${lkm.value}"
+            is LkmSelection.KmiStringBaka -> cmd += " --kmi baka-${lkm.value}"
             LkmSelection.KmiNone, is LkmSelection.LkmUri -> Unit
         }
     }
@@ -513,6 +526,7 @@ fun downloadBoot(
     url: String,
     partition: String,
     lkm: LkmSelection,
+    lkmVariant: LkmVariant = LkmVariant.KOWSU,
     allowShell: Boolean,
     enableAdb: Boolean,
     forceBackup: Boolean,
@@ -577,10 +591,28 @@ fun downloadBoot(
     val lkmFile = writeLkmFile(lkm)
     if (lkmFile != null) {
         cmd += " -m ${lkmFile.absolutePath}"
-    } else if (lkm is LkmSelection.KmiString) {
-        cmd += " --kmi ${lkm.value}"
+    } else {
+        when (lkm) {
+            is LkmSelection.KmiString -> cmd += " --kmi ${lkm.value}"
+            is LkmSelection.KmiStringXX -> cmd += " --kmi xx-${lkm.value}"
+            is LkmSelection.KmiStringNext -> cmd += " --kmi next-${lkm.value}"
+            is LkmSelection.KmiStringOfficial -> cmd += " --kmi official-${lkm.value}"
+            is LkmSelection.KmiStringBaka -> cmd += " --kmi baka-${lkm.value}"
+            LkmSelection.KmiNone -> {
+                if (autoKmi != null) {
+                    val effectiveKmi = when (lkmVariant) {
+                        LkmVariant.KOWSU, LkmVariant.CUSTOM -> autoKmi
+                        LkmVariant.XXKSU -> "xx-$autoKmi"
+                        LkmVariant.NEXTKSU -> "next-$autoKmi"
+                        LkmVariant.OFFICIAL -> "official-$autoKmi"
+                        LkmVariant.BAKASU -> "baka-$autoKmi"
+                    }
+                    cmd += " --kmi $effectiveKmi"
+                }
+            }
+            is LkmSelection.LkmUri -> Unit
+        }
     }
-    if (autoKmi != null) cmd += " --kmi $autoKmi"
     cmd += " --partition $partition"
     // ksud defaults to cwd, which is read-only in the su session; use Downloads.
     val downloadsDir =
@@ -756,7 +788,8 @@ suspend fun getSupportedKmis(): List<String> = withContext(Dispatchers.IO) {
     val shell = getRootShell()
     val cmd = "boot-info supported-kmis"
     val out = shell.newJob().add("${getKsuDaemonPath()} $cmd").to(ArrayList(), null).exec().out
-    out.filter { it.isNotBlank() }.map { it.trim() }.filter { !it.startsWith("xx-") }
+    out.filter { it.isNotBlank() }.map { it.trim() }.filter { !it.startsWith("xx-") }.filter { !it.startsWith("next-") }
+        .filter { !it.startsWith("official-") && !it.startsWith("baka-") }
 }
 
 suspend fun isAbDevice(): Boolean = withContext(Dispatchers.IO) {

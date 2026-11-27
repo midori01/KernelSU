@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import me.weishu.kernelsu.R
+import me.weishu.kernelsu.ui.screen.install.LkmVariant
 import me.weishu.kernelsu.ui.util.FlashResult
 import me.weishu.kernelsu.ui.util.LkmSelection
 import me.weishu.kernelsu.ui.util.downloadBoot
@@ -86,6 +87,7 @@ sealed class FlashIt : Parcelable {
         val url: String,
         val partition: String,
         val lkm: LkmSelection,
+        val lkmVariant: LkmVariant = LkmVariant.KOWSU,
         val allowShell: Boolean = false,
         val enableAdb: Boolean = false,
         val backup: Boolean = false,
@@ -187,6 +189,7 @@ fun flashIt(
             flashIt.url,
             flashIt.partition,
             flashIt.lkm,
+            flashIt.lkmVariant,
             flashIt.allowShell,
             flashIt.enableAdb,
             flashIt.backup,
