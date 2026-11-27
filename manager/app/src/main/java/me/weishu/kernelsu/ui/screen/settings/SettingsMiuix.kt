@@ -32,11 +32,14 @@ import androidx.compose.material.icons.rounded.ElectricalServices
 import androidx.compose.material.icons.rounded.Fence
 import androidx.compose.material.icons.rounded.FolderDelete
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.VerifiedUser
 import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.SystemUpdateAlt
-import androidx.compose.material.icons.rounded.VerifiedUser
+import androidx.compose.material.icons.rounded.Update
+import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -145,6 +148,20 @@ fun SettingPagerMiuix(
                                 },
                                 checked = uiState.checkModuleUpdate,
                                 onCheckedChange = actions.onSetCheckModuleUpdate
+                            )
+                            SwitchPreference(
+                                title = stringResource(R.string.settings_check_ksu_driver_update),
+                                summary = stringResource(R.string.settings_check_ksu_driver_update_summary),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.NewReleases,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(R.string.settings_check_ksu_driver_update),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                checked = uiState.checkKsuDriverUpdate,
+                                onCheckedChange = actions.onSetCheckKsuDriverUpdate
                             )
                         }
                     }
@@ -327,6 +344,29 @@ fun SettingPagerMiuix(
                                 enabled = uiState.selinuxHideStatus == "supported",
                                 checked = uiState.isSelinuxHideEnabled,
                                 onCheckedChange = actions.onSetSelinuxHideEnabled
+                            )
+
+                            val selinuxSummary = when (uiState.selinuxStatus) {
+                                "Enforcing" -> stringResource(R.string.selinux_status_enforcing)
+                                "Permissive" -> stringResource(R.string.selinux_status_permissive)
+                                "Disabled" -> stringResource(R.string.selinux_status_disabled)
+                                else -> stringResource(R.string.selinux_status_unknown)
+                            }
+                            val selinuxEnabled = uiState.selinuxStatus == "Enforcing" || uiState.selinuxStatus == "Permissive"
+                            SwitchPreference(
+                                title = stringResource(id = R.string.settings_selinux_enforcing),
+                                summary = selinuxSummary,
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.VerifiedUser,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(id = R.string.settings_selinux_enforcing),
+                                        tint = if (selinuxEnabled) colorScheme.onBackground else colorScheme.disabledOnSecondaryVariant
+                                    )
+                                },
+                                enabled = selinuxEnabled,
+                                checked = uiState.isSelinuxEnforcing,
+                                onCheckedChange = actions.onSetSelinuxEnforcing
                             )
 
                             val sulogSummary = when (uiState.sulogStatus) {
