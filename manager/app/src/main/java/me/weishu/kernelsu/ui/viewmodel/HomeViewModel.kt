@@ -1,5 +1,10 @@
 package me.weishu.kernelsu.ui.viewmodel
 
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
+import org.json.JSONArray
+import org.json.JSONObject
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
@@ -20,14 +25,20 @@ import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.getKernelVersion
 import me.weishu.kernelsu.ksuApp
+import me.weishu.kernelsu.getKernelInfo
 import me.weishu.kernelsu.ui.screen.home.HomeUiState
 import me.weishu.kernelsu.ui.screen.home.SystemInfo
 import me.weishu.kernelsu.ui.screen.home.getManagerVersion
+import me.weishu.kernelsu.ui.screen.home.toRoman
+import me.weishu.kernelsu.ui.screen.home.LatestKsuDriverInfo
 import me.weishu.kernelsu.ui.util.checkNewVersion
+import me.weishu.kernelsu.ui.util.getModuleCount
 import me.weishu.kernelsu.ui.util.getSELinuxStatusRaw
+import me.weishu.kernelsu.ui.util.getSuperuserCount
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 import me.weishu.kernelsu.ui.util.resolveDeviceName
 import me.weishu.kernelsu.ui.util.rootAvailable
+import me.weishu.kernelsu.ui.util.getRootShell
 
 class HomeViewModel(
     private val settingsRepo: SettingsRepository = SettingsRepositoryImpl()
@@ -36,7 +47,7 @@ class HomeViewModel(
     private val prefs = ksuApp.getSharedPreferences("settings", Context.MODE_PRIVATE)
     private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
-            "enable_official_launcher" -> _uiState.update { it.copy(appName = buildState().appName) }
+            "app_icon_mode" -> _uiState.update { it.copy(appName = buildState().appName) }
             "classic_ui" -> _uiState.update { it.copy(classicUi = buildState().classicUi) }
         }
     }
@@ -53,6 +64,9 @@ class HomeViewModel(
         super.onCleared()
     }
 
+    private var cachedDriverInfo: LatestKsuDriverInfo? = null
+    private var cachedDriverInfoTime: Long = 0
+
     fun refresh() {
         viewModelScope.launch {
             val baseState = withContext(Dispatchers.IO) { buildState() }
@@ -61,15 +75,84 @@ class HomeViewModel(
                 val latestVersionInfo = withContext(Dispatchers.IO) { checkNewVersion() }
                 _uiState.update { it.copy(latestVersionInfo = latestVersionInfo) }
             }
+            val checkKsuDriverUpdate = prefs.getBoolean("check_ksu_driver_update", true)
+            if (baseState.isManager && baseState.ksuVersion != null && checkKsuDriverUpdate) {
+                val now = System.currentTimeMillis()
+                val cacheValid = cachedDriverInfo != null && (now - cachedDriverInfoTime) < 30 * 60 * 1000
+                val driverInfo = if (cacheValid) {
+                    cachedDriverInfo!!
+                } else {
+                    withContext(Dispatchers.IO) { fetchLatestKsuDriverInfo(baseState.kernelVersion.toString()) }.also {
+                        if (it.tag.isNotEmpty() && it.driverVersion > 0) {
+                            cachedDriverInfo = it
+                            cachedDriverInfoTime = now
+                        }
+                    }
+                }
+                _uiState.update { it.copy(latestKsuDriverInfo = driverInfo) }
+            }
+        }
+    }
+
+    private fun fetchLatestKsuDriverInfo(kernelVersionStr: String): LatestKsuDriverInfo {
+        return runCatching {
+            val majorMinor = Regex("(\\d+\\.\\d+)").find(kernelVersionStr)?.groupValues?.get(1) ?: return@runCatching LatestKsuDriverInfo()
+            val releasesArray = JSONArray(fetchUrlText("https://api.github.com/repos/midori01/gki_ksu_workflow/releases?per_page=20"))
+            val dateTagRegex = Regex("^\\d{8}-\\d{4}-\\d+\\.\\d+$")
+            var matchedObj: JSONObject? = null
+            var matchedTag = ""
+            for (i in 0 until releasesArray.length()) {
+                val obj = releasesArray.optJSONObject(i) ?: continue
+                val tag = obj.optString("tag_name")
+                if (tag.endsWith("-$majorMinor") && dateTagRegex.matches(tag) && tag > matchedTag) {
+                    matchedTag = tag
+                    matchedObj = obj
+                }
+            }
+            if (matchedTag.isEmpty() || matchedObj == null) return@runCatching LatestKsuDriverInfo()
+            val releaseUrl = "https://github.com/midori01/gki_ksu_workflow/releases/tag/$matchedTag"
+            val body = matchedObj.optString("body").ifEmpty {
+                JSONObject(fetchUrlText("https://api.github.com/repos/midori01/gki_ksu_workflow/releases/tags/$matchedTag")).optString("body")
+            }
+            val driverVersion = Regex("KSU Driver[^0-9]*(\\d+)").find(body)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+            LatestKsuDriverInfo(tag = matchedTag, driverVersion = driverVersion, releaseUrl = releaseUrl)
+        }.getOrDefault(LatestKsuDriverInfo())
+    }
+
+    private fun getSocInfo(): String {
+        return try {
+            val clazz = Class.forName("android.os.SystemProperties")
+            val method = clazz.getMethod("get", String::class.java, String::class.java)
+            val manufacturer = (method.invoke(null, "ro.soc.manufacturer", null) as? String)?.trim()
+            val model = (method.invoke(null, "ro.soc.model", null) as? String)?.trim()
+
+            when {
+                !manufacturer.isNullOrEmpty() && !model.isNullOrEmpty() ->
+                    "$manufacturer $model"
+                !manufacturer.isNullOrEmpty() -> manufacturer
+                !model.isNullOrEmpty() -> model
+                else -> ""
+            }
+        } catch (e: Exception) {
+            ""
         }
     }
 
     private fun buildState(): HomeUiState {
         val prefs = ksuApp.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val isOfficial = prefs.getBoolean("enable_official_launcher", false)
         val classicUi = prefs.getBoolean("classic_ui", false)
-        val appName = if (isOfficial) ksuApp.getString(R.string.app_name_official) else ksuApp.getString(R.string.app_name)
+        val appIconMode = prefs.getInt("app_icon_mode", 0)
+        val appName = when (appIconMode) {
+            1 -> ksuApp.getString(R.string.app_name_kowsu)
+            2 -> ksuApp.getString(R.string.app_name_official)
+            else -> ksuApp.getString(R.string.app_name_midorisu)
+        }
         val kernelVersion = getKernelVersion()
+        val (isGki2, localVersion) = if (checkShell) {
+            getKernelInfo().also { cachedKernelInfo = it }
+        } else {
+            cachedKernelInfo
+        }
         val isManager = Natives.isManager
         val ksuVersion = if (isManager) Natives.version else null
         val kernelUAPIVersion = if (isManager) Natives.kernelUAPIVersion else null
@@ -79,6 +162,48 @@ class HomeViewModel(
         val lkmVariant = if (lkmMode == true && !isLkmBundled) Natives.lkmVariant else null
         val isRootAvailable = rootAvailable()
         val managerVersion = getManagerVersion(ksuApp)
+        val codename = when (Build.VERSION.SDK_INT) {
+            37 -> "Cinnamon Bun"
+            36 -> "Baklava"
+            35 -> "Vanilla Ice Cream"
+            34 -> "Upside Down Cake"
+            33 -> "Tiramisu"
+            32 -> "Snow Cone v2"
+            31 -> "Snow Cone"
+            30 -> "Red Velvet Cake"
+            29 -> "Q"
+            else -> ""
+        }
+
+        val (rekernelVersion, rekernelLabel) = if (isManager && ksuVersion != null) {
+            runCatching {
+                val reV = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                    getRootShell(true),
+                    "grep 'Re:Kernel v' /data/adb/ksu/log/dmesg.log | head -1 | sed 's/.*\\(v[0-9.]*\\).*/\\1/'"
+                ).trim()
+                val reXV = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                    getRootShell(true),
+                    "grep 'ReKernel-X] Version' /data/adb/ksu/log/dmesg.log | head -1 | sed 's/.*Version \\([^ ]*\\).*/\\1/'"
+                ).trim()
+                val hasRe = reV.isNotEmpty()
+                val hasReX = reXV.isNotEmpty()
+                val ver = when {
+                    hasRe && hasReX -> "$reV | RKX $reXV"
+                    hasRe -> reV
+                    hasReX -> reXV
+                    else -> ""
+                }
+                val lbl = when {
+                    hasRe && hasReX -> ksuApp.getString(R.string.home_rekernel_version)
+                    hasRe -> ksuApp.getString(R.string.home_rekernel_version)
+                    hasReX -> ksuApp.getString(R.string.home_rekernel_x_version)
+                    else -> ksuApp.getString(R.string.home_rekernel_version)
+                }
+                ver to lbl
+            }.getOrDefault("" to ksuApp.getString(R.string.home_rekernel_version))
+        } else {
+            "" to ksuApp.getString(R.string.home_rekernel_version)
+        }
 
         return HomeUiState(
             appName = appName,
@@ -101,16 +226,82 @@ class HomeViewModel(
             checkUpdateEnabled = settingsRepo.checkUpdate,
             latestVersionInfo = LatestVersionInfo(),
             currentManagerVersionCode = managerVersion.versionCode,
+            superuserCount = getSuperuserCount(),
+            moduleCount = getModuleCount(),
+            kernelModuleCount = if (isManager && ksuVersion != null) {
+                runCatching {
+                    com.topjohnwu.superuser.ShellUtils.fastCmd(
+                        getRootShell(true),
+                        "lsmod | wc -l"
+                    ).trim().toIntOrNull()?.minus(1) ?: 0
+                }.getOrDefault(0)
+            } else 0,
             systemInfo = SystemInfo(
-                kernelVersion = Os.uname().release,
-                managerVersion = "${managerVersion.versionName} (${managerVersion.versionCode}-${managerUAPIVersion})",
+                kernelVersion = runCatching {
+                    val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                        getRootShell(true),
+                        "cat /proc/version"
+                    ).trim()
+                    if (result.isNotEmpty()) {
+                        val afterPrefix = result.removePrefix("Linux version ")
+                        val versionPart = afterPrefix.substringBefore(" (")
+                        val userHost = Regex("\\(([^)]+)\\)").find(afterPrefix)?.groupValues?.get(1) ?: ""
+                        val buildIndex = afterPrefix.lastIndexOf(") #")
+                        val buildPart = if (buildIndex >= 0) {
+                            afterPrefix.substring(buildIndex + 2).replace("SMP PREEMPT ", "")
+                        } else ""
+                        if (buildPart.isNotEmpty()) {
+                            "$versionPart\n$buildPart ($userHost)"
+                        } else {
+                            versionPart
+                        }
+                    } else {
+                        Os.uname().release
+                    }
+                }.getOrDefault(Os.uname().release),
+                managerVersion = "${managerVersion.versionName} (${managerVersion.versionCode}-${managerUAPIVersion.toRoman()})",
                 deviceModel = resolveDeviceName(),
+                socInfo = getSocInfo(),
                 fingerprint = Build.FINGERPRINT,
+                androidVersion = if (codename.isNotEmpty()) {
+                    "${Build.VERSION.RELEASE} (${codename}, SDK ${Build.VERSION.SDK_INT})"
+                } else {
+                    "${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})"
+                },
+                securityPatch = Build.VERSION.SECURITY_PATCH,
+                hookType = "N/A",
                 selinuxStatus = getSELinuxStatusRaw(),
                 seccompStatus = runCatching {
                     Os.prctl(21 /* PR_GET_SECCOMP */, 0, 0, 0, 0)
                 }.getOrDefault(-1),
+                susfsVersion = "",
+                droidspacesVersion = if (isManager && ksuVersion != null) {
+                    runCatching {
+                        val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                            getRootShell(true),
+                            "grep '^version=' /data/adb/modules/droidspaces/module.prop | head -1 | cut -d= -f2"
+                        ).trim()
+                        if (result.isNotEmpty()) result else ""
+                    }.getOrDefault("")
+                } else "",
+                rekernelVersion = rekernelVersion,
+                rekernelLabel = rekernelLabel,
+                driverName = "",
+                oemUnlock = runCatching {
+                    val result = com.topjohnwu.superuser.ShellUtils.fastCmd(
+                        getRootShell(true),
+                        "dumpsys persistent_data_block 2>/dev/null | grep 'OEM unlock state' | awk '{print \$NF}'"
+                    ).trim()
+                    when (result) {
+                        "true" -> "Unlocked"
+                        "false" -> "Locked"
+                        else -> ""
+                    }
+                }.getOrDefault(""),
             ),
+            latestKsuDriverInfo = LatestKsuDriverInfo(),
+            isGki2 = isGki2,
+            localVersion = localVersion,
         )
     }
 }
