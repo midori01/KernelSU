@@ -481,7 +481,8 @@ fun SuperUserPagerMaterial(
                         contentPadding = PaddingValues(
                             start = 16.dp,
                             end = 16.dp,
-                            bottom = 16.dp + bottomPadding
+                            top = 0.dp,
+                            bottom = 16.dp + bottomPadding,
                         ),
                     ) {
                         if (uiState.recentlyInstalledResults.isNotEmpty()) {
@@ -497,6 +498,15 @@ fun SuperUserPagerMaterial(
                                             )
                                         }
                                     }
+                                )
+                            }
+                        }
+                        itemsIndexed(uiState.groupedApps, key = { _, item -> item.uid }) { index, group ->
+                            SegmentedItem(index = index, count = uiState.groupedApps.size) {
+                                SearchGroupItem(
+                                    group = group,
+                                    closeSearch = closeSearch,
+                                    onOpenProfile = actions.onOpenProfile,
                                 )
                             }
                         }
