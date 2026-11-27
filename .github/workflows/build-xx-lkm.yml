@@ -48,17 +48,18 @@ jobs:
         git config --global --add safe.directory /__w/KernelSU/KernelSU
         cd kernel
         KSU_GIT_VERSION=$(git rev-list --count HEAD)
-        KSU_VERSION=$(expr 30000 + $KSU_GIT_VERSION)
+        KSU_VERSION=$(expr 30999 + $KSU_GIT_VERSION)
         echo "KSU_VERSION=$KSU_VERSION" >> $GITHUB_OUTPUT
         echo "Calculated KSU_VERSION: $KSU_VERSION"
 
     - name: Fetch and checkout xxKSU
       run: |
-        git remote add xx https://github.com/backslashxx/KernelSU
-        git fetch xx master
-        git checkout xx/master
+        cp -r .github/xx-lkm /tmp/xx-lkm
+        git fetch origin +refs/heads/xx:refs/remotes/origin/xx
+        [ "$(git log -1 --format=%s origin/xx~1)" = extra ] || { echo "xx~1 is not the extra commit"; exit 1; }
+        git checkout --detach origin/xx~1
 
-        curl -sSL https://raw.githubusercontent.com/KOWX712/files/main/KowSU/xxksu.patch | patch -p1
+        bash /tmp/xx-lkm/apply-sct-sync.sh /tmp/xx-lkm/midori_sct_sync.h
 
         sed -i "s/CFLAGS_ksu.o += -DKSU_VERSION=.*/CFLAGS_ksu.o += -DKSU_VERSION=${{ steps.version.outputs.KSU_VERSION }}/" kernel/Makefile
 
