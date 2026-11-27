@@ -93,4 +93,8 @@ sealed interface Route : NavKey, Parcelable {
     @Parcelize
     @Serializable
     data object Kallsyms : Route
+
+    @Parcelize
+    @Serializable
+    data object Dmesg : Route
 }
