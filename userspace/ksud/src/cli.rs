@@ -148,6 +148,12 @@ enum Commands {
         args: Vec<String>,
     },
 
+    /// Manage the kernel module blocklist
+    KmodBlock {
+        #[command(subcommand)]
+        command: crate::kmod_block::KmodBlockCommands,
+    },
+
     /// Manage initrc injection
     Initrc {
         #[command(subcommand)]
@@ -816,6 +822,7 @@ pub fn run() -> Result<()> {
             full_args.extend(args);
             crate::resetprop::resetprop_main(&full_args)
         }
+        Commands::KmodBlock { command } => crate::kmod_block::run(command),
 
         Commands::Kernel { command } => match command {
             Kernel::NukeExt4Sysfs { mnt } => ksucalls::nuke_ext4_sysfs(&mnt),
