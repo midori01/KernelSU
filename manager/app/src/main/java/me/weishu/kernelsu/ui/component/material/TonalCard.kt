@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import me.weishu.kernelsu.ui.component.pressBounce
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -23,6 +24,7 @@ fun TonalCard(
     contentColor: Color = contentColorFor(containerColor),
     shape: Shape = MaterialTheme.shapes.large,
     enabled: Boolean = true,
+    pressBounce: Boolean = true,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -32,9 +34,12 @@ fun TonalCard(
         containerColor = containerColor,
         contentColor = contentColor,
     )
+    val cardModifier = if (pressBounce && (onClick != null || onLongClick != null)) {
+        modifier.pressBounce(interactionSource, enabled)
+    } else modifier
     when {
         onLongClick != null -> Card(
-            modifier = modifier
+            modifier = cardModifier
                 .clip(shape)
                 .combinedClickable(
                     enabled = enabled,
@@ -49,7 +54,7 @@ fun TonalCard(
 
         onClick != null -> Card(
             onClick = onClick,
-            modifier = modifier,
+            modifier = cardModifier,
             enabled = enabled,
             colors = colors,
             shape = shape,
