@@ -410,6 +410,13 @@
     <string name="dmesg_search">搜尋 dmesg…</string>
     <string name="dmesg_sort_asc">正序</string>
     <string name="dmesg_sort_desc">倒序</string>
+    <string name="dmesg_pause">暫停</string>
+    <string name="dmesg_play">播放</string>
+    <string name="dmesg_refresh">重新整理</string>
+    <string name="dmesg_load_failed">無法載入核心日誌</string>
+    <string name="dmesg_line_count">%1$d 行</string>
+    <string name="kconfig_title">核心配置</string>
+    <string name="kconfig_search">搜尋核心配置…</string>
     <string name="share">分享</string>
     <string name="export_failed">匯出失敗</string>
     <string name="sulog_filter_root_execve">Root execve</string>

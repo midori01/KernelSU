@@ -402,6 +402,13 @@
     <string name="dmesg_search">dmesg 검색…</string>
     <string name="dmesg_sort_asc">오름차순</string>
     <string name="dmesg_sort_desc">내림차순</string>
+    <string name="dmesg_pause">일시정지</string>
+    <string name="dmesg_play">재생</string>
+    <string name="dmesg_refresh">새로고침</string>
+    <string name="dmesg_load_failed">커널 메시지를 불러올 수 없습니다</string>
+    <string name="dmesg_line_count">%1$d줄</string>
+    <string name="kconfig_title">커널 설정</string>
+    <string name="kconfig_search">커널 설정 검색…</string>
     <string name="share">공유</string>
     <string name="export_failed">내보내기 실패</string>
     <string name="settings_official_icon">공식 앱 아이콘 사용</string>
