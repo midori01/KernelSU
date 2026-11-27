@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import me.weishu.kernelsu.ui.component.bottombar.RegisterTabReselect
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.outlined.Article
@@ -105,13 +106,16 @@ fun SuperUserPagerMaterial(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val listState = rememberLazyListState()
     val searchListState = rememberLazyListState()
-    val refreshTick = remember { mutableIntStateOf(0) }
-    val pullToRefreshState = rememberPullToRefreshState()
-
     var localSearchText by remember { mutableStateOf(uiState.searchStatus.searchText) }
     LaunchedEffect(uiState.searchStatus.searchText) {
         localSearchText = uiState.searchStatus.searchText
     }
+    RegisterTabReselect(1) {
+        val target = if (localSearchText.isNotEmpty() || uiState.searchStatus.isExpanded()) searchListState else listState
+        target.animateScrollToItem(0)
+    }
+    val refreshTick = remember { mutableIntStateOf(0) }
+    val pullToRefreshState = rememberPullToRefreshState()
 
     val haptic = LocalHapticFeedback.current
     val snackbarHostState = remember { SnackbarHostState() }
