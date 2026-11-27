@@ -418,6 +418,47 @@
     <string name="kconfig_cat_other">その他</string>
 
     <!-- SUSFS -->
+    <string name="tcp_title">TCP チューニング</string>
+    <string name="tcp_scope">新規接続および送信方向にのみ影響します</string>
+    <string name="tcp_state_applied">適用済み</string>
+    <string name="tcp_state_system">システムに従う</string>
+    <string name="tcp_state_mismatch">選択内容と一致しません</string>
+    <string name="tcp_state_unavailable">利用不可</string>
+    <string name="tcp_state_module">モジュールで管理</string>
+    <string name="tcp_conflict_title">モジュールが輻輳制御を管理しています</string>
+    <string name="tcp_conflict_body">tcp_congestion モジュールが起動時にアルゴリズムを制御しています。利用可能な場合はその設定をインポートして、ここで輻輳制御を管理できます。</string>
+    <string name="tcp_import_module">インポート &amp; モジュールを無効化</string>
+    <string name="tcp_congestion">輻輳制御</string>
+    <string name="tcp_follow_system">システムに従う (%1$s)</string>
+    <string name="tcp_cubic">パケット損失を利用して送信レートを調整します。</string>
+    <string name="tcp_bbr">帯域幅と遅延を推定して送信トラフィックのペースを調整します。</string>
+    <string name="tcp_bbr3">パケット損失と輻輳シグナルにより BBR のペーシングを改善します。</string>
+    <string name="tcp_reno">送信ウィンドウを徐々に拡大し、パケット損失時に縮小します。</string>
+    <string name="tcp_transfer">転送</string>
+    <string name="tcp_slow_start">アイドル後のスロースタート</string>
+    <string name="tcp_slow_start_summary">オフにすると、アイドル後に輻輳ウィンドウが縮小しなくなります。断続的にデータを送信する長時間接続のスループット向上に役立ちます。</string>
+    <string name="tcp_on">オン</string>
+    <string name="tcp_saved_value_status">保存済み：%1$s · %2$s</string>
+    <string name="tcp_mtu">MTU プロービング</string>
+    <string name="tcp_mtu_summary">大きなパケットを破棄する VPN やトンネル環境を改善します。</string>
+    <string name="tcp_advanced">高度な設定</string>
+    <string name="tcp_ecn">明示的輻輳通知</string>
+    <string name="tcp_ecn_warning">アクティブ ECN は送信接続で輻輳シグナルを要求します。一部のネットワークではこの要求が適切に処理されない場合があります。</string>
+    <string name="tcp_ecn_off">オフ</string>
+    <string name="tcp_ecn_passive">パッシブ</string>
+    <string name="tcp_ecn_active">アクティブ</string>
+    <string name="tcp_reset_one">変更済み。%1$s をシステム値に戻します</string>
+    <string name="tcp_restore_all">すべてのシステム値を復元</string>
+    <string name="tcp_restore_confirm">保存されたすべての TCP 設定を消去しますか？ベースラインが利用可能な場合、現在の選択と一致している値はシステム値に戻ります。</string>
+    <string name="tcp_boot_errors">起動時エラー (%1$d)</string>
+    <string name="tcp_root_title">Root を利用できません</string>
+    <string name="tcp_root_body">TCP 設定の読み取りと変更には Root 権限が必要です。</string>
+    <string name="tcp_empty_body">このカーネルはサポートされている TCP 設定を公開していません。</string>
+    <string name="tcp_error_title">TCP 設定を読み取れませんでした</string>
+    <string name="tcp_retry">再試行</string>
+    <string name="tcp_more">その他のオプション</string>
+    <string name="tcp_command_failed">TCP コマンドが失敗しました (終了コード %1$d)。</string>
+
     <string name="susfs_title">SUSFS</string>
     <string name="susfs_unsupported_title">SUSFS が検出されませんでした</string>
     <string name="susfs_unsupported_body">このカーネルには SUSFS が組み込まれておらず、SUSFS LKM も読み込まれていません。SUSFS が組み込まれたカーネルを使用するか susfs4ksu-lkm を読み込んでから、ここに戻ってください。</string>

@@ -101,6 +101,7 @@ import me.weishu.kernelsu.ui.screen.susfs.SusfsAppFilterKind
 import me.weishu.kernelsu.ui.screen.susfs.SusfsAppFilterScreen
 import me.weishu.kernelsu.ui.screen.susfs.SusfsRuleKind
 import me.weishu.kernelsu.ui.screen.susfs.SusfsRulesScreen
+import me.weishu.kernelsu.ui.screen.tcp.TcpScreen
 import me.weishu.kernelsu.ui.screen.susfs.SusfsScreen
 import me.weishu.kernelsu.ui.screen.crashlog.CrashLogScreen
 import me.weishu.kernelsu.ui.screen.payload.PayloadScreen
@@ -277,6 +278,7 @@ open class MainActivity : ComponentActivity() {
                             entry<Route.Dmesg>(swipeDismiss = swipeDismiss) { DmesgScreen() }
                             entry<Route.Kconfig>(swipeDismiss = swipeDismiss) { KconfigScreen() }
                             entry<Route.KernelModule>(swipeDismiss = swipeDismiss) { KernelModuleScreen() }
+                            entry<Route.Tcp>(swipeDismiss = swipeDismiss) { TcpScreen() }
                             entry<Route.Susfs>(swipeDismiss = swipeDismiss) { SusfsScreen() }
                             entry<Route.SusfsRules>(swipeDismiss = swipeDismiss) { key ->
                                 val kind = runCatching { SusfsRuleKind.valueOf(key.kind) }.getOrDefault(SusfsRuleKind.Path)
@@ -591,6 +593,7 @@ fun MainPage(
             KernelTool.CrashLog -> CrashLogScreen(isRootTab = true)
             KernelTool.Kallsyms -> KallsymsScreen(isRootTab = true)
             KernelTool.KernelModule -> KernelModuleScreen(isRootTab = true, bottomInnerPadding = bottomInnerPadding)
+            KernelTool.Tcp -> TcpScreen(isRootTab = true, bottomInnerPadding = bottomInnerPadding, isCurrentPage = isCurrentPage)
             KernelTool.Susfs -> SusfsScreen(isRootTab = true, bottomInnerPadding = bottomInnerPadding)
         }
         3 -> ModulePager(bottomInnerPadding, isCurrentPage)
