@@ -257,6 +257,7 @@ dependencies {
 
     implementation(libs.commons.compress)
     implementation(libs.xz)
+    implementation(libs.zstd.jni) { artifact { type = "aar" } }
     implementation(libs.protobuf.kotlin.lite)
 
     testImplementation(libs.junit)
