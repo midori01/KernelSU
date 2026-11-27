@@ -86,6 +86,7 @@ import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.bottombar.KernelTool
 import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconMaterial
 import me.weishu.kernelsu.ui.component.bottombar.KernelToolTitleDropdownMaterial
+import me.weishu.kernelsu.ui.component.bottombar.RegisterTabReselect
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
@@ -115,6 +116,12 @@ fun PayloadMaterial(
     val listState = rememberLazyListState()
     val searchListState = rememberLazyListState()
     var localSearchText by remember { mutableStateOf(uiState.searchQuery) }
+    if (isRootTab) {
+        RegisterTabReselect(2) {
+            val target = if (localSearchText.isNotEmpty()) searchListState else listState
+            target.animateScrollToItem(0)
+        }
+    }
 
     LaunchedEffect(uiState.searchQuery) {
         localSearchText = uiState.searchQuery
