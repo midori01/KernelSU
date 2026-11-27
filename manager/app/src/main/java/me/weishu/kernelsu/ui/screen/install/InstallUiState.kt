@@ -6,6 +6,9 @@ import me.weishu.kernelsu.ui.util.LkmSelection
 enum class LkmVariant {
     KOWSU,
     XXKSU,
+    NEXTKSU,
+    OFFICIAL,
+    BAKASU,
     CUSTOM
 }
 
