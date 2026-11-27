@@ -102,6 +102,8 @@ import me.weishu.kernelsu.ui.screen.susfs.SusfsAppFilterScreen
 import me.weishu.kernelsu.ui.screen.susfs.SusfsRuleKind
 import me.weishu.kernelsu.ui.screen.susfs.SusfsRulesScreen
 import me.weishu.kernelsu.ui.screen.tcp.TcpScreen
+import me.weishu.kernelsu.ui.screen.toolkit.ToolkitPage
+import me.weishu.kernelsu.ui.screen.toolkit.ToolkitScreen
 import me.weishu.kernelsu.ui.screen.susfs.SusfsScreen
 import me.weishu.kernelsu.ui.screen.crashlog.CrashLogScreen
 import me.weishu.kernelsu.ui.screen.payload.PayloadScreen
@@ -279,6 +281,10 @@ open class MainActivity : ComponentActivity() {
                             entry<Route.Kconfig>(swipeDismiss = swipeDismiss) { KconfigScreen() }
                             entry<Route.KernelModule>(swipeDismiss = swipeDismiss) { KernelModuleScreen() }
                             entry<Route.Tcp>(swipeDismiss = swipeDismiss) { TcpScreen() }
+                            entry<Route.Toolkit>(swipeDismiss = swipeDismiss) { ToolkitScreen() }
+                            entry<Route.ToolkitUmount>(swipeDismiss = swipeDismiss) { ToolkitScreen(ToolkitPage.Umount) }
+                            entry<Route.ToolkitSulog>(swipeDismiss = swipeDismiss) { ToolkitScreen(ToolkitPage.Sulog) }
+                            entry<Route.ToolkitBench>(swipeDismiss = swipeDismiss) { ToolkitScreen(ToolkitPage.Bench) }
                             entry<Route.Susfs>(swipeDismiss = swipeDismiss) { SusfsScreen() }
                             entry<Route.SusfsRules>(swipeDismiss = swipeDismiss) { key ->
                                 val kind = runCatching { SusfsRuleKind.valueOf(key.kind) }.getOrDefault(SusfsRuleKind.Path)
@@ -594,6 +600,7 @@ fun MainPage(
             KernelTool.Kallsyms -> KallsymsScreen(isRootTab = true)
             KernelTool.KernelModule -> KernelModuleScreen(isRootTab = true, bottomInnerPadding = bottomInnerPadding)
             KernelTool.Tcp -> TcpScreen(isRootTab = true, bottomInnerPadding = bottomInnerPadding, isCurrentPage = isCurrentPage)
+            KernelTool.Toolkit -> ToolkitScreen(isRootTab = true, bottomInnerPadding = bottomInnerPadding, isCurrentPage = isCurrentPage)
             KernelTool.Susfs -> SusfsScreen(isRootTab = true, bottomInnerPadding = bottomInnerPadding)
         }
         3 -> ModulePager(bottomInnerPadding, isCurrentPage)

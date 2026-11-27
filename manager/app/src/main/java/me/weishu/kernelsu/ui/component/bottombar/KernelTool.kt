@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.DataObject
+import androidx.compose.material.icons.filled.Handyman
 import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Tune
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.filled.ViewModule
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.DataObject
+import androidx.compose.material.icons.outlined.Handyman
 import androidx.compose.material.icons.outlined.NetworkCheck
 import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material.icons.outlined.Tune
@@ -18,6 +20,7 @@ import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material.icons.outlined.ViewModule
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.DataObject
+import androidx.compose.material.icons.rounded.Handyman
 import androidx.compose.material.icons.rounded.NetworkCheck
 import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.Tune
@@ -110,6 +113,14 @@ enum class KernelTool(
         filledIcon = Icons.Filled.NetworkCheck,
         roundedIcon = Icons.Rounded.NetworkCheck,
         route = Route.Tcp,
+    ),
+    Toolkit(
+        id = "toolkit",
+        label = R.string.toolkit_title,
+        outlinedIcon = Icons.Outlined.Handyman,
+        filledIcon = Icons.Filled.Handyman,
+        roundedIcon = Icons.Rounded.Handyman,
+        route = Route.Toolkit,
     ),
     Susfs(
         id = "susfs",

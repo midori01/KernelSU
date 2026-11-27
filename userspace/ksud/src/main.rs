@@ -65,6 +65,8 @@ mod susfs;
 #[cfg(target_os = "android")]
 mod tcp;
 #[cfg(target_os = "android")]
+mod toolkit;
+#[cfg(target_os = "android")]
 mod unload;
 #[cfg(target_os = "android")]
 mod utils;

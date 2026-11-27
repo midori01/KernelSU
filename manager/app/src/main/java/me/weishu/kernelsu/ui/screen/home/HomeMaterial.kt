@@ -162,6 +162,7 @@ import me.weishu.kernelsu.ui.component.material.expressiveTopAppBarColors
 import me.weishu.kernelsu.ui.component.rebootlistpopup.RebootListPopup
 import me.weishu.kernelsu.ui.component.statustag.StatusTag
 import me.weishu.kernelsu.ui.navigation3.Navigator
+import me.weishu.kernelsu.ui.screen.toolkit.ToolkitRecoveryCard
 import me.weishu.kernelsu.ui.theme.LocalAppIconMode
 
 @Composable
@@ -200,6 +201,7 @@ fun HomePagerMaterial(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(13.dp)
         ) {
+            if (state.isRootAvailable) ToolkitRecoveryCard()
             if (state.modernBento) {
                 BentoSmartPill(state = state, actions = actions)
                 BentoHeroCard(
