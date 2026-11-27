@@ -57,6 +57,9 @@ import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.ListPopupDefaults
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.SearchStatus
+import me.weishu.kernelsu.ui.component.bottombar.KernelTool
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMiuix
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
@@ -98,7 +101,7 @@ import top.yukonga.miuix.kmp.utils.overScrollVertical
 import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 
 @Composable
-fun DmesgScreen() {
+fun DmesgScreen(isRootTab: Boolean = false) {
     val viewModel = viewModel<DmesgViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -113,6 +116,7 @@ fun DmesgScreen() {
             onSetOrder = viewModel::setOrder,
             context = context,
             navigator = navigator,
+            isRootTab = isRootTab,
         )
         UiMode.Material -> DmesgScreenMaterial(
             uiState = uiState,
@@ -122,6 +126,7 @@ fun DmesgScreen() {
             onSetOrder = viewModel::setOrder,
             context = context,
             navigator = navigator,
+            isRootTab = isRootTab,
         )
     }
 }
@@ -134,7 +139,8 @@ fun DmesgScreenMiuix(
     onToggleLive: () -> Unit,
     onSetOrder: (DmesgOrder) -> Unit,
     context: Context,
-    navigator: Navigator
+    navigator: Navigator,
+    isRootTab: Boolean = false,
 ) {
     val enableBlur = LocalEnableBlur.current
     val density = LocalDensity.current
@@ -177,16 +183,20 @@ fun DmesgScreenMiuix(
                         title = stringResource(R.string.dmesg_title),
                         scrollBehavior = scrollBehavior,
                         navigationIcon = {
-                            MiuixIconButton(onClick = { navigator.pop() }) {
-                                val layoutDirection = LocalLayoutDirection.current
-                                MiuixIcon(
-                                    modifier = Modifier.graphicsLayer {
-                                        if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
-                                    },
-                                    imageVector = MiuixIcons.Back,
-                                    contentDescription = null,
-                                    tint = colorScheme.onSurface,
-                                )
+                            if (isRootTab) {
+                                KernelToolNavigationIconsMiuix(KernelTool.Dmesg, navigator)
+                            } else {
+                                MiuixIconButton(onClick = { navigator.pop() }) {
+                                    val layoutDirection = LocalLayoutDirection.current
+                                    MiuixIcon(
+                                        modifier = Modifier.graphicsLayer {
+                                            if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
+                                        },
+                                        imageVector = MiuixIcons.Back,
+                                        contentDescription = null,
+                                        tint = colorScheme.onSurface,
+                                    )
+                                }
                             }
                         },
                         actions = {
@@ -463,7 +473,8 @@ fun DmesgScreenMaterial(
     onToggleLive: () -> Unit,
     onSetOrder: (DmesgOrder) -> Unit,
     context: Context,
-    navigator: Navigator
+    navigator: Navigator,
+    isRootTab: Boolean = false,
 ) {
     val haptic = LocalHapticFeedback.current
     val coroutineScope = rememberCoroutineScope()
@@ -496,7 +507,11 @@ fun DmesgScreenMaterial(
                     onSearch("")
                 },
                 navigationIcon = {
-                    TopBarBackButton(onClick = { navigator.pop() })
+                    if (isRootTab) {
+                        KernelToolNavigationIconsMaterial(KernelTool.Dmesg, navigator)
+                    } else {
+                        TopBarBackButton(onClick = { navigator.pop() })
+                    }
                 },
                 actions = {
                     var showSortMenu by remember { mutableStateOf(false) }

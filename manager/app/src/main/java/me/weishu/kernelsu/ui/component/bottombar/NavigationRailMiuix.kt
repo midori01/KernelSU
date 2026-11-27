@@ -1,13 +1,21 @@
 package me.weishu.kernelsu.ui.component.bottombar
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
+import me.weishu.kernelsu.ui.LocalKernelTool
 import me.weishu.kernelsu.ui.LocalMainPagerState
 import top.yukonga.miuix.kmp.basic.NavigationRail
 import top.yukonga.miuix.kmp.basic.NavigationRailItem
@@ -24,9 +32,16 @@ fun NavigationRailMiuix(
     if (!fullFeatured) return
 
     val mainState = LocalMainPagerState.current
+    val currentKernelTool = LocalKernelTool.current
+    val haptic = LocalHapticFeedback.current
+    var showToolSelectDialog by remember { mutableStateOf(false) }
 
-    val items = BottomBarDestination.entries.map { destination ->
-        Pair(stringResource(destination.label), destination.icon)
+    val items = BottomBarDestination.entries.mapIndexed { index, destination ->
+        if (index == 2) {
+            Pair(stringResource(currentKernelTool.label), currentKernelTool.roundedIcon)
+        } else {
+            Pair(stringResource(destination.label), destination.icon)
+        }
     }
     val settingsRepo = remember { SettingsRepositoryImpl() }
     val state = rememberNavigationRailState(
@@ -49,6 +64,19 @@ fun NavigationRailMiuix(
     ) {
         items.forEachIndexed { index, (label, icon) ->
             NavigationRailItem(
+                modifier = if (index == 2) {
+                    Modifier.pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                showToolSelectDialog = true
+                            },
+                            onTap = {
+                                mainState.animateToPage(index)
+                            }
+                        )
+                    }
+                } else Modifier,
                 selected = mainState.selectedPage == index,
                 onClick = {
                     mainState.animateToPage(index)
@@ -59,4 +87,15 @@ fun NavigationRailMiuix(
             )
         }
     }
+
+    KernelToolSelectDialog(
+        show = showToolSelectDialog,
+        currentTool = currentKernelTool,
+        onSelected = { tool ->
+            SettingsRepositoryImpl().bottomBarKernelTool = tool.id
+        },
+        onDismissRequest = {
+            showToolSelectDialog = false
+        }
+    )
 }
