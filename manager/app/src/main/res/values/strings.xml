@@ -488,5 +488,12 @@
     <string name="dmesg_search">Search dmesg…</string>
     <string name="dmesg_sort_asc">Ascending</string>
     <string name="dmesg_sort_desc">Descending</string>
+    <string name="dmesg_pause">Pause</string>
+    <string name="dmesg_play">Play</string>
+    <string name="dmesg_refresh">Refresh</string>
+    <string name="dmesg_load_failed">Failed to load dmesg</string>
+    <string name="dmesg_line_count">%1$d lines</string>
+    <string name="kconfig_title">Kconfig</string>
+    <string name="kconfig_search">Search kernel config…</string>
     <string name="share">Share</string>
 </resources>
