@@ -360,6 +360,7 @@
     <string name="enable_adb_summary">強制允許 USB 調試並取消 adb 認證，非必要請勿開啟。</string>
     <string name="advanced_options">進階選項</string>
     <string name="expand">展開</string>
+    <string name="collapse">收起</string>
     <string name="download_channel_name">模組下載</string>
     <string name="download_progress_title">正在下載 %s</string>
     <string name="download_complete_title">下載完成</string>
@@ -566,4 +567,32 @@
     <string name="payload_incremental_partition_notice">僅包含差分補丁</string>
     <string name="payload_incremental_cannot_extract">增量差分分割區無法脫離基底映像獨立提取。</string>
     <string name="payload_tap_to_copy">點擊複製</string>
+    <string name="payload_invalid_partition_name">無效的分割區名稱：%1$s</string>
+    <string name="payload_open_failed">開啟檔案失敗</string>
+    <string name="payload_remote_failed">連線或解析遠端 Payload 失敗</string>
+    <string name="payload_extract_failed">擷取失敗</string>
+    <string name="payload_inspect_kernel_failed">檢查 Boot 核心失敗：%1$s</string>
+    <string name="payload_inspect_arb_failed">檢查 ARB 失敗：%1$s</string>
+    <string name="payload_reading_boot_header">正在讀取 Boot 標頭…</string>
+    <string name="payload_scanning_kernel">正在掃描核心 (%1$d/%2$d)…</string>
+    <string name="payload_scanning_partition">正在掃描分割區 (%1$d/%2$d)…</string>
+
+    <!-- 現代 Bento 儀表板設定與元件 -->
+    <string name="settings_modern_bento">現代 Bento 儀表板</string>
+    <string name="settings_modern_bento_summary">首頁採用模組化 Bento 磁貼與卡片儀表板</string>
+    <string name="bento_active_superusers">作用中授權應用程式</string>
+    <string name="bento_active_modules">已啟用模組</string>
+    <string name="bento_kernel_tool">捷徑核心工具</string>
+    <string name="bento_system_health">系統健康狀態</string>
+    <string name="bento_system_healthy">運作順暢</string>
+    <string name="bento_no_crashes">無未讀當機記錄</string>
+    <string name="bento_crash_detected">偵測到核心當機</string>
+    <string name="bento_view_panic">輕觸查看堆疊分析</string>
+    <string name="bento_device_specs">硬體與系統規格</string>
+    <string name="bento_manage_install">安裝 / 管理</string>
+    <string name="bento_copy_report">複製診斷報告</string>
+    <string name="bento_report_copied">診斷摘要已複製到剪貼簿</string>
+    <string name="bento_smart_pill_panic">偵測到核心當機記錄，輕觸以分析</string>
+    <string name="bento_smart_pill_update">發現新版本 MidoriSU %1$s</string>
+    <string name="bento_smart_pill_driver_update">發現新版 KSU 驅動程式 %1$s 可用</string>
 </resources>

@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.Dp
@@ -47,10 +46,8 @@ fun HomePager(
     val latestIsCurrentPage by rememberUpdatedState(isCurrentPage)
     val initialResumeHandled = rememberSaveable { mutableStateOf(false) }
 
-    var hasActivated by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(isCurrentPage) {
-        if (isCurrentPage && !hasActivated) {
-            hasActivated = true
+        if (isCurrentPage) {
             viewModel.refresh()
         }
     }
@@ -72,6 +69,9 @@ fun HomePager(
         onCrashLogClick = {
             viewModel.markCrashLogAsRead()
             navigator.push(Route.CrashLog)
+        },
+        onKernelToolClick = {
+            if (uiState.isFullFeatured) mainState.animateToPage(2)
         },
         onJailbreakClick = {
             loadingDialog.showLoading()
