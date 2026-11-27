@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Terminal
@@ -150,6 +151,14 @@ fun KconfigScreenMiuix(
                                     MiuixIcon(
                                         imageVector = Icons.Outlined.Terminal,
                                         contentDescription = stringResource(R.string.dmesg_title)
+                                    )
+                                }
+                                MiuixIconButton(onClick = {
+                                    navigator.push(Route.CrashLog)
+                                }) {
+                                    MiuixIcon(
+                                        imageVector = Icons.Outlined.BugReport,
+                                        contentDescription = stringResource(R.string.crash_analyzer_title)
                                     )
                                 }
                                 MiuixIconButton(onClick = {
@@ -409,6 +418,11 @@ fun KconfigScreenMaterial(
                             navigator.push(Route.Dmesg)
                         }) {
                             Icon(Icons.Outlined.Terminal, stringResource(R.string.dmesg_title))
+                        }
+                        IconButton(onClick = {
+                            navigator.push(Route.CrashLog)
+                        }) {
+                            Icon(Icons.Outlined.BugReport, stringResource(R.string.crash_analyzer_title))
                         }
                         IconButton(onClick = {
                             navigator.push(Route.Kallsyms)
