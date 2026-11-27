@@ -430,6 +430,7 @@
     <string name="enable_adb_summary">Force enable USB debugging and disable adb authentication. Do not enable this unless absolutely necessary.</string>
     <string name="advanced_options">Advanced Options</string>
     <string name="expand">Expand</string>
+    <string name="collapse">Collapse</string>
     <string name="download_channel_name">Module Downloads</string>
     <string name="download_progress_title">Downloading %s</string>
     <string name="download_complete_title">Download complete</string>
@@ -645,4 +646,32 @@
     <string name="payload_incremental_partition_notice">Differential patch only</string>
     <string name="payload_incremental_cannot_extract">Incremental partitions cannot be extracted without the base firmware image.</string>
     <string name="payload_tap_to_copy">Tap to copy</string>
+    <string name="payload_invalid_partition_name">Invalid partition name: %1$s</string>
+    <string name="payload_open_failed">Failed to open file</string>
+    <string name="payload_remote_failed">Failed to connect or parse remote payload</string>
+    <string name="payload_extract_failed">Extraction failed</string>
+    <string name="payload_inspect_kernel_failed">Failed to inspect boot kernel: %1$s</string>
+    <string name="payload_inspect_arb_failed">Failed to inspect ARB: %1$s</string>
+    <string name="payload_reading_boot_header">Reading boot header…</string>
+    <string name="payload_scanning_kernel">Scanning kernel (%1$d/%2$d)…</string>
+    <string name="payload_scanning_partition">Scanning partition (%1$d/%2$d)…</string>
+
+    <!-- Home Bento Dashboard -->
+    <string name="bento_active_superusers">Active Superusers</string>
+    <string name="bento_active_modules">Active Modules</string>
+    <string name="bento_kernel_tool">Quick Kernel Tool</string>
+    <string name="bento_system_health">System Health</string>
+    <string name="bento_system_healthy">Running Smoothly</string>
+    <string name="bento_no_crashes">No unread panic</string>
+    <string name="bento_crash_detected">Panic Detected</string>
+    <string name="bento_view_panic">Tap to inspect panic trace</string>
+    <string name="bento_device_specs">Hardware &amp; System Specs</string>
+    <string name="bento_manage_install">Install / Manage</string>
+    <string name="bento_copy_report">Copy Report</string>
+    <string name="bento_report_copied">Diagnostic summary copied to clipboard</string>
+    <string name="bento_smart_pill_panic">Kernel panic log detected, tap to analyze</string>
+    <string name="bento_smart_pill_update">MidoriSU %1$s update available</string>
+    <string name="bento_smart_pill_driver_update">KSU Driver %1$s update available</string>
+    <string name="settings_modern_bento">Modern Bento Dashboard</string>
+    <string name="settings_modern_bento_summary">Use modular Bento tiles and card dashboard for home screen</string>
 </resources>
