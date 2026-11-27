@@ -114,6 +114,7 @@ pub fn on_post_fs_data() -> Result<()> {
 
     crate::susfs::boot::on_post_fs_data_late();
     crate::tcp::boot::on_post_fs_data();
+    crate::toolkit::boot::on_post_fs_data();
 
     // load system.prop
     if let Err(e) = crate::module::load_system_prop() {
@@ -179,6 +180,7 @@ pub fn on_services() {
     }
 
     info!("on_services triggered!");
+    crate::toolkit::boot::on_services();
     run_stage("service", ScriptWait::NoWait);
 }
 
@@ -194,6 +196,7 @@ pub fn on_boot_completed() {
     crate::preinit::on_boot_completed();
 
     crate::susfs::boot::on_boot_completed();
+    crate::toolkit::boot::on_boot_completed();
 
     run_stage("boot-completed", ScriptWait::NoWait);
 }

@@ -160,6 +160,12 @@ enum Commands {
         command: crate::tcp::cli::TcpCommands,
     },
 
+    /// Manage KSU Toolkit settings
+    Toolkit {
+        #[command(subcommand)]
+        command: crate::toolkit::cli::ToolkitCommands,
+    },
+
     /// Manage the kernel module blocklist
     KmodBlock {
         #[command(subcommand)]
@@ -550,6 +556,11 @@ pub fn run() -> Result<()> {
         return crate::susfs::compat::run_compat_argv(&all_args);
     }
 
+    if arg0.ends_with("toolkit") {
+        crate::toolkit::compat::run();
+        return Ok(());
+    }
+
     let cli = Args::parse();
 
     log::info!("command: {:?}", cli.command);
@@ -848,6 +859,7 @@ pub fn run() -> Result<()> {
         }
         Commands::Susfs { command } => crate::susfs::cli::run_susfs(command),
         Commands::Tcp { command } => crate::tcp::cli::run_tcp(command),
+        Commands::Toolkit { command } => crate::toolkit::cli::run(command),
         Commands::KmodBlock { command } => crate::kmod_block::run(command),
 
         Commands::Kernel { command } => match command {
