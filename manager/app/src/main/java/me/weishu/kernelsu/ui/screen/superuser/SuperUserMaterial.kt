@@ -61,6 +61,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.net.Uri
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import me.weishu.kernelsu.Natives
+import me.weishu.kernelsu.ui.component.dialog.ConfirmResult
+import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
+import me.weishu.kernelsu.ui.component.profilebackup.ProfileBackupDialogMaterial
+import me.weishu.kernelsu.ui.component.profilebackup.ProfileBackupHelper
+import me.weishu.kernelsu.ui.component.profilebackup.ProfileRestoreDialogMaterial
+import me.weishu.kernelsu.ui.viewmodel.SuperUserViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.data.model.AppInfo
 import me.weishu.kernelsu.ui.component.AppIconImage
@@ -93,6 +115,183 @@ fun SuperUserPagerMaterial(
 
     val haptic = LocalHapticFeedback.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val confirmDialog = rememberConfirmDialog()
+
+    var showBackupOptions by remember { mutableStateOf(false) }
+    var showRestoreOptions by remember { mutableStateOf(false) }
+
+    val showMessage: (String) -> Unit = { msg ->
+        scope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            snackbarHostState.showSnackbar(msg)
+        }
+    }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri: Uri? ->
+        val json = actions.onConsumePendingExportJson()
+        if (uri == null || json == null) return@rememberLauncherForActivityResult
+        scope.launch(Dispatchers.IO) {
+            val result = runCatching {
+                val stream = context.contentResolver.openOutputStream(uri)
+                    ?: throw java.io.IOException(context.getString(R.string.backup_profiles_open_stream_failed))
+                stream.use { output ->
+                    output.write(json.toByteArray(Charsets.UTF_8))
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                result.onSuccess {
+                    showMessage(context.getString(R.string.backup_profiles_file_saved))
+                }.onFailure { e ->
+                    val errMsg = e.localizedMessage ?: e.javaClass.simpleName
+                    showMessage(context.getString(R.string.backup_profiles_failed, errMsg))
+                }
+            }
+        }
+    }
+
+    fun handleRestore(jsonString: String) {
+        scope.launch {
+            val payload = withContext(Dispatchers.Default) {
+                ProfileBackupHelper.parseBackup(jsonString)
+            }
+            if (payload == null || payload.profiles.isEmpty()) {
+                showMessage(context.getString(R.string.restore_data_invalid))
+                return@launch
+            }
+
+            val currentApps = SuperUserViewModel.apps.ifEmpty { uiState.groupedApps.flatMap { it.apps } }
+            val analysis = withContext(Dispatchers.Default) {
+                ProfileBackupHelper.analyzeRestore(payload.profiles, currentApps)
+            }
+
+            val confirmTitle = context.getString(R.string.restore_confirm_title)
+            val confirmMessage = context.getString(
+                R.string.restore_confirm_message,
+                analysis.totalCount,
+                analysis.matchedCount,
+                analysis.unmatchedCount
+            )
+
+            val confirmResult = confirmDialog.awaitConfirm(
+                title = confirmTitle,
+                content = confirmMessage,
+                confirm = context.getString(android.R.string.ok),
+                dismiss = context.getString(android.R.string.cancel)
+            )
+
+            if (confirmResult == ConfirmResult.Confirmed) {
+                try {
+                    val result = withContext(Dispatchers.IO) {
+                        ProfileBackupHelper.restoreProfiles(payload, currentApps)
+                    }
+                    actions.onRefresh()
+                    val successMsg = context.getString(
+                        R.string.restore_profiles_success,
+                        result.restoredCount,
+                        result.skippedCount
+                    )
+                    showMessage(successMsg)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Throwable) {
+                    val errMsg = e.localizedMessage ?: e.javaClass.simpleName
+                    showMessage(context.getString(R.string.restore_profiles_failed, errMsg))
+                }
+            }
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val readResult = withContext(Dispatchers.IO) {
+                runCatching {
+                    val stream = context.contentResolver.openInputStream(uri)
+                        ?: throw java.io.IOException(context.getString(R.string.backup_profiles_open_stream_failed))
+                    stream.use { input ->
+                        input.reader(Charsets.UTF_8).readText()
+                    }
+                }
+            }
+
+            readResult.onFailure { e ->
+                val errMsg = e.localizedMessage ?: e.javaClass.simpleName
+                showMessage(context.getString(R.string.restore_profiles_failed, errMsg))
+            }.onSuccess { jsonString ->
+                if (jsonString.isBlank()) {
+                    showMessage(context.getString(R.string.restore_data_invalid))
+                } else {
+                    handleRestore(jsonString)
+                }
+            }
+        }
+    }
+
+    val onExportFile = {
+        scope.launch {
+            try {
+                val apps = SuperUserViewModel.apps.ifEmpty { uiState.groupedApps.flatMap { it.apps } }
+                val json = ProfileBackupHelper.exportProfiles(apps, Natives.isDefaultUmountModules())
+                if (json == null) {
+                    showMessage(context.getString(R.string.backup_profiles_empty))
+                    return@launch
+                }
+                actions.onSetPendingExportJson(json)
+                val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+                val fileName = "MidoriSU_profiles_${timestamp}.json"
+                exportLauncher.launch(fileName)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                val errMsg = e.localizedMessage ?: e.javaClass.simpleName
+                showMessage(context.getString(R.string.backup_profiles_failed, errMsg))
+            }
+        }
+    }
+
+    val onCopyClipboard = {
+        scope.launch {
+            try {
+                val apps = SuperUserViewModel.apps.ifEmpty { uiState.groupedApps.flatMap { it.apps } }
+                val json = ProfileBackupHelper.exportProfiles(apps, Natives.isDefaultUmountModules())
+                if (json == null) {
+                    showMessage(context.getString(R.string.backup_profiles_empty))
+                    return@launch
+                }
+                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                clipboard?.setPrimaryClip(ClipData.newPlainText("MidoriSU Profiles", json))
+                showMessage(context.getString(R.string.backup_profiles_success))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                val errMsg = e.localizedMessage ?: e.javaClass.simpleName
+                showMessage(context.getString(R.string.backup_profiles_failed, errMsg))
+            }
+        }
+    }
+
+    val onImportFile = {
+        importLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+    }
+
+    val onReadClipboard = {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        val clipText = clipboard?.primaryClip?.let { clip ->
+            if (clip.itemCount > 0) clip.getItemAt(0).text?.toString() else null
+        }
+        if (clipText.isNullOrBlank()) {
+            showMessage(context.getString(R.string.restore_clipboard_invalid))
+        } else {
+            handleRestore(clipText)
+        }
+    }
 
     ExpressiveScaffold(
         topBar = {
@@ -202,7 +401,7 @@ fun SuperUserPagerMaterial(
                             onDismissRequest = { showDropdown = false }
                         ) {
                             val filterCount = if (uiState.userIds.size > 1) 2 else 1
-                            DropdownMenuGroup(shapes = MenuDefaults.groupShapes()) {
+                            DropdownMenuGroup(shapes = MenuDefaults.groupShape(index = 0, count = 2)) {
                                 CheckableDropdownMenuItem(
                                     text = { Text(stringResource(R.string.show_system_apps)) },
                                     checked = uiState.showSystemApps,
@@ -239,6 +438,31 @@ fun SuperUserPagerMaterial(
                                         shapes = MenuDefaults.itemShape(index = 1, count = filterCount),
                                     )
                                 }
+                            }
+
+                            Spacer(Modifier.height(MenuDefaults.GroupSpacing))
+
+                            DropdownMenuGroup(shapes = MenuDefaults.groupShape(index = 1, count = 2)) {
+                                SelectableDropdownMenuItem(
+                                    text = { Text(stringResource(R.string.backup_profiles)) },
+                                    selected = false,
+                                    onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
+                                        showDropdown = false
+                                        showBackupOptions = true
+                                    },
+                                    shapes = MenuDefaults.itemShape(index = 0, count = 2),
+                                )
+                                SelectableDropdownMenuItem(
+                                    text = { Text(stringResource(R.string.restore_profiles)) },
+                                    selected = false,
+                                    onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
+                                        showDropdown = false
+                                        showRestoreOptions = true
+                                    },
+                                    shapes = MenuDefaults.itemShape(index = 1, count = 2),
+                                )
                             }
                         }
                     }
@@ -394,6 +618,20 @@ fun SuperUserPagerMaterial(
             }
         }
     }
+
+    ProfileBackupDialogMaterial(
+        show = showBackupOptions,
+        onDismissRequest = { showBackupOptions = false },
+        onExportFile = { onExportFile() },
+        onCopyClipboard = { onCopyClipboard() },
+    )
+
+    ProfileRestoreDialogMaterial(
+        show = showRestoreOptions,
+        onDismissRequest = { showRestoreOptions = false },
+        onImportFile = { onImportFile() },
+        onReadClipboard = { onReadClipboard() },
+    )
 }
 
 @Composable

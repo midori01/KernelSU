@@ -45,6 +45,8 @@ data class SuperUserActions(
     val onToggleShowOnlyPrimaryUserApps: () -> Unit,
     val onUpdateSortConfig: (AppSortConfig) -> Unit,
     val onOpenProfile: (GroupedApps) -> Unit,
+    val onSetPendingExportJson: (String?) -> Unit = {},
+    val onConsumePendingExportJson: () -> String? = { null },
 )
 
 @Immutable

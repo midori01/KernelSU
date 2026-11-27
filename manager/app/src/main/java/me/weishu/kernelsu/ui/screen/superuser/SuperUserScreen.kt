@@ -78,6 +78,8 @@ fun SuperUserPager(
         onToggleShowOnlyPrimaryUserApps = onToggleShowOnlyPrimaryUserApps,
         onUpdateSortConfig = { viewModel.updateSortConfig(it) },
         onOpenProfile = onOpenProfile,
+        onSetPendingExportJson = viewModel::setPendingExportJson,
+        onConsumePendingExportJson = viewModel::consumePendingExportJson,
     )
 
     when (LocalUiMode.current) {

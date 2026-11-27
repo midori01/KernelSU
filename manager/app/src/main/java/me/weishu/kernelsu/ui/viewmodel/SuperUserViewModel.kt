@@ -138,6 +138,16 @@ class SuperUserViewModel(
     private var sortJob: Job? = null
     var isNeedRefresh = false
         private set
+    var pendingExportJson: String? = null
+        private set
+
+    fun setPendingExportJson(json: String?) {
+        pendingExportJson = json
+    }
+
+    fun consumePendingExportJson(): String? {
+        return pendingExportJson.also { pendingExportJson = null }
+    }
 
     init {
         viewModelScope.launchSearchQueryCollector(searchQuery, ::applySearchText)
