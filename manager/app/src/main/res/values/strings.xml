@@ -296,6 +296,10 @@
     <string name="flash_module">Flash module</string>
     <string name="anykernel_install">Flash AnyKernel</string>
     <string name="anykernel_install_summary">Select an AnyKernel3 zip package to flash</string>
+    <string name="backup_boot">Backup boot.img</string>
+    <string name="backup_boot_summary">Extract and backup boot.img from active slot to /sdcard/Download</string>
+    <string name="flash_boot_img">Flash boot.img</string>
+    <string name="flash_boot_img_summary">Select a boot.img file to flash</string>
     <string name="install_select_slot">Select Slot</string>
     <string name="slot_active_tag">Active</string>
     <string name="install_slot_label">Slot %1$s (%2$s)</string>
