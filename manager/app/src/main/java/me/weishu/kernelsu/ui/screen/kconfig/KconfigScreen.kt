@@ -15,11 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BugReport
-import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material.icons.outlined.Terminal
-import androidx.compose.material.icons.outlined.ViewModule
 import androidx.compose.material3.*
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -29,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -39,6 +36,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
@@ -55,8 +53,12 @@ import me.weishu.kernelsu.ui.LocalUiMode
 import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.SearchStatus
+import me.weishu.kernelsu.ui.component.bottombar.KernelTool
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMaterial
+import me.weishu.kernelsu.ui.component.bottombar.KernelToolNavigationIconsMiuix
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
+import me.weishu.kernelsu.ui.component.material.TopBarBackButton
 import me.weishu.kernelsu.ui.component.miuix.SearchBar
 import me.weishu.kernelsu.ui.component.miuix.SearchBarFake
 import me.weishu.kernelsu.ui.component.miuix.SearchBox
@@ -77,12 +79,14 @@ import top.yukonga.miuix.kmp.basic.Scaffold as MiuixScaffold
 import top.yukonga.miuix.kmp.basic.Text as MiuixText
 import top.yukonga.miuix.kmp.basic.TopAppBar as MiuixTopAppBar
 import top.yukonga.miuix.kmp.blur.layerBackdrop
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.overScrollVertical
 import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 
 @Composable
-fun KconfigScreen() {
+fun KconfigScreen(isRootTab: Boolean = false, bottomInnerPadding: Dp = 0.dp) {
     val viewModel = viewModel<KconfigViewModel>()
     val items by viewModel.items.collectAsStateWithLifecycle()
     val query by viewModel.searchQuery.collectAsStateWithLifecycle()
@@ -90,8 +94,8 @@ fun KconfigScreen() {
     val navigator = LocalNavigator.current
 
     when (LocalUiMode.current) {
-        UiMode.Miuix -> KconfigScreenMiuix(items, query, viewModel::search, context, navigator)
-        UiMode.Material -> KconfigScreenMaterial(items, query, viewModel::search, context, navigator)
+        UiMode.Miuix -> KconfigScreenMiuix(items, query, viewModel::search, context, navigator, isRootTab, bottomInnerPadding)
+        UiMode.Material -> KconfigScreenMaterial(items, query, viewModel::search, context, navigator, isRootTab, bottomInnerPadding)
     }
 }
 
@@ -101,7 +105,9 @@ fun KconfigScreenMiuix(
     query: String,
     onSearch: (String) -> Unit,
     context: Context,
-    navigator: Navigator
+    navigator: Navigator,
+    isRootTab: Boolean = false,
+    bottomInnerPadding: Dp = 0.dp,
 ) {
     val enableBlur = LocalEnableBlur.current
     val density = LocalDensity.current
@@ -144,37 +150,18 @@ fun KconfigScreenMiuix(
                         title = stringResource(R.string.kconfig_title),
                         scrollBehavior = scrollBehavior,
                         navigationIcon = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                MiuixIconButton(onClick = {
-                                    navigator.push(Route.Dmesg)
-                                }) {
+                            if (isRootTab) {
+                                KernelToolNavigationIconsMiuix(KernelTool.Kconfig, navigator)
+                            } else {
+                                MiuixIconButton(onClick = { navigator.pop() }) {
+                                    val layoutDirection = LocalLayoutDirection.current
                                     MiuixIcon(
-                                        imageVector = Icons.Outlined.Terminal,
-                                        contentDescription = stringResource(R.string.dmesg_title)
-                                    )
-                                }
-                                MiuixIconButton(onClick = {
-                                    navigator.push(Route.CrashLog)
-                                }) {
-                                    MiuixIcon(
-                                        imageVector = Icons.Outlined.BugReport,
-                                        contentDescription = stringResource(R.string.crash_analyzer_title)
-                                    )
-                                }
-                                MiuixIconButton(onClick = {
-                                    navigator.push(Route.Kallsyms)
-                                }) {
-                                    MiuixIcon(
-                                        imageVector = Icons.Outlined.DataObject,
-                                        contentDescription = stringResource(R.string.kallsyms_title)
-                                    )
-                                }
-                                MiuixIconButton(onClick = {
-                                    navigator.push(Route.KernelModule)
-                                }) {
-                                    MiuixIcon(
-                                        imageVector = Icons.Outlined.ViewModule,
-                                        contentDescription = stringResource(R.string.kernel_modules)
+                                        modifier = Modifier.graphicsLayer {
+                                            if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
+                                        },
+                                        imageVector = MiuixIcons.Back,
+                                        contentDescription = null,
+                                        tint = colorScheme.onSurface,
                                     )
                                 }
                             }
@@ -381,7 +368,9 @@ fun KconfigScreenMaterial(
     query: String,
     onSearch: (String) -> Unit,
     context: Context,
-    navigator: Navigator
+    navigator: Navigator,
+    isRootTab: Boolean = false,
+    bottomInnerPadding: Dp = 0.dp,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -413,27 +402,10 @@ fun KconfigScreenMaterial(
                     onSearch("")
                 },
                 navigationIcon = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = {
-                            navigator.push(Route.Dmesg)
-                        }) {
-                            Icon(Icons.Outlined.Terminal, stringResource(R.string.dmesg_title))
-                        }
-                        IconButton(onClick = {
-                            navigator.push(Route.CrashLog)
-                        }) {
-                            Icon(Icons.Outlined.BugReport, stringResource(R.string.crash_analyzer_title))
-                        }
-                        IconButton(onClick = {
-                            navigator.push(Route.Kallsyms)
-                        }) {
-                            Icon(Icons.Outlined.DataObject, stringResource(R.string.kallsyms_title))
-                        }
-                        IconButton(onClick = {
-                            navigator.push(Route.KernelModule)
-                        }) {
-                            Icon(Icons.Outlined.ViewModule, stringResource(R.string.kernel_modules))
-                        }
+                    if (isRootTab) {
+                        KernelToolNavigationIconsMaterial(KernelTool.Kconfig, navigator)
+                    } else {
+                        TopBarBackButton(onClick = { navigator.pop() })
                     }
                 },
                 actions = {

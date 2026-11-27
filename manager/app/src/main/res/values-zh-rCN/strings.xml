@@ -477,8 +477,10 @@
     <string name="script_param_invalid">无效的值</string>
     <string name="kallsyms_title">内核符号表</string>
     <string name="kallsyms_search">搜索内核符号…</string>
-    <string name="dmesg_title">dmesg</string>
-    <string name="dmesg_search">搜索 dmesg…</string>
+    <string name="kallsyms_count">%1$d / %2$d 个符号</string>
+    <string name="kallsyms_load_failed">无法加载内核符号</string>
+    <string name="dmesg_title">内核日志</string>
+    <string name="dmesg_search">搜索内核日志…</string>
     <string name="dmesg_sort_asc">正序</string>
     <string name="dmesg_sort_desc">倒序</string>
     <string name="dmesg_pause">暂停</string>
@@ -552,7 +554,10 @@
     <string name="module_preflash_risk_binary">包含原生 ELF 可执行二进制文件</string>
     <string name="module_preflash_risk_webui">包含 WebUI 控制台界面</string>
     <string name="module_preflash_risk_unreadable">安装包无法正常读取或为空文件</string>
-    <string name="crash_analyzer_title">内核崩溃分析</string>
+    <string name="module_preflash_inspect_failed">模块安装包检查失败。仅在确认来源可信时谨慎继续刷入。</string>
+    <string name="module_preflash_by_author">作者：%1$s</string>
+    <string name="module_preflash_unknown_author">未知</string>
+    <string name="crash_analyzer_title">崩溃日志</string>
     <string name="crash_source_pstore">PStore (内存转储)</string>
     <string name="crash_source_last_kmsg">旧版 last_kmsg</string>
     <string name="crash_detected_title">检测到内核崩溃特征</string>
@@ -578,4 +583,6 @@
     <string name="crash_search">搜索崩溃日志…</string>
     <string name="crash_select_source">日志来源</string>
     <string name="crash_error_title">加载崩溃日志失败</string>
+    <string name="crash_lines_count">%1$d 行</string>
+    <string name="select_bottom_bar_tool">选择内核工具</string>
 </resources>
