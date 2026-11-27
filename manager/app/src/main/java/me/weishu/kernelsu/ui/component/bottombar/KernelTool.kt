@@ -4,18 +4,21 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.DataObject
+import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.filled.ViewModule
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.DataObject
+import androidx.compose.material.icons.outlined.NetworkCheck
 import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material.icons.outlined.ViewModule
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.DataObject
+import androidx.compose.material.icons.rounded.NetworkCheck
 import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Unarchive
@@ -99,6 +102,14 @@ enum class KernelTool(
         filledIcon = Icons.Filled.ViewModule,
         roundedIcon = Icons.Rounded.ViewModule,
         route = Route.KernelModule,
+    ),
+    Tcp(
+        id = "tcp",
+        label = R.string.tcp_title,
+        outlinedIcon = Icons.Outlined.NetworkCheck,
+        filledIcon = Icons.Filled.NetworkCheck,
+        roundedIcon = Icons.Rounded.NetworkCheck,
+        route = Route.Tcp,
     ),
     Susfs(
         id = "susfs",
